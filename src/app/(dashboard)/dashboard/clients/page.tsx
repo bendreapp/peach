@@ -69,10 +69,11 @@ export default function ClientsPage() {
     );
   }
 
-  const filtered = clients.data?.filter((c: any) =>
+  const clientsArray = Array.isArray(clients.data) ? clients.data : (clients.data?.data ?? []);
+  const filtered = clientsArray.filter((c: any) =>
     c.full_name.toLowerCase().includes(search.toLowerCase()) ||
     c.email?.toLowerCase().includes(search.toLowerCase())
-  ) ?? [];
+  );
 
   if (clients.isLoading) {
     return (
@@ -110,7 +111,7 @@ export default function ClientsPage() {
         <div>
           <h1 className="text-2xl font-semibold text-ink tracking-tight">Clients</h1>
           <p className="text-sm text-ink-secondary mt-1">
-            {clients.data?.length ?? 0} client{(clients.data?.length ?? 0) !== 1 ? "s" : ""} in your practice
+            {clientsArray.length ?? 0} client{(clientsArray.length ?? 0) !== 1 ? "s" : ""} in your practice
           </p>
         </div>
         <button
@@ -232,7 +233,7 @@ export default function ClientsPage() {
       )}
 
       {/* Search */}
-      {(clients.data?.length ?? 0) > 0 && (
+      {(clientsArray.length ?? 0) > 0 && (
         <div className="relative">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-tertiary" />
           <input
