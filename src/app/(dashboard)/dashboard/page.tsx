@@ -81,7 +81,7 @@ export default function TodayPage() {
 
   if (today.isLoading) {
     return (
-      <div className="max-w-4xl space-y-6 animate-fade-in">
+      <div className="max-w-[1000px] mx-auto space-y-6 animate-fade-in">
         <div className="space-y-2">
           <div className="h-8 w-64 bg-border rounded-lg animate-pulse" />
           <div className="h-4 w-48 bg-border rounded-lg animate-pulse" />
@@ -100,7 +100,7 @@ export default function TodayPage() {
   }
 
   return (
-    <div className="max-w-4xl space-y-6 animate-fade-in">
+    <div className="max-w-[1000px] mx-auto space-y-6 animate-fade-in">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-ink">

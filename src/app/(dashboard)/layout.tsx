@@ -116,7 +116,7 @@ export default function DashboardLayout({
     <>
       {/* Logo */}
       <div className="px-5 pt-5 pb-6">
-        <Link href="/dashboard" className="flex items-center group">
+        <Link href="/dashboard" className="flex items-center gap-1.5 group">
           <Image
             src="/logo.png"
             alt="Bendre"
