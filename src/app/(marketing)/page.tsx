@@ -237,69 +237,82 @@ export default function HomePage() {
       </section>
 
       {/* ═══ PROBLEM ═══ */}
-      <section style={{ padding: "100px 0", position: "relative", overflow: "hidden" }}>
-        <div className="max-w-[1100px] mx-auto px-8 relative" style={{ minHeight: 500 }}>
+      <section style={{ padding: "100px 0 60px", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #FCFCFA 0%, #F5F4F0 100%)" }}>
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px)", backgroundSize: "32px 32px", opacity: 0.5 }} />
 
-          {/* Floating app icons with real logos */}
-          {[
-            { label: "WhatsApp", x: "6%", y: "10%", rotate: -8, logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
-            { label: "Google Sheets", x: "80%", y: "6%", rotate: 6, logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
-            { label: "Notion", x: "88%", y: "42%", rotate: 10, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-            { label: "Google Forms", x: "3%", y: "52%", rotate: -6, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
-            { label: "UPI", x: "75%", y: "72%", rotate: 8, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
-            { label: "Google Calendar", x: "12%", y: "78%", rotate: -10, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
-            { label: "Google Docs", x: "44%", y: "3%", rotate: 4, logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
-            { label: "Gmail", x: "58%", y: "80%", rotate: -5, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
-            { label: "Zoom", x: "92%", y: "70%", rotate: -4, logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
-          ].map((app, i) => (
-            <div
-              key={i}
-              className="absolute hidden md:flex flex-col items-center gap-2"
-              style={{
-                left: app.x, top: app.y,
-                transform: `rotate(${app.rotate}deg)`,
-                animation: `float ${3 + i * 0.5}s ease-in-out infinite alternate`,
-              }}
-            >
-              <div style={{
-                width: 56, height: 56, borderRadius: 16,
-                background: "#fff", border: "1px solid rgba(0,0,0,0.06)",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 10,
-              }}>
-                <img src={app.logo} alt={app.label} style={{ width: 32, height: 32, objectFit: "contain" }} />
-              </div>
-              <span style={{ fontSize: 11, color: "#bbb", fontWeight: 500, whiteSpace: "nowrap" }}>{app.label}</span>
-            </div>
-          ))}
-
-          {/* Center text */}
-          <div style={{ position: "relative", zIndex: 2, textAlign: "center", paddingTop: 140, paddingBottom: 80 }}>
-            <h2 style={{ fontSize: "clamp(28px, 4.5vw, 46px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "#111", marginBottom: 32 }}>
+        <div className="max-w-[1100px] mx-auto px-8 relative">
+          {/* Center text first */}
+          <div style={{ position: "relative", zIndex: 2, textAlign: "center", marginBottom: 60 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#C62828", marginBottom: 14, letterSpacing: "0.15em", textTransform: "uppercase" }}>The problem</p>
+            <h2 style={{ fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111", marginBottom: 16 }}>
               The current way therapists<br />work is <span style={{ color: "#C62828" }}>chaotic.</span>
             </h2>
-            <div className="flex items-center justify-center gap-8 md:gap-16 flex-wrap" style={{ marginTop: 40 }}>
-              {[
-                { stat: "5+", desc: "apps juggled daily" },
-                { stat: "2hrs", desc: "lost to admin work" },
-                { stat: "0", desc: "tools built for therapists" },
-              ].map((s) => (
-                <div key={s.desc} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: "#111", letterSpacing: "-0.03em" }}>{s.stat}</div>
-                  <div style={{ fontSize: 13, color: "#999", marginTop: 4 }}>{s.desc}</div>
-                </div>
-              ))}
+            <p style={{ fontSize: 16, color: "#999", maxWidth: 440, margin: "0 auto" }}>
+              Scattered across WhatsApp, Sheets, Forms, and UPI screenshots. No single tool built for Indian therapists.
+            </p>
+          </div>
+
+          {/* App logos in an orbit-like layout */}
+          <div className="relative mx-auto" style={{ maxWidth: 700, height: 280 }}>
+            {/* Dashed circle */}
+            <div className="absolute hidden md:block" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 460, height: 460, borderRadius: "50%", border: "1.5px dashed rgba(0,0,0,0.06)" }} />
+            <div className="absolute hidden md:block" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 280, height: 280, borderRadius: "50%", border: "1.5px dashed rgba(0,0,0,0.04)" }} />
+
+            {/* Red X in center */}
+            <div className="absolute" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 48, height: 48, borderRadius: "50%", background: "#C62828", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(198,40,40,0.25)", zIndex: 3 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </div>
+
+            {[
+              { label: "WhatsApp", angle: 0, r: 200, logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+              { label: "Sheets", angle: 40, r: 220, logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
+              { label: "Notion", angle: 80, r: 190, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+              { label: "Forms", angle: 120, r: 210, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
+              { label: "UPI", angle: 160, r: 195, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
+              { label: "Calendar", angle: 200, r: 215, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
+              { label: "Docs", angle: 240, r: 185, logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
+              { label: "Gmail", angle: 280, r: 205, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
+              { label: "Zoom", angle: 320, r: 195, logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+            ].map((app, i) => {
+              const rad = (app.angle * Math.PI) / 180;
+              const x = 50 + (app.r / 7) * Math.cos(rad);
+              const y = 50 + (app.r / 5.6) * Math.sin(rad);
+              return (
+                <div
+                  key={i}
+                  className="absolute hidden md:flex flex-col items-center gap-1.5 transition-transform duration-500 hover:scale-110"
+                  style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%, -50%)", zIndex: 2 }}
+                >
+                  <div style={{
+                    width: 52, height: 52, borderRadius: 14,
+                    background: "#fff", border: "1px solid rgba(0,0,0,0.06)",
+                    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    padding: 9, transition: "box-shadow 0.3s",
+                  }}>
+                    <img src={app.logo} alt={app.label} width={28} height={28} style={{ objectFit: "contain" }} />
+                  </div>
+                  <span style={{ fontSize: 10, color: "#bbb", fontWeight: 600, letterSpacing: "0.02em" }}>{app.label}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center justify-center gap-6 md:gap-14 flex-wrap" style={{ marginTop: 48 }}>
+            {[
+              { stat: "5+", desc: "apps juggled daily" },
+              { stat: "2hrs", desc: "lost to admin work" },
+              { stat: "0", desc: "tools built for therapists" },
+            ].map((s) => (
+              <div key={s.desc} style={{ textAlign: "center", padding: "16px 24px", borderRadius: 16, background: "#fff", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: 26, fontWeight: 900, color: "#111", letterSpacing: "-0.03em" }}>{s.stat}</div>
+                <div style={{ fontSize: 12, color: "#aaa", marginTop: 2, fontWeight: 500 }}>{s.desc}</div>
+              </div>
+            ))}
           </div>
         </div>
-
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes float {
-            from { transform: translateY(0px) rotate(var(--r, 0deg)); }
-            to { transform: translateY(-12px) rotate(var(--r, 0deg)); }
-          }
-        `}} />
       </section>
 
       {/* ═══ FEATURES ═══ */}
