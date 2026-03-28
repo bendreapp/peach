@@ -467,59 +467,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ CTA ═══ */}
-      <section style={{ padding: "60px 0 100px" }}>
-        <div className="max-w-[760px] mx-auto px-8">
-          <div style={{ borderRadius: 28, background: "#111", padding: "72px 48px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-            <div className="absolute pointer-events-none" style={{ top: -60, left: "50%", transform: "translateX(-50%)", width: 500, height: 300, background: "radial-gradient(ellipse, rgba(107,126,108,0.2) 0%, transparent 70%)" }} />
+      {/* ═══ CTA + CONTACT + FOOTER — unified dark section ═══ */}
+      <section style={{ background: "#0A0A0A", borderRadius: "40px 40px 0 0", marginTop: 40, position: "relative", overflow: "hidden" }}>
+        {/* Sage glow */}
+        <div className="absolute pointer-events-none" style={{ top: -80, left: "50%", transform: "translateX(-50%)", width: 700, height: 400, background: "radial-gradient(ellipse, rgba(107,126,108,0.1) 0%, transparent 65%)" }} />
 
-            <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 12, position: "relative", zIndex: 1 }}>
-              Ready to simplify<br />your practice?
+        {/* CTA */}
+        <div style={{ padding: "100px 0 80px", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <div className="max-w-[600px] mx-auto px-8">
+            <Image src="/logo.png" alt="" width={44} height={44} className="mx-auto" style={{ marginBottom: 28, opacity: 0.8 }} />
+            <h2 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1.05, marginBottom: 14 }}>
+              Ready to simplify<br />your <span style={{ color: "#8A9A8B" }}>practice?</span>
             </h2>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", marginBottom: 32, position: "relative", zIndex: 1 }}>
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.35)", marginBottom: 36 }}>
               Join the waitlist. Be the first to know when we launch.
             </p>
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <WaitlistForm dark />
+            <WaitlistForm dark />
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "0 48px" }} />
+
+        {/* Contact + Footer combined */}
+        <div className="max-w-[1180px] mx-auto px-8" style={{ padding: "48px 0" }}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Left — brand */}
+            <div className="flex items-center gap-2">
+              <Image src="/logo.png" alt="Bendre" width={20} height={20} style={{ opacity: 0.5 }} />
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.2)" }}>© 2026 Bendre. Made with care in India.</span>
+            </div>
+
+            {/* Center — contact */}
+            <a
+              href="mailto:hello@bendre.app"
+              className="hover:!text-white transition-colors"
+              style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.4)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              hello@bendre.app
+            </a>
+
+            {/* Right — links */}
+            <div className="flex gap-6">
+              <a href="#" className="hover:!text-white transition-colors" style={{ fontSize: 13, color: "rgba(255,255,255,0.2)", textDecoration: "none" }}>Privacy</a>
+              <a href="#" className="hover:!text-white transition-colors" style={{ fontSize: 13, color: "rgba(255,255,255,0.2)", textDecoration: "none" }}>Terms</a>
             </div>
           </div>
         </div>
       </section>
-
-      {/* ═══ CONTACT ═══ */}
-      <section style={{ padding: "60px 0" }}>
-        <div className="max-w-[500px] mx-auto px-8 text-center">
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#6B7E6C", marginBottom: 10 }}>Get in touch</p>
-          <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.03em", color: "#111", marginBottom: 8 }}>
-            Have questions?
-          </h2>
-          <p style={{ fontSize: 15, color: "#999", marginBottom: 24 }}>
-            We&apos;d love to hear from you. Reach out anytime.
-          </p>
-          <a
-            href="mailto:hello@bendre.app"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 48, padding: "0 28px", borderRadius: 14, border: "1px solid #e0e0db", fontSize: 15, fontWeight: 600, color: "#111", textDecoration: "none", transition: "all 0.2s" }}
-            className="hover:!border-[#6B7E6C] hover:!text-[#6B7E6C]"
-          >
-            hello@bendre.app
-          </a>
-        </div>
-      </section>
-
-      {/* ═══ FOOTER ═══ */}
-      <footer style={{ padding: "32px 0", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
-        <div className="max-w-[1180px] mx-auto px-8 flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Bendre" width={20} height={20} />
-            <span style={{ fontSize: 13, color: "#bbb" }}>© 2026 Bendre. Made with care in India.</span>
-          </div>
-          <div className="flex gap-7">
-            <a href="#" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>Privacy</a>
-            <a href="#" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>Terms</a>
-            <a href="mailto:hello@bendre.app" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>hello@bendre.app</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
