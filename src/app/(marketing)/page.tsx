@@ -56,48 +56,52 @@ function WaitlistForm({ dark }: { dark?: boolean }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-[460px] mx-auto px-4 sm:px-0">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Enter your email"
-        required
-        className="flex-1"
-        style={{
-          height: 52,
-          padding: "0 20px",
-          borderRadius: 14,
-          border: dark ? "1px solid rgba(255,255,255,0.15)" : "1px solid #e0e0db",
-          background: dark ? "rgba(255,255,255,0.06)" : "#fff",
-          color: dark ? "#fff" : "#111",
-          fontSize: 15,
-          width: "100%",
-          outline: "none",
-        }}
-      />
-      <button
-        type="submit"
-        disabled={status === "loading"}
-        style={{
-          height: 52,
-          padding: "0 28px",
-          borderRadius: 14,
-          background: dark ? "#fff" : "#1A1A1A",
-          color: dark ? "#111" : "#fff",
-          fontSize: 15,
-          fontWeight: 700,
-          border: "none",
-          cursor: "pointer",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          opacity: status === "loading" ? 0.6 : 1,
-        }}
-      >
-        {status === "loading" ? "Joining..." : "Join Waitlist"}
-        {status !== "loading" && <ArrowRight size={16} />}
-      </button>
+    <form onSubmit={handleSubmit} className="w-full" style={{ maxWidth: 420, margin: "0 auto" }}>
+      <div className="flex items-center gap-2" style={{ padding: 4, borderRadius: 16, border: dark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e0e0db", background: dark ? "rgba(255,255,255,0.04)" : "#fff" }}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          required
+          style={{
+            flex: 1,
+            height: 44,
+            padding: "0 16px",
+            borderRadius: 12,
+            border: "none",
+            background: "transparent",
+            color: dark ? "#fff" : "#111",
+            fontSize: 14,
+            outline: "none",
+            minWidth: 0,
+          }}
+        />
+        <button
+          type="submit"
+          disabled={status === "loading"}
+          style={{
+            height: 44,
+            padding: "0 20px",
+            borderRadius: 12,
+            background: dark ? "#fff" : "#1A1A1A",
+            color: dark ? "#111" : "#fff",
+            fontSize: 14,
+            fontWeight: 700,
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            opacity: status === "loading" ? 0.6 : 1,
+          }}
+        >
+          {status === "loading" ? "..." : "Join Waitlist"}
+          {status !== "loading" && <ArrowRight size={14} />}
+        </button>
+      </div>
       {status === "error" && (
         <p style={{ fontSize: 13, color: "#C62828", width: "100%", textAlign: "center", marginTop: 8 }}>
           Something went wrong. Try again.
