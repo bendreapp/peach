@@ -168,7 +168,7 @@ export default function HomePage() {
         </div>
 
         {/* Dashboard preview */}
-        <div className="hidden md:block max-w-[1000px] mx-auto px-8 mt-16">
+        <div className="max-w-[1000px] mx-auto px-4 md:px-8 mt-10 md:mt-16">
           <div style={{ borderRadius: 20, border: "1px solid rgba(0,0,0,0.08)", background: "#fff", boxShadow: "0 20px 80px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden" }}>
             {/* Browser bar */}
             <div className="flex items-center gap-2 px-5 py-3" style={{ background: "#FAFAFA", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
