@@ -130,8 +130,8 @@ export default function HomePage() {
             ))}
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden sm:block hover:!text-[#111] transition-colors" style={{ fontSize: 14, fontWeight: 600, color: "#777", textDecoration: "none" }}>Log in</Link>
-            <Link href="/signup" className="hover:!bg-[#111] transition-all" style={{ height: 40, padding: "0 22px", borderRadius: 10, background: "#1A1A1A", color: "#fff", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            
+            <Link href="#" className="hover:!bg-[#111] transition-all" style={{ height: 40, padding: "0 22px", borderRadius: 10, background: "#1A1A1A", color: "#fff", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", textDecoration: "none" }} onClick={(e) => { e.preventDefault(); document.querySelector("input[type=email]")?.focus(); }}>
               Get Started
             </Link>
           </div>
