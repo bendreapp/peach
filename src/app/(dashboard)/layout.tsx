@@ -31,7 +31,7 @@ const mainNavItems = [
   { href: "/dashboard/schedule", label: "Schedule", icon: CalendarDays },
   { href: "/dashboard/clients", label: "Clients", icon: Users },
   { href: "/dashboard/notes", label: "Notes", icon: FileText },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
+  { href: "/dashboard/broadcast", label: "Broadcast", icon: MessageCircle },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/resources", label: "Resources", icon: FolderOpen },
   { href: "/dashboard/recurring", label: "Recurring", icon: Repeat },
