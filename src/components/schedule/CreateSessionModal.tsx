@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { useClientsList, useTherapistMe, useCreateSession } from "@/lib/api-hooks";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 import { toISTDateString } from "@/lib/date-utils";
@@ -12,6 +14,10 @@ interface CreateSessionModalProps {
 export default function CreateSessionModal({ onClose, onCreated }: CreateSessionModalProps) {
   const clients = useClientsList();
   const therapist = useTherapistMe();
+  const sessionTypesQuery = useQuery({
+    queryKey: ["session-types"],
+    queryFn: () => api.sessionType.list(),
+  });
 
   const [clientId, setClientId] = useState("");
   const [sessionTypeId, setSessionTypeId] = useState("");
@@ -19,12 +25,18 @@ export default function CreateSessionModal({ onClose, onCreated }: CreateSession
   const [startTime, setStartTime] = useState("10:00");
   const [endTime, setEndTime] = useState("10:50");
 
+  const clientsArray = useMemo(() => {
+    const d = clients.data as any;
+    return Array.isArray(d) ? d : (d?.data ?? []);
+  }, [clients.data]);
+
   const sessionTypes = useMemo(() => {
-    const types = (therapist.data?.session_types ?? []) as {
+    const d = sessionTypesQuery.data as any;
+    const types = (Array.isArray(d) ? d : (d?.data ?? [])) as {
       id: string; name: string; duration_mins: number; rate_inr: number; is_active: boolean;
     }[];
-    return types.filter((t) => t.is_active);
-  }, [therapist.data]);
+    return types.filter((t: any) => t.is_active);
+  }, [sessionTypesQuery.data]);
 
   function computeEndTime(start: string, durationMins: number): string {
     const parts = start.split(":").map(Number);
@@ -111,7 +123,7 @@ export default function CreateSessionModal({ onClose, onCreated }: CreateSession
               className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm appearance-none"
             >
               <option value="">Select a client...</option>
-              {(clients.data ?? []).map((c: { id: string; full_name: string; email: string }) => (
+              {clientsArray.map((c: { id: string; full_name: string; email: string }) => (
                 <option key={c.id} value={c.id}>
                   {c.full_name} ({c.email})
                 </option>
