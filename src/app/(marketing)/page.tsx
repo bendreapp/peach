@@ -19,21 +19,25 @@ function WaitlistForm({ dark }: { dark?: boolean }) {
     setStatus("loading");
 
     try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer re_1AM2qcYE_EM1Z7y7hvXHKhjxCjMciLNm7",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "Bendre <noreply@notification.bendre.app>",
-          to: ["bendrehq@gmail.com"],
-          subject: `Waitlist: ${email}`,
-          html: `<p>New waitlist signup: <strong>${email}</strong></p><p>Time: ${new Date().toISOString()}</p>`,
+      // Store in database via backend API
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8095";
+      const [dbRes, emailRes] = await Promise.allSettled([
+        fetch(`${apiBase}/api/v1/waitlist`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), source: "website" }),
         }),
-      });
+        fetch("/api/waitlist-notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        }),
+      ]);
 
-      if (res.ok) {
+      const dbOk = dbRes.status === "fulfilled" && dbRes.value.ok;
+      const emailOk = emailRes.status === "fulfilled" && emailRes.value.ok;
+
+      if (dbOk || emailOk) {
         setStatus("success");
         setEmail("");
       } else {
