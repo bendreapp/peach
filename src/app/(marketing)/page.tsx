@@ -486,6 +486,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ═══ CONTACT ═══ */}
+      <section style={{ padding: "60px 0" }}>
+        <div className="max-w-[500px] mx-auto px-8 text-center">
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#6B7E6C", marginBottom: 10 }}>Get in touch</p>
+          <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.03em", color: "#111", marginBottom: 8 }}>
+            Have questions?
+          </h2>
+          <p style={{ fontSize: 15, color: "#999", marginBottom: 24 }}>
+            We&apos;d love to hear from you. Reach out anytime.
+          </p>
+          <a
+            href="mailto:hello@bendre.app"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 48, padding: "0 28px", borderRadius: 14, border: "1px solid #e0e0db", fontSize: 15, fontWeight: 600, color: "#111", textDecoration: "none", transition: "all 0.2s" }}
+            className="hover:!border-[#6B7E6C] hover:!text-[#6B7E6C]"
+          >
+            hello@bendre.app
+          </a>
+        </div>
+      </section>
+
       {/* ═══ FOOTER ═══ */}
       <footer style={{ padding: "32px 0", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
         <div className="max-w-[1180px] mx-auto px-8 flex items-center justify-between flex-wrap gap-4">
@@ -494,9 +514,9 @@ export default function HomePage() {
             <span style={{ fontSize: 13, color: "#bbb" }}>© 2026 Bendre. Made with care in India.</span>
           </div>
           <div className="flex gap-7">
-            {["Privacy", "Terms", "Contact"].map((link) => (
-              <a key={link} href="#" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>{link}</a>
-            ))}
+            <a href="#" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>Privacy</a>
+            <a href="#" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>Terms</a>
+            <a href="mailto:hello@bendre.app" className="hover:!text-[#111] transition-colors" style={{ fontSize: 13, color: "#bbb", textDecoration: "none", fontWeight: 500 }}>hello@bendre.app</a>
           </div>
         </div>
       </footer>
