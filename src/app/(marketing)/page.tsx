@@ -237,30 +237,48 @@ export default function HomePage() {
       </section>
 
       {/* ═══ PROBLEM ═══ */}
-      <section style={{ padding: "120px 0 80px", position: "relative", overflow: "hidden" }}>
-        <div className="max-w-[1200px] mx-auto px-8 relative" style={{ minHeight: 600 }}>
+      <section style={{ padding: "100px 0 60px", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #FCFCFA 0%, #FBF5F5 50%, #FCFCFA 100%)" }}>
 
-          {/* Scattered app icons — positioned like the reference */}
+        {/* Desktop: scattered icons with connecting lines */}
+        <div className="hidden md:block max-w-[1200px] mx-auto px-8 relative" style={{ minHeight: 600 }}>
+
+          {/* SVG connecting lines */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+            <path d="M 310 160 Q 500 100 660 110" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 660 110 Q 850 80 1110 140" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 1110 140 Q 1150 300 1170 350" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 1170 350 Q 1100 480 1060 490" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 310 160 Q 200 350 290 380" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 290 380 Q 350 500 380 520" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 380 520 Q 600 560 840 540" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+            <path d="M 840 540 Q 950 520 1060 490" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
+          </svg>
+
+          {/* Floating icons */}
           {[
-            { label: "WhatsApp", x: "4%", y: "12%", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
-            { label: "Google Sheets", x: "82%", y: "8%", logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
-            { label: "Notion", x: "88%", y: "48%", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-            { label: "Google Forms", x: "2%", y: "56%", logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
-            { label: "UPI", x: "78%", y: "78%", logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
-            { label: "Google Calendar", x: "10%", y: "82%", logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
-            { label: "Google Docs", x: "38%", y: "2%", logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
-            { label: "Gmail", x: "55%", y: "85%", logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
-            { label: "Zoom", x: "92%", y: "72%", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+            { label: "WhatsApp", x: "5%", y: "10%", r: -6, d: 3, logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+            { label: "Google Sheets", x: "83%", y: "6%", r: 5, d: 3.5, logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
+            { label: "Notion", x: "90%", y: "46%", r: 8, d: 4, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+            { label: "Google Forms", x: "3%", y: "54%", r: -5, d: 3.8, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
+            { label: "UPI", x: "76%", y: "76%", r: 4, d: 4.2, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
+            { label: "Google Calendar", x: "10%", y: "80%", r: -8, d: 3.3, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
+            { label: "Google Docs", x: "40%", y: "2%", r: 3, d: 3.6, logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
+            { label: "Gmail", x: "54%", y: "84%", r: -3, d: 4.1, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
+            { label: "Zoom", x: "92%", y: "70%", r: 6, d: 3.4, logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
           ].map((app, i) => (
             <div
               key={i}
-              className="absolute hidden md:flex flex-col items-center gap-2"
-              style={{ left: app.x, top: app.y, zIndex: 1 }}
+              className="absolute flex flex-col items-center gap-2"
+              style={{
+                left: app.x, top: app.y, zIndex: 1,
+                transform: `rotate(${app.r}deg)`,
+                animation: `problemFloat ${app.d}s ease-in-out infinite alternate`,
+              }}
             >
               <div style={{
                 width: 64, height: 64, borderRadius: 18,
                 background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
-                boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 padding: 12,
               }}>
@@ -270,13 +288,12 @@ export default function HomePage() {
             </div>
           ))}
 
-          {/* Center content */}
+          {/* Center text — desktop */}
           <div style={{ position: "relative", zIndex: 2, textAlign: "center", paddingTop: 160, paddingBottom: 100 }}>
-            <h2 style={{ fontSize: "clamp(32px, 5vw, 54px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111" }}>
+            <h2 style={{ fontSize: "clamp(36px, 5vw, 54px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111" }}>
               The current way therapists<br />work is <span style={{ color: "#C62828" }}>chaotic.</span>
             </h2>
-
-            <div className="flex items-center justify-center gap-10 md:gap-20 flex-wrap" style={{ marginTop: 48 }}>
+            <div className="flex items-center justify-center gap-20" style={{ marginTop: 48 }}>
               {[
                 { stat: "5+", desc: "apps juggled daily" },
                 { stat: "2hrs", desc: "lost to admin work" },
@@ -290,6 +307,61 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Mobile: compact grid layout */}
+        <div className="md:hidden px-6">
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h2 style={{ fontSize: 32, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "#111" }}>
+              The current way therapists work is <span style={{ color: "#C62828" }}>chaotic.</span>
+            </h2>
+          </div>
+
+          {/* Mobile icon grid — 3 columns */}
+          <div className="grid grid-cols-3 gap-3 max-w-[300px] mx-auto" style={{ marginBottom: 32 }}>
+            {[
+              { label: "WhatsApp", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+              { label: "Sheets", logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
+              { label: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+              { label: "Forms", logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
+              { label: "Gmail", logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
+              { label: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+            ].map((app, i) => (
+              <div key={i} className="flex flex-col items-center gap-1.5">
+                <div style={{
+                  width: 52, height: 52, borderRadius: 14,
+                  background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  padding: 10,
+                }}>
+                  <img src={app.logo} alt={app.label} width={28} height={28} style={{ objectFit: "contain" }} />
+                </div>
+                <span style={{ fontSize: 10, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile stats */}
+          <div className="flex justify-center gap-6">
+            {[
+              { stat: "5+", desc: "apps daily" },
+              { stat: "2hrs", desc: "admin work" },
+              { stat: "0", desc: "for therapists" },
+            ].map((s) => (
+              <div key={s.desc} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: "#111" }}>{s.stat}</div>
+                <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes problemFloat {
+            from { transform: translateY(0px) rotate(var(--tw-rotate, 0deg)); }
+            to { transform: translateY(-10px) rotate(var(--tw-rotate, 0deg)); }
+          }
+        `}} />
       </section>
 
       {/* ═══ FEATURES ═══ */}
