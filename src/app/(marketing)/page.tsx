@@ -237,80 +237,57 @@ export default function HomePage() {
       </section>
 
       {/* ═══ PROBLEM ═══ */}
-      <section style={{ padding: "100px 0 60px", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #FCFCFA 0%, #F5F4F0 100%)" }}>
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px)", backgroundSize: "32px 32px", opacity: 0.5 }} />
+      <section style={{ padding: "120px 0 80px", position: "relative", overflow: "hidden" }}>
+        <div className="max-w-[1200px] mx-auto px-8 relative" style={{ minHeight: 600 }}>
 
-        <div className="max-w-[1100px] mx-auto px-8 relative">
-          {/* Center text first */}
-          <div style={{ position: "relative", zIndex: 2, textAlign: "center", marginBottom: 60 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#C62828", marginBottom: 14, letterSpacing: "0.15em", textTransform: "uppercase" }}>The problem</p>
-            <h2 style={{ fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111", marginBottom: 16 }}>
+          {/* Scattered app icons — positioned like the reference */}
+          {[
+            { label: "WhatsApp", x: "4%", y: "12%", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+            { label: "Google Sheets", x: "82%", y: "8%", logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
+            { label: "Notion", x: "88%", y: "48%", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+            { label: "Google Forms", x: "2%", y: "56%", logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
+            { label: "UPI", x: "78%", y: "78%", logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
+            { label: "Google Calendar", x: "10%", y: "82%", logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
+            { label: "Google Docs", x: "38%", y: "2%", logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
+            { label: "Gmail", x: "55%", y: "85%", logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
+            { label: "Zoom", x: "92%", y: "72%", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+          ].map((app, i) => (
+            <div
+              key={i}
+              className="absolute hidden md:flex flex-col items-center gap-2"
+              style={{ left: app.x, top: app.y, zIndex: 1 }}
+            >
+              <div style={{
+                width: 64, height: 64, borderRadius: 18,
+                background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
+                boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: 12,
+              }}>
+                <img src={app.logo} alt={app.label} width={34} height={34} style={{ objectFit: "contain" }} />
+              </div>
+              <span style={{ fontSize: 11, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
+            </div>
+          ))}
+
+          {/* Center content */}
+          <div style={{ position: "relative", zIndex: 2, textAlign: "center", paddingTop: 160, paddingBottom: 100 }}>
+            <h2 style={{ fontSize: "clamp(32px, 5vw, 54px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111" }}>
               The current way therapists<br />work is <span style={{ color: "#C62828" }}>chaotic.</span>
             </h2>
-            <p style={{ fontSize: 16, color: "#999", maxWidth: 440, margin: "0 auto" }}>
-              Scattered across WhatsApp, Sheets, Forms, and UPI screenshots. No single tool built for Indian therapists.
-            </p>
-          </div>
 
-          {/* App logos in an orbit-like layout */}
-          <div className="relative mx-auto" style={{ maxWidth: 700, height: 280 }}>
-            {/* Dashed circle */}
-            <div className="absolute hidden md:block" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 460, height: 460, borderRadius: "50%", border: "1.5px dashed rgba(0,0,0,0.06)" }} />
-            <div className="absolute hidden md:block" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 280, height: 280, borderRadius: "50%", border: "1.5px dashed rgba(0,0,0,0.04)" }} />
-
-            {/* Red X in center */}
-            <div className="absolute" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 48, height: 48, borderRadius: "50%", background: "#C62828", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(198,40,40,0.25)", zIndex: 3 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </div>
-
-            {[
-              { label: "WhatsApp", angle: 0, r: 200, logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
-              { label: "Sheets", angle: 40, r: 220, logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
-              { label: "Notion", angle: 80, r: 190, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-              { label: "Forms", angle: 120, r: 210, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
-              { label: "UPI", angle: 160, r: 195, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
-              { label: "Calendar", angle: 200, r: 215, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
-              { label: "Docs", angle: 240, r: 185, logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
-              { label: "Gmail", angle: 280, r: 205, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
-              { label: "Zoom", angle: 320, r: 195, logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
-            ].map((app, i) => {
-              const rad = (app.angle * Math.PI) / 180;
-              const x = 50 + (app.r / 7) * Math.cos(rad);
-              const y = 50 + (app.r / 5.6) * Math.sin(rad);
-              return (
-                <div
-                  key={i}
-                  className="absolute hidden md:flex flex-col items-center gap-1.5 transition-transform duration-500 hover:scale-110"
-                  style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%, -50%)", zIndex: 2 }}
-                >
-                  <div style={{
-                    width: 52, height: 52, borderRadius: 14,
-                    background: "#fff", border: "1px solid rgba(0,0,0,0.06)",
-                    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    padding: 9, transition: "box-shadow 0.3s",
-                  }}>
-                    <img src={app.logo} alt={app.label} width={28} height={28} style={{ objectFit: "contain" }} />
-                  </div>
-                  <span style={{ fontSize: 10, color: "#bbb", fontWeight: 600, letterSpacing: "0.02em" }}>{app.label}</span>
+            <div className="flex items-center justify-center gap-10 md:gap-20 flex-wrap" style={{ marginTop: 48 }}>
+              {[
+                { stat: "5+", desc: "apps juggled daily" },
+                { stat: "2hrs", desc: "lost to admin work" },
+                { stat: "0", desc: "tools built for\nIndian therapists" },
+              ].map((s) => (
+                <div key={s.desc} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: "#111", letterSpacing: "-0.03em" }}>{s.stat}</div>
+                  <div style={{ fontSize: 13, color: "#aaa", marginTop: 4, whiteSpace: "pre-line", lineHeight: 1.4 }}>{s.desc}</div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-6 md:gap-14 flex-wrap" style={{ marginTop: 48 }}>
-            {[
-              { stat: "5+", desc: "apps juggled daily" },
-              { stat: "2hrs", desc: "lost to admin work" },
-              { stat: "0", desc: "tools built for therapists" },
-            ].map((s) => (
-              <div key={s.desc} style={{ textAlign: "center", padding: "16px 24px", borderRadius: 16, background: "#fff", border: "1px solid rgba(0,0,0,0.05)" }}>
-                <div style={{ fontSize: 26, fontWeight: 900, color: "#111", letterSpacing: "-0.03em" }}>{s.stat}</div>
-                <div style={{ fontSize: 12, color: "#aaa", marginTop: 2, fontWeight: 500 }}>{s.desc}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
