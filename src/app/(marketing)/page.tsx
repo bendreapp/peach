@@ -236,6 +236,71 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ═══ PROBLEM ═══ */}
+      <section style={{ padding: "100px 0", position: "relative", overflow: "hidden" }}>
+        <div className="max-w-[1100px] mx-auto px-8 relative" style={{ minHeight: 500 }}>
+
+          {/* Floating app icons */}
+          {[
+            { emoji: "💬", label: "WhatsApp", x: "8%", y: "8%", rotate: -12, size: 56 },
+            { emoji: "📊", label: "Google Sheets", x: "78%", y: "5%", rotate: 8, size: 52 },
+            { emoji: "📝", label: "Notion", x: "85%", y: "45%", rotate: 15, size: 48 },
+            { emoji: "📋", label: "Google Forms", x: "5%", y: "55%", rotate: -8, size: 50 },
+            { emoji: "💳", label: "UPI Screenshots", x: "72%", y: "75%", rotate: 12, size: 46 },
+            { emoji: "📅", label: "Google Calendar", x: "15%", y: "80%", rotate: -15, size: 48 },
+            { emoji: "📱", label: "Phone Notes", x: "42%", y: "2%", rotate: 5, size: 44 },
+            { emoji: "📧", label: "Gmail", x: "60%", y: "82%", rotate: -6, size: 44 },
+          ].map((app, i) => (
+            <div
+              key={i}
+              className="absolute hidden md:flex flex-col items-center gap-1.5"
+              style={{
+                left: app.x, top: app.y,
+                transform: `rotate(${app.rotate}deg)`,
+                animation: `float ${3 + i * 0.5}s ease-in-out infinite alternate`,
+              }}
+            >
+              <div style={{
+                width: app.size, height: app.size, borderRadius: 16,
+                background: "#fff", border: "1px solid rgba(0,0,0,0.08)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: app.size * 0.45,
+              }}>
+                {app.emoji}
+              </div>
+              <span style={{ fontSize: 10, color: "#bbb", fontWeight: 500, whiteSpace: "nowrap" }}>{app.label}</span>
+            </div>
+          ))}
+
+          {/* Center text */}
+          <div style={{ position: "relative", zIndex: 2, textAlign: "center", paddingTop: 140, paddingBottom: 80 }}>
+            <h2 style={{ fontSize: "clamp(28px, 4.5vw, 46px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "#111", marginBottom: 32 }}>
+              The current way therapists<br />work is <span style={{ color: "#C62828" }}>chaotic.</span>
+            </h2>
+            <div className="flex items-center justify-center gap-8 md:gap-16 flex-wrap" style={{ marginTop: 40 }}>
+              {[
+                { stat: "5+", desc: "apps juggled daily" },
+                { stat: "2hrs", desc: "lost to admin work" },
+                { stat: "0", desc: "tools built for therapists" },
+              ].map((s) => (
+                <div key={s.desc} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "#111", letterSpacing: "-0.03em" }}>{s.stat}</div>
+                  <div style={{ fontSize: 13, color: "#999", marginTop: 4 }}>{s.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes float {
+            from { transform: translateY(0px) rotate(var(--r, 0deg)); }
+            to { transform: translateY(-12px) rotate(var(--r, 0deg)); }
+          }
+        `}} />
+      </section>
+
       {/* ═══ FEATURES ═══ */}
       <section id="features" style={{ padding: "80px 0 100px" }}>
         <div className="max-w-[1100px] mx-auto px-8">
