@@ -240,20 +240,20 @@ export default function HomePage() {
       <section style={{ padding: "100px 0", position: "relative", overflow: "hidden" }}>
         <div className="max-w-[1100px] mx-auto px-8 relative" style={{ minHeight: 500 }}>
 
-          {/* Floating app icons */}
+          {/* Floating app icons with real logos */}
           {[
-            { emoji: "💬", label: "WhatsApp", x: "8%", y: "8%", rotate: -12, size: 56 },
-            { emoji: "📊", label: "Google Sheets", x: "78%", y: "5%", rotate: 8, size: 52 },
-            { emoji: "📝", label: "Notion", x: "85%", y: "45%", rotate: 15, size: 48 },
-            { emoji: "📋", label: "Google Forms", x: "5%", y: "55%", rotate: -8, size: 50 },
-            { emoji: "💳", label: "UPI Screenshots", x: "72%", y: "75%", rotate: 12, size: 46 },
-            { emoji: "📅", label: "Google Calendar", x: "15%", y: "80%", rotate: -15, size: 48 },
-            { emoji: "📱", label: "Phone Notes", x: "42%", y: "2%", rotate: 5, size: 44 },
-            { emoji: "📧", label: "Gmail", x: "60%", y: "82%", rotate: -6, size: 44 },
+            { label: "WhatsApp", x: "6%", y: "10%", rotate: -8, logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+            { label: "Google Sheets", x: "80%", y: "6%", rotate: 6, logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
+            { label: "Notion", x: "88%", y: "42%", rotate: 10, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+            { label: "Google Forms", x: "3%", y: "52%", rotate: -6, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
+            { label: "UPI", x: "75%", y: "72%", rotate: 8, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
+            { label: "Google Calendar", x: "12%", y: "78%", rotate: -10, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
+            { label: "Notes", x: "44%", y: "3%", rotate: 4, logo: "https://help.apple.com/assets/67A4EA943FAB3F55B503EBF8/67A4EA983FAB3F55B503EC0D/en_US/2f73a682a3e313cf40e4778c3f72e581.png" },
+            { label: "Gmail", x: "58%", y: "80%", rotate: -5, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
           ].map((app, i) => (
             <div
               key={i}
-              className="absolute hidden md:flex flex-col items-center gap-1.5"
+              className="absolute hidden md:flex flex-col items-center gap-2"
               style={{
                 left: app.x, top: app.y,
                 transform: `rotate(${app.rotate}deg)`,
@@ -261,15 +261,15 @@ export default function HomePage() {
               }}
             >
               <div style={{
-                width: app.size, height: app.size, borderRadius: 16,
-                background: "#fff", border: "1px solid rgba(0,0,0,0.08)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                width: 56, height: 56, borderRadius: 16,
+                background: "#fff", border: "1px solid rgba(0,0,0,0.06)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: app.size * 0.45,
+                padding: 10,
               }}>
-                {app.emoji}
+                <img src={app.logo} alt={app.label} style={{ width: 32, height: 32, objectFit: "contain" }} />
               </div>
-              <span style={{ fontSize: 10, color: "#bbb", fontWeight: 500, whiteSpace: "nowrap" }}>{app.label}</span>
+              <span style={{ fontSize: 11, color: "#bbb", fontWeight: 500, whiteSpace: "nowrap" }}>{app.label}</span>
             </div>
           ))}
 
