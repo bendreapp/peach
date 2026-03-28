@@ -56,13 +56,14 @@ function WaitlistForm({ dark }: { dark?: boolean }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center justify-center gap-2 flex-wrap">
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-[460px] mx-auto px-4 sm:px-0">
       <input
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter your email"
         required
+        className="flex-1"
         style={{
           height: 52,
           padding: "0 20px",
@@ -71,7 +72,7 @@ function WaitlistForm({ dark }: { dark?: boolean }) {
           background: dark ? "rgba(255,255,255,0.06)" : "#fff",
           color: dark ? "#fff" : "#111",
           fontSize: 15,
-          width: 280,
+          width: "100%",
           outline: "none",
         }}
       />
@@ -114,7 +115,7 @@ export default function HomePage() {
 
       {/* ═══ NAV ═══ */}
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", background: "rgba(252,252,250,0.9)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-        <div className="max-w-[1180px] mx-auto px-8 h-16 flex items-center justify-between">
+        <div className="max-w-[1180px] mx-auto px-4 md:px-8 h-14 md:h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-1.5 no-underline">
             <Image src="/logo.png" alt="Bendre" width={34} height={34} />
             <span style={{ fontSize: 20, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Bendre</span>
@@ -134,8 +135,8 @@ export default function HomePage() {
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section style={{ paddingTop: 160, paddingBottom: 80 }}>
-        <div className="max-w-[720px] mx-auto px-8 text-center">
+      <section className="pt-28 pb-12 md:pt-40 md:pb-20">
+        <div className="max-w-[720px] mx-auto px-5 md:px-8 text-center">
           <div className="inline-flex items-center gap-2 mb-8" style={{ padding: "6px 6px 6px 14px", borderRadius: 100, background: "#F0F4F0", fontSize: 13, fontWeight: 600, color: "#5A6D5B" }}>
             <Sparkles size={13} />
             Practice management, reimagined
@@ -163,7 +164,7 @@ export default function HomePage() {
         </div>
 
         {/* Dashboard preview */}
-        <div className="max-w-[1000px] mx-auto px-8 mt-16">
+        <div className="hidden md:block max-w-[1000px] mx-auto px-8 mt-16">
           <div style={{ borderRadius: 20, border: "1px solid rgba(0,0,0,0.08)", background: "#fff", boxShadow: "0 20px 80px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden" }}>
             {/* Browser bar */}
             <div className="flex items-center gap-2 px-5 py-3" style={{ background: "#FAFAFA", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
@@ -183,7 +184,7 @@ export default function HomePage() {
                 </div>
                 <div style={{ padding: "8px 16px", borderRadius: 8, background: "#6B7E6C", color: "#fff", fontSize: 13, fontWeight: 600 }}>+ New Session</div>
               </div>
-              <div className="grid grid-cols-4 gap-3 mb-5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                 {[
                   { label: "Today", value: "4", accent: "#6B7E6C" },
                   { label: "Pending", value: "1", accent: "#E6A700" },
@@ -221,7 +222,7 @@ export default function HomePage() {
 
       {/* ═══ LOGOS / TRUST ═══ */}
       <section style={{ padding: "40px 0 60px" }}>
-        <div className="max-w-[800px] mx-auto px-8 flex items-center justify-center gap-10 md:gap-14 flex-wrap">
+        <div className="max-w-[800px] mx-auto px-4 md:px-8 flex items-center justify-center gap-4 md:gap-14 flex-wrap">
           {[
             { icon: Lock, text: "AES-256 Encrypted" },
             { icon: Server, text: "Mumbai Data Center" },
@@ -241,18 +242,6 @@ export default function HomePage() {
 
         {/* Desktop: scattered icons with connecting lines */}
         <div className="hidden md:block max-w-[1200px] mx-auto px-8 relative" style={{ minHeight: 600 }}>
-
-          {/* SVG connecting lines */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
-            <path d="M 310 160 Q 500 100 660 110" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 660 110 Q 850 80 1110 140" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 1110 140 Q 1150 300 1170 350" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 1170 350 Q 1100 480 1060 490" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 310 160 Q 200 350 290 380" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 290 380 Q 350 500 380 520" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 380 520 Q 600 560 840 540" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <path d="M 840 540 Q 950 520 1060 490" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1.5" strokeDasharray="6 4" />
-          </svg>
 
           {/* Floating icons */}
           {[
@@ -366,7 +355,7 @@ export default function HomePage() {
 
       {/* ═══ FEATURES ═══ */}
       <section id="features" style={{ padding: "80px 0 100px" }}>
-        <div className="max-w-[1100px] mx-auto px-8">
+        <div className="max-w-[1100px] mx-auto px-5 md:px-8">
           <div className="text-center" style={{ marginBottom: 64 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#6B7E6C", marginBottom: 10 }}>Features</p>
             <h2 style={{ fontSize: "clamp(32px, 4.5vw, 48px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111" }}>
@@ -375,7 +364,7 @@ export default function HomePage() {
             <p style={{ fontSize: 17, color: "#999", marginTop: 12, fontWeight: 400 }}>Purpose-built tools for the Indian therapist workflow.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {[
               { icon: Calendar, title: "Scheduling", desc: "Booking page, availability, recurring slots, buffer times. Clients book directly.", color: "#6B7E6C", tags: ["Booking page", "Recurring", "Reminders"] },
               { icon: FileText, title: "Clinical Notes", desc: "SOAP, DAP, BIRP, or freeform. Encrypted with AES-256-GCM at rest.", color: "#3D6B72", tags: ["SOAP/DAP", "Encrypted", "Templates"] },
@@ -493,7 +482,7 @@ export default function HomePage() {
 
       {/* ═══ FAQ ═══ */}
       <section id="faq" style={{ padding: "80px 0 100px" }}>
-        <div className="max-w-[640px] mx-auto px-8">
+        <div className="max-w-[640px] mx-auto px-5 md:px-8">
           <div className="text-center" style={{ marginBottom: 48 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#6B7E6C", marginBottom: 10 }}>FAQ</p>
             <h2 style={{ fontSize: "clamp(32px, 4.5vw, 44px)", fontWeight: 900, letterSpacing: "-0.04em", color: "#111" }}>
