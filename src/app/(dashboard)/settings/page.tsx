@@ -53,32 +53,25 @@ export default function SettingsPage() {
 
   if (therapist.isLoading || availability.isLoading) {
     return (
-      <div className="max-w-3xl mx-auto space-y-8">
-        <div className="flex items-center gap-3">
+      <div className="max-w-[900px] mx-auto">
+        <div className="flex items-center gap-2.5 mb-8">
           <Settings size={22} className="text-sage" />
-          <h1 className="text-2xl font-semibold text-ink">Settings</h1>
+          <div className="h-7 w-32 bg-border rounded-lg animate-pulse" />
         </div>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-card border border-border rounded-card shadow-card p-7 space-y-4"
-          >
-            <div className="h-5 w-32 bg-bg rounded-small animate-pulse" />
-            <div className="h-3 w-64 bg-bg rounded-small animate-pulse" />
-            <div className="space-y-3">
-              <div className="h-10 bg-bg rounded-small animate-pulse" />
-              <div className="h-10 bg-bg rounded-small animate-pulse" />
-            </div>
-          </div>
-        ))}
+        <div className="h-12 bg-border/50 rounded-xl mb-8 animate-pulse" />
+        <div className="space-y-4">
+          <div className="h-10 bg-border/30 rounded-lg animate-pulse" />
+          <div className="h-10 bg-border/30 rounded-lg animate-pulse" />
+          <div className="h-10 bg-border/30 rounded-lg animate-pulse" />
+        </div>
       </div>
     );
   }
 
   if (therapist.error || !therapist.data) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-error-bg border border-error/15 rounded-card p-7 text-center">
+      <div className="max-w-[900px] mx-auto">
+        <div className="rounded-2xl border border-error/20 bg-error-bg p-8 text-center">
           <p className="text-error text-sm font-medium">
             Failed to load settings. Please refresh the page.
           </p>
@@ -90,42 +83,44 @@ export default function SettingsPage() {
   const t = therapist.data as any;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-[900px] mx-auto">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-3">
+      <div className="mb-8">
+        <div className="flex items-center gap-2.5">
           <Settings size={22} className="text-sage" />
-          <h1 className="text-2xl font-semibold text-ink">Settings</h1>
+          <h1 className="text-2xl font-bold text-ink tracking-tight">Settings</h1>
         </div>
-        <p className="text-sm text-ink-secondary mt-1">
+        <p className="text-[14px] text-ink-secondary mt-1 ml-[34px]">
           Manage your profile, availability, and practice preferences.
         </p>
       </div>
 
-      {/* Tabs */}
-      <nav className="flex flex-wrap gap-1.5 border-b border-border pb-4">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-small text-sm font-medium transition-all duration-200 ${
-                isActive
-                  ? "bg-sage text-white shadow-sage"
-                  : "text-ink-secondary hover:bg-bg hover:text-ink"
-              }`}
-            >
-              <Icon size={14} />
-              {tab.label}
-            </button>
-          );
-        })}
-      </nav>
+      {/* Tabs — horizontal scrollable on mobile */}
+      <div className="mb-8 -mx-2">
+        <nav className="flex gap-1 overflow-x-auto pb-1 px-2 scrollbar-hide">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
+                  isActive
+                    ? "bg-ink text-white dark:bg-white dark:text-ink"
+                    : "text-ink-tertiary hover:text-ink hover:bg-border/30"
+                }`}
+              >
+                <Icon size={15} strokeWidth={isActive ? 2 : 1.5} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
 
       {/* Tab content */}
-      <div className="animate-fade-in">
+      <div>
         {activeTab === "profile" && (
           <ProfileForm
             therapist={{
