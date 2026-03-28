@@ -250,6 +250,7 @@ export default function HomePage() {
             { label: "Google Calendar", x: "12%", y: "78%", rotate: -10, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
             { label: "Google Docs", x: "44%", y: "3%", rotate: 4, logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
             { label: "Gmail", x: "58%", y: "80%", rotate: -5, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
+            { label: "Zoom", x: "92%", y: "70%", rotate: -4, logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
           ].map((app, i) => (
             <div
               key={i}
