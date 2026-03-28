@@ -291,7 +291,7 @@ export default function DashboardLayout({
           </div>
         </div>
 
-        <div className="p-6 md:p-8 pt-20 md:pt-8">
+        <div className="p-6 md:p-8 pt-20 md:pt-8 max-w-[1200px] mx-auto">
           <ErrorBoundary>{children}</ErrorBoundary>
         </div>
       </main>
