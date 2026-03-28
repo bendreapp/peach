@@ -180,13 +180,13 @@ export default function HomePage() {
               <div style={{ marginLeft: 12, padding: "4px 16px", borderRadius: 6, background: "rgba(0,0,0,0.04)", fontSize: 12, color: "#aaa" }}>bendre.app/dashboard</div>
             </div>
             {/* Mock content */}
-            <div style={{ padding: "24px 28px" }}>
-              <div className="flex items-center justify-between mb-5">
+            <div className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-4 md:mb-5">
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: "#111" }}>Good afternoon, Dr. Priya</div>
-                  <div style={{ fontSize: 13, color: "#aaa", marginTop: 2 }}>Thursday, March 28 · 4 sessions today</div>
+                  <div className="text-[14px] md:text-[18px]" style={{ fontWeight: 700, color: "#111" }}>Good afternoon, Dr. Priya</div>
+                  <div className="text-[11px] md:text-[13px]" style={{ color: "#aaa", marginTop: 2 }}>Thursday, March 28 · 4 sessions today</div>
                 </div>
-                <div style={{ padding: "8px 16px", borderRadius: 8, background: "#6B7E6C", color: "#fff", fontSize: 13, fontWeight: 600 }}>+ New Session</div>
+                <div className="hidden md:block" style={{ padding: "8px 16px", borderRadius: 8, background: "#6B7E6C", color: "#fff", fontSize: 13, fontWeight: 600 }}>+ New Session</div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                 {[
@@ -207,15 +207,15 @@ export default function HomePage() {
                   { name: "Rahul Menon", time: "11:30 AM", type: "Follow-up", status: "Upcoming", statusColor: "#aaa" },
                   { name: "Ananya Iyer", time: "2:00 PM", type: "Intro Call", status: "Upcoming", statusColor: "#aaa" },
                 ].map((s, i) => (
-                  <div key={i} style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
+                  <div key={i} className="text-[11px] md:text-[13px]" style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <span style={{ fontWeight: 600, color: "#333" }}>{s.name}</span>
-                      <span style={{ color: "#bbb", margin: "0 8px" }}>·</span>
+                      <span style={{ color: "#bbb", margin: "0 6px" }}>·</span>
                       <span style={{ color: "#999" }}>{s.time}</span>
-                      <span style={{ color: "#bbb", margin: "0 8px" }}>·</span>
-                      <span style={{ color: "#999" }}>{s.type}</span>
+                      <span className="hidden sm:inline" style={{ color: "#bbb", margin: "0 6px" }}>·</span>
+                      <span className="hidden sm:inline" style={{ color: "#999" }}>{s.type}</span>
                     </div>
-                    <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: i === 0 ? "rgba(107,126,108,0.1)" : "rgba(0,0,0,0.03)", color: s.statusColor, fontWeight: 600 }}>{s.status}</span>
+                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: i === 0 ? "rgba(107,126,108,0.1)" : "rgba(0,0,0,0.03)", color: s.statusColor, fontWeight: 600, flexShrink: 0 }}>{s.status}</span>
                   </div>
                 ))}
               </div>
