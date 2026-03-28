@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bendre Design System — Light</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --card: #FFFFFF;
+    --border: #E5E5E0;
+    --border-hover: #D0D0C8;
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B6B6B;
+    --text-tertiary: #999999;
+    --sage-light: #B7C4B8;
+    --sage: #6B7E6C;
+    --sage-dark: #4A5C4B;
+    --sage-accent: #A3B7A4;
+    --sage-bg: rgba(107,126,108,0.06);
+    --teal: #3D6B72;
+    --gold: #9E8554;
+    --beige: #E8E1D9;
+    --success: #2E7D32;
+    --success-bg: rgba(46,125,50,0.06);
+    --warning: #E6A700;
+    --warning-bg: rgba(230,167,0,0.06);
+    --error: #C62828;
+    --error-bg: rgba(198,40,40,0.06);
+    --info: #1565C0;
+    --info-bg: rgba(21,101,192,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 32px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+
+  section { margin-bottom: 80px; }
+
+  /* ── Typography ─────────────────────────── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+
+  h1 span { color: var(--sage); }
+
+  h2 {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin-top: 16px;
+  }
+
+  .text-sm { font-size: 14px; }
+  .text-xs { font-size: 12px; }
+  .text-secondary { color: var(--text-secondary); }
+
+  /* ── Hero ───────────────────────────────── */
+  .hero {
+    padding: 80px 0 60px;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,126,108,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--sage);
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Theme toggle ──────────────────────── */
+  .theme-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 100;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--sage);
+    color: var(--sage);
+  }
+
+  /* ── Cards ──────────────────────────────── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sage-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .card-stat {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 8px 0 4px;
+    color: var(--text-primary);
+  }
+
+  .card-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .card-trend {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .trend-up { color: var(--success); background: var(--success-bg); }
+  .trend-down { color: var(--error); background: var(--error-bg); }
+
+  /* ── Buttons ────────────────────────────── */
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--sage);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(107,126,108,0.2);
+  }
+
+  .btn-primary:hover {
+    background: var(--sage-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107,126,108,0.25);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--sage);
+    color: var(--sage-dark);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--sage);
+    padding: 10px 16px;
+  }
+
+  .btn-ghost:hover { background: var(--sage-bg); }
+
+  .btn-danger {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid rgba(198,40,40,0.15);
+  }
+
+  .btn-danger:hover { background: rgba(198,40,40,0.1); }
+
+  .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+
+  /* ── Form ───────────────────────────────── */
+  .form-group { margin-bottom: 20px; }
+
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 11px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-input::placeholder { color: #B0B0B0; }
+  .form-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(107,126,108,0.1); }
+  .form-input:hover { border-color: var(--border-hover); }
+
+  /* ── Badge ──────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-sage { background: var(--sage-bg); color: var(--sage); }
+  .badge-teal { background: rgba(61,107,114,0.08); color: var(--teal); }
+  .badge-gold { background: rgba(158,133,84,0.08); color: var(--gold); }
+  .badge-success { background: var(--success-bg); color: var(--success); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-error { background: var(--error-bg); color: var(--error); }
+
+  /* ── Table ──────────────────────────────── */
+  .table-wrapper {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  td {
+    padding: 14px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(229,229,224,0.6);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--sage-bg); }
+
+  /* ── Swatches ───────────────────────────── */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .swatch {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  .swatch-color { height: 72px; }
+  .swatch-info { padding: 10px 12px; background: var(--card); }
+  .swatch-name { font-size: 13px; font-weight: 600; }
+  .swatch-hex { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
+
+  /* ── Toast ──────────────────────────────── */
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    border: 1px solid;
+    margin-bottom: 12px;
+  }
+
+  .toast-success { background: var(--success-bg); border-color: rgba(46,125,50,0.15); color: var(--success); }
+  .toast-error { background: var(--error-bg); border-color: rgba(198,40,40,0.15); color: var(--error); }
+  .toast-warning { background: var(--warning-bg); border-color: rgba(230,167,0,0.15); color: var(--warning); }
+  .toast-info { background: var(--info-bg); border-color: rgba(21,101,192,0.15); color: var(--info); }
+
+  /* ── Dashboard Preview ──────────────────── */
+  .dashboard-preview {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    height: 480px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--sage-dark);
+    padding: 0 8px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .sidebar-item:hover {
+    color: var(--text-primary);
+    background: var(--sage-bg);
+  }
+
+  .sidebar-item.active {
+    color: var(--sage-dark);
+    background: rgba(107,126,108,0.08);
+    font-weight: 600;
+  }
+
+  .sidebar-icon { width: 18px; text-align: center; opacity: 0.6; }
+
+  .main-content {
+    background: var(--bg);
+    padding: 28px;
+    overflow-y: auto;
+  }
+
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+  /* ── Animations ─────────────────────────── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section { animation: fadeIn 0.5s ease-out both; }
+  section:nth-child(2) { animation-delay: 0.05s; }
+  section:nth-child(3) { animation-delay: 0.1s; }
+  section:nth-child(4) { animation-delay: 0.15s; }
+  section:nth-child(5) { animation-delay: 0.2s; }
+  section:nth-child(6) { animation-delay: 0.25s; }
+  section:nth-child(7) { animation-delay: 0.3s; }
+  section:nth-child(8) { animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+
+<a href="/design-demo.html" class="theme-toggle">Switch to Dark →</a>
+
+<div class="container">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:40px;">
+      <img src="/logo.png" alt="Bendre" style="width:100px;height:72px;object-fit:contain;margin-right:-28px;">
+      <span style="font-size:36px;font-weight:700;color:var(--sage-dark);letter-spacing:-0.01em;">Bendre</span>
+    </div>
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Design System v1.0 — Light
+    </div>
+    <h1>Practice management,<br><span>designed for calm.</span></h1>
+    <p class="subtitle">A visual language built for therapists — earthy, trustworthy, and easy on the eyes. Satoshi across the board.</p>
+    <div style="margin-top: 32px;" class="btn-row">
+      <button class="btn btn-primary">Get Started</button>
+      <button class="btn btn-secondary">Learn More</button>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Color Palette -->
+  <section>
+    <p class="section-label">Color Palette — Light</p>
+    <h2 style="margin-bottom: 24px;">Warm. Clean. Professional.</h2>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background: #FAFAF8;"></div><div class="swatch-info"><div class="swatch-name">Background</div><div class="swatch-hex">#FAFAF8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #FFFFFF;"></div><div class="swatch-info"><div class="swatch-name">Surface</div><div class="swatch-hex">#FFFFFF</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #E5E5E0;"></div><div class="swatch-info"><div class="swatch-name">Border</div><div class="swatch-hex">#E5E5E0</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #1A1A1A;"></div><div class="swatch-info"><div class="swatch-name">Text</div><div class="swatch-hex">#1A1A1A</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #6B7E6C;"></div><div class="swatch-info"><div class="swatch-name">Sage</div><div class="swatch-hex">#6B7E6C</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #4A5C4B;"></div><div class="swatch-info"><div class="swatch-name">Dark Sage</div><div class="swatch-hex">#4A5C4B</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #B7C4B8;"></div><div class="swatch-info"><div class="swatch-name">Light Sage</div><div class="swatch-hex">#B7C4B8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #3D6B72;"></div><div class="swatch-info"><div class="swatch-name">Teal</div><div class="swatch-hex">#3D6B72</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #9E8554;"></div><div class="swatch-info"><div class="swatch-name">Gold</div><div class="swatch-hex">#9E8554</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #2E7D32;"></div><div class="swatch-info"><div class="swatch-name">Success</div><div class="swatch-hex">#2E7D32</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #E6A700;"></div><div class="swatch-info"><div class="swatch-name">Warning</div><div class="swatch-hex">#E6A700</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: #C62828;"></div><div class="swatch-info"><div class="swatch-name">Error</div><div class="swatch-hex">#C62828</div></div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Typography -->
+  <section>
+    <p class="section-label">Typography</p>
+    <h2 style="margin-bottom: 32px;">Satoshi — One font, full hierarchy</h2>
+    <div style="margin-bottom: 24px;">
+      <p class="text-xs text-secondary" style="margin-bottom: 8px;">HEADING — Satoshi 900</p>
+      <h1 style="font-size: 48px;">The art of healing begins here</h1>
+    </div>
+    <div style="margin-bottom: 24px;">
+      <p class="text-xs text-secondary" style="margin-bottom: 8px;">SUBHEADING — Satoshi 700</p>
+      <h2>Empowering therapists with tools that respect both practitioner and patient</h2>
+    </div>
+    <div style="margin-bottom: 24px;">
+      <p class="text-xs text-secondary" style="margin-bottom: 8px;">BODY — Satoshi 400</p>
+      <p style="max-width: 600px; color: var(--text-secondary);">Bendre helps independent therapists in India manage their practice with confidence. Schedule sessions, track treatment plans, send invoices, and communicate with clients — all in one calm, focused workspace.</p>
+    </div>
+    <div>
+      <p class="text-xs text-secondary" style="margin-bottom: 8px;">UI LABEL — Satoshi 600</p>
+      <p style="font-weight: 600; font-size: 14px;">Session Scheduled · 10:00 AM IST · Dr. Nithya Sivakumar</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Stat Cards -->
+  <section>
+    <p class="section-label">Dashboard Cards</p>
+    <h2 style="margin-bottom: 24px;">At a glance</h2>
+    <div class="grid-4">
+      <div class="card"><div class="card-header"><div class="card-icon"><i data-lucide="calendar-check" style="width:20px;height:20px;"></i></div><span class="card-trend trend-up">+12%</span></div><div class="card-stat">24</div><div class="card-label">Sessions this week</div></div>
+      <div class="card"><div class="card-header"><div class="card-icon"><i data-lucide="users" style="width:20px;height:20px;"></i></div><span class="card-trend trend-up">+3</span></div><div class="card-stat">48</div><div class="card-label">Active clients</div></div>
+      <div class="card"><div class="card-header"><div class="card-icon"><i data-lucide="indian-rupee" style="width:20px;height:20px;"></i></div><span class="card-trend trend-up">+8%</span></div><div class="card-stat">₹1.2L</div><div class="card-label">Revenue this month</div></div>
+      <div class="card"><div class="card-header"><div class="card-icon"><i data-lucide="check-circle" style="width:20px;height:20px;"></i></div><span class="card-trend trend-down">-2%</span></div><div class="card-stat">92%</div><div class="card-label">Completion rate</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Buttons -->
+  <section>
+    <p class="section-label">Buttons</p>
+    <h2 style="margin-bottom: 24px;">Actions</h2>
+    <div class="btn-row" style="margin-bottom: 16px;">
+      <button class="btn btn-primary">Create Session</button>
+      <button class="btn btn-secondary">Export Data</button>
+      <button class="btn btn-ghost">View All</button>
+      <button class="btn btn-danger">Cancel Session</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-sm">Approve</button>
+      <button class="btn btn-secondary btn-sm">Reschedule</button>
+      <button class="btn btn-ghost btn-sm">Details</button>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Form -->
+  <section>
+    <p class="section-label">Form Elements</p>
+    <h2 style="margin-bottom: 24px;">Inputs</h2>
+    <div class="grid-2">
+      <div>
+        <div class="form-group"><label class="form-label">Client Name</label><input class="form-input" type="text" placeholder="Priya Sharma"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="priya@example.com"></div>
+        <div class="form-group"><label class="form-label">Session Notes</label><textarea class="form-input" rows="4" placeholder="Client reported improved sleep patterns..." style="resize: vertical;"></textarea></div>
+        <button class="btn btn-primary">Save Changes</button>
+      </div>
+      <div>
+        <div class="form-group">
+          <label class="form-label">Badges & Tags</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+            <span class="badge badge-sage">Active</span>
+            <span class="badge badge-teal">NRI</span>
+            <span class="badge badge-gold">Premium</span>
+            <span class="badge badge-success">Completed</span>
+            <span class="badge badge-warning">Pending</span>
+            <span class="badge badge-error">Cancelled</span>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 32px;">
+          <label class="form-label">Toast Notifications</label>
+          <div style="margin-top: 8px;">
+            <div class="toast toast-success">✓ Session approved successfully</div>
+            <div class="toast toast-error">✕ Failed to save treatment plan</div>
+            <div class="toast toast-warning">⚠ Client has overdue invoice</div>
+            <div class="toast toast-info">ℹ New booking request from Priya</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Table -->
+  <section>
+    <p class="section-label">Data Table</p>
+    <h2 style="margin-bottom: 24px;">Upcoming Sessions</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Client</th><th>Date & Time</th><th>Type</th><th>Status</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Priya Sharma</strong></td><td class="text-secondary">Mar 28, 10:00 AM</td><td>Regular Session</td><td><span class="badge badge-success">Scheduled</span></td><td>₹2,000</td></tr>
+          <tr><td><strong>Rahul Menon</strong></td><td class="text-secondary">Mar 28, 11:30 AM</td><td>Follow-up</td><td><span class="badge badge-warning">Pending</span></td><td>₹1,500</td></tr>
+          <tr><td><strong>Ananya Iyer</strong></td><td class="text-secondary">Mar 28, 2:00 PM</td><td>Intro Call</td><td><span class="badge badge-sage">Confirmed</span></td><td>Free</td></tr>
+          <tr><td><strong>Vikram Desai</strong></td><td class="text-secondary">Mar 28, 4:00 PM</td><td>Couples Session</td><td><span class="badge badge-teal">NRI Rate</span></td><td>₹4,500</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Dashboard Preview -->
+  <section>
+    <p class="section-label">Dashboard Layout</p>
+    <h2 style="margin-bottom: 24px;">Full interface preview</h2>
+    <div class="dashboard-preview">
+      <div class="sidebar">
+        <div class="sidebar-logo"><img src="/logo.png" alt="" style="width:32px;height:32px;object-fit:contain;margin-right:2px;">Bendre</div>
+        <div class="sidebar-item active"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i> Dashboard</div>
+        <div class="sidebar-item"><i data-lucide="calendar" style="width:18px;height:18px;"></i> Schedule</div>
+        <div class="sidebar-item"><i data-lucide="users" style="width:18px;height:18px;"></i> Clients</div>
+        <div class="sidebar-item"><i data-lucide="file-text" style="width:18px;height:18px;"></i> Notes</div>
+        <div class="sidebar-item"><i data-lucide="message-circle" style="width:18px;height:18px;"></i> Messages</div>
+        <div class="sidebar-item"><i data-lucide="indian-rupee" style="width:18px;height:18px;"></i> Payments</div>
+        <div class="sidebar-item"><i data-lucide="book-open" style="width:18px;height:18px;"></i> Resources</div>
+        <div class="sidebar-item"><i data-lucide="repeat" style="width:18px;height:18px;"></i> Recurring</div>
+        <div class="sidebar-item"><i data-lucide="bar-chart-3" style="width:18px;height:18px;"></i> Analytics</div>
+        <div style="flex:1;"></div>
+        <div class="sidebar-item"><i data-lucide="settings" style="width:18px;height:18px;"></i> Settings</div>
+      </div>
+      <div class="main-content">
+        <div class="main-header">
+          <div>
+            <h2 style="font-size: 24px;">Good afternoon, Hari</h2>
+            <p class="text-sm text-secondary" style="margin-top: 4px;">Thursday, March 27 · 3 sessions today</p>
+          </div>
+          <button class="btn btn-primary btn-sm">+ New Session</button>
+        </div>
+        <div class="grid-3" style="margin-bottom: 24px;">
+          <div class="card" style="padding: 20px;"><div class="card-label">Today's Sessions</div><div class="card-stat" style="font-size: 28px;">3</div></div>
+          <div class="card" style="padding: 20px;"><div class="card-label">Pending Approval</div><div class="card-stat" style="font-size: 28px; color: var(--warning);">1</div></div>
+          <div class="card" style="padding: 20px;"><div class="card-label">This Week</div><div class="card-stat" style="font-size: 28px;">12</div></div>
+        </div>
+        <h3 style="margin-bottom: 12px;">Upcoming</h3>
+        <div class="card" style="padding: 16px; margin-bottom: 8px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><strong>Priya Sharma</strong><span class="text-sm text-secondary" style="margin-left: 12px;">10:00 – 10:50 AM</span></div><span class="badge badge-success">Scheduled</span></div></div>
+        <div class="card" style="padding: 16px; margin-bottom: 8px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><strong>Rahul Menon</strong><span class="text-sm text-secondary" style="margin-left: 12px;">11:30 AM – 12:20 PM</span></div><span class="badge badge-warning">Pending</span></div></div>
+        <div class="card" style="padding: 16px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><strong>Ananya Iyer</strong><span class="text-sm text-secondary" style="margin-left: 12px;">2:00 – 2:15 PM</span></div><span class="badge badge-sage">Intro Call</span></div></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── Light theme (default) ─────────────────────────── */
+  :root {
+    --color-bg: #FAFAF8;
+    --color-surface: #FFFFFF;
+    --color-card: #FFFFFF;
+    --color-border: #E5E5E0;
+    --color-border-hover: #D0D0C8;
+    --color-ink: #1A1A1A;
+    --color-ink-secondary: #6B6B6B;
+    --color-ink-tertiary: #999999;
+    --color-sage: #6B7E6C;
+    --color-sage-light: #B7C4B8;
+    --color-sage-dark: #4A5C4B;
+
+    /* Auth page specific */
+    --color-auth-bg: #FAFAF8;
+    --color-auth-card: #FFFFFF;
+    --color-auth-card-border: #E5E5E0;
+    --color-auth-input: #F5F5F2;
+    --color-auth-input-border: #E0E0DB;
+    --color-auth-input-text: #1A1A1A;
+    --color-auth-placeholder: #AAAAAA;
+    --color-auth-text: #1A1A1A;
+    --color-auth-text-secondary: #777777;
+    --color-auth-text-muted: #999999;
+    --color-auth-divider: #E5E5E0;
+    --color-auth-toggle-border: #E0E0DB;
+    --color-auth-toggle-color: #999;
+    --color-auth-toggle-hover: rgba(0,0,0,0.04);
+  }
+
+  /* ── Dark theme ────────────────────────────────────── */
+  .dark {
+    --color-bg: #0B0B0B;
+    --color-surface: #141414;
+    --color-card: #1C1C1C;
+    --color-border: #2A2A2A;
+    --color-border-hover: #3A3A3A;
+    --color-ink: #EAEAEA;
+    --color-ink-secondary: #A3A3A3;
+    --color-ink-tertiary: #666666;
+    --color-sage: #8A9A8B;
+    --color-sage-light: #B7C4B8;
+    --color-sage-dark: #5F6F63;
+
+    /* Auth page specific */
+    --color-auth-bg: #060606;
+    --color-auth-card: #111111;
+    --color-auth-card-border: #1c1c1c;
+    --color-auth-input: #0C0C0C;
+    --color-auth-input-border: #222222;
+    --color-auth-input-text: #EEEEEE;
+    --color-auth-placeholder: #3a3a3a;
+    --color-auth-text: #FFFFFF;
+    --color-auth-text-secondary: #777777;
+    --color-auth-text-muted: #555555;
+    --color-auth-divider: #1c1c1c;
+    --color-auth-toggle-border: #222;
+    --color-auth-toggle-color: #666;
+    --color-auth-toggle-hover: rgba(255,255,255,0.05);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    @apply font-sans antialiased;
+    transition: background-color 0.2s, color 0.2s;
+  }
+}
+
+@layer components {
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-small
+           bg-sage text-white font-semibold text-sm
+           shadow-sage hover:bg-sage-dark hover:shadow-sage-hover
+           transition-all duration-200 hover:-translate-y-px
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-small
+           font-semibold text-sm
+           border transition-all duration-200
+           disabled:opacity-50 disabled:pointer-events-none;
+    background: transparent;
+    color: var(--color-ink);
+    border-color: var(--color-border);
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-sage);
+    color: var(--color-sage-dark);
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-small
+           font-semibold text-sm transition-all duration-200
+           disabled:opacity-50 disabled:pointer-events-none;
+    background: transparent;
+    color: var(--color-sage);
+  }
+  .btn-ghost:hover {
+    background: rgba(107,126,108,0.06);
+  }
+  .dark .btn-ghost:hover {
+    background: rgba(138,154,139,0.1);
+  }
+
+  /* Danger button */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-small
+           bg-error-bg text-error font-semibold text-sm
+           border border-error/15 hover:bg-error/10
+           transition-all duration-200
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Small button modifier */
+  .btn-sm {
+    @apply px-3.5 py-1.5 text-xs rounded-lg;
+  }
+
+  /* Card */
+  .ui-card {
+    @apply rounded-card p-7 transition-all duration-200;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .ui-card:hover {
+    border-color: var(--color-border-hover);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+  }
+  .dark .ui-card {
+    box-shadow: none;
+  }
+  .dark .ui-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  /* Input */
+  .ui-input {
+    @apply w-full px-4 py-2.5 rounded-small text-sm font-sans
+           focus:outline-none focus:ring-[3px]
+           transition-all duration-200;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-ink);
+    --tw-ring-color: rgba(107,126,108,0.1);
+  }
+  .ui-input::placeholder { color: var(--color-ink-tertiary); }
+  .ui-input:focus { border-color: var(--color-sage); }
+  .ui-input:hover { border-color: var(--color-border-hover); }
+
+  /* Label */
+  .ui-label {
+    @apply block text-[13px] font-medium mb-2;
+    color: var(--color-ink-secondary);
+  }
+
+  /* Section label */
+  .ui-section-label {
+    @apply text-[11px] font-semibold tracking-[0.12em] uppercase;
+    color: var(--color-sage);
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold;
+  }
+
+  .badge-sage { @apply bg-sage-bg text-sage; }
+  .badge-teal { @apply bg-teal-bg text-teal; }
+  .badge-gold { @apply bg-gold-bg text-gold; }
+  .badge-success { @apply bg-success-bg text-success; }
+  .badge-warning { @apply bg-warning-bg text-warning; }
+  .badge-error { @apply bg-error-bg text-error; }
+}

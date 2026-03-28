@@ -1,0 +1,101 @@
+import { Clock } from "lucide-react";
+
+interface SessionTypeRate {
+  client_category: string;
+  rate_inr: number;
+}
+
+interface SessionTypeOption {
+  id: string;
+  name: string;
+  duration_mins: number;
+  rate_inr: number;
+  description: string | null;
+  session_type_rates?: SessionTypeRate[];
+}
+
+interface SessionTypePickerProps {
+  sessionTypes: SessionTypeOption[];
+  onSelect: (sessionType: SessionTypeOption) => void;
+}
+
+/** Format rate in paise to display string */
+function formatRate(paise: number): string {
+  if (paise === 0) return "Free";
+  return `₹${(paise / 100).toLocaleString("en-IN")}`;
+}
+
+/** Get display price — shows "from ₹X" if there are multiple tiers with different rates */
+function getPriceLabel(type: SessionTypeOption): { text: string; isFree: boolean } {
+  const rates = type.session_type_rates ?? [];
+  if (rates.length === 0) {
+    return { text: formatRate(type.rate_inr), isFree: type.rate_inr === 0 };
+  }
+
+  // Collect all distinct rates (default + category-specific)
+  const allRates = [type.rate_inr, ...rates.map((r) => r.rate_inr)];
+  const minRate = Math.min(...allRates);
+  const maxRate = Math.max(...allRates);
+
+  if (minRate === maxRate) {
+    return { text: formatRate(minRate), isFree: minRate === 0 };
+  }
+
+  // Multiple tiers — show "from ₹X"
+  if (minRate === 0) {
+    return { text: `From Free`, isFree: true };
+  }
+  return { text: `From ${formatRate(minRate)}`, isFree: false };
+}
+
+export default function SessionTypePicker({ sessionTypes, onSelect }: SessionTypePickerProps) {
+  if (sessionTypes.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-sm text-ink-tertiary">No session types available.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium text-ink">Choose a session type</h3>
+      <div className="space-y-2">
+        {sessionTypes.map((type) => (
+          <button
+            key={type.id}
+            onClick={() => onSelect(type)}
+            className="w-full text-left p-4 rounded-small border border-border bg-surface hover:border-sage hover:bg-sage-50/30 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-ink group-hover:text-sage transition-colors">
+                {type.name}
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill bg-bg text-xs text-ink-tertiary">
+                  <Clock size={10} />
+                  {type.duration_mins} min
+                </span>
+                {(() => {
+                  const price = getPriceLabel(type);
+                  return (
+                    <span className={`px-2 py-0.5 rounded-pill text-xs font-medium ${
+                      price.isFree
+                        ? "bg-sage-50 text-sage"
+                        : "bg-bg text-ink-secondary"
+                    }`}>
+                      {price.text}
+                    </span>
+                  );
+                })()}
+              </div>
+            </div>
+            {type.description && (
+              <p className="text-xs text-ink-tertiary mt-1">{type.description}</p>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
