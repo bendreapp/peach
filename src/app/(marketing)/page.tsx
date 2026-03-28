@@ -9,6 +9,103 @@ import {
   Video, Users, BarChart3, Bell, Star, Sparkles,
 } from "lucide-react";
 
+function WaitlistForm({ dark }: { dark?: boolean }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus("loading");
+
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer re_1AM2qcYE_EM1Z7y7hvXHKhjxCjMciLNm7",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Bendre <noreply@notification.bendre.app>",
+          to: ["bendrehq@gmail.com"],
+          subject: `Waitlist: ${email}`,
+          html: `<p>New waitlist signup: <strong>${email}</strong></p><p>Time: ${new Date().toISOString()}</p>`,
+        }),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  if (status === "success") {
+    return (
+      <div className="flex items-center justify-center gap-2" style={{ padding: "14px 0" }}>
+        <Check size={18} style={{ color: "#6B7E6C" }} />
+        <span style={{ fontSize: 15, fontWeight: 600, color: dark ? "#fff" : "#111" }}>
+          You&apos;re on the list! We&apos;ll be in touch.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center justify-center gap-2 flex-wrap">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter your email"
+        required
+        style={{
+          height: 52,
+          padding: "0 20px",
+          borderRadius: 14,
+          border: dark ? "1px solid rgba(255,255,255,0.15)" : "1px solid #e0e0db",
+          background: dark ? "rgba(255,255,255,0.06)" : "#fff",
+          color: dark ? "#fff" : "#111",
+          fontSize: 15,
+          width: 280,
+          outline: "none",
+        }}
+      />
+      <button
+        type="submit"
+        disabled={status === "loading"}
+        style={{
+          height: 52,
+          padding: "0 28px",
+          borderRadius: 14,
+          background: dark ? "#fff" : "#1A1A1A",
+          color: dark ? "#111" : "#fff",
+          fontSize: 15,
+          fontWeight: 700,
+          border: "none",
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          opacity: status === "loading" ? 0.6 : 1,
+        }}
+      >
+        {status === "loading" ? "Joining..." : "Join Waitlist"}
+        {status !== "loading" && <ArrowRight size={16} />}
+      </button>
+      {status === "error" && (
+        <p style={{ fontSize: 13, color: "#C62828", width: "100%", textAlign: "center", marginTop: 8 }}>
+          Something went wrong. Try again.
+        </p>
+      )}
+    </form>
+  );
+}
+
 export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -53,19 +150,10 @@ export default function HomePage() {
             One calm space for booking, sessions, notes, and payments. Built for therapists in India.
           </p>
 
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link href="/signup" className="group" style={{ height: 52, padding: "0 30px", borderRadius: 14, background: "#1A1A1A", color: "#fff", fontSize: 16, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none", transition: "all 0.2s" }}>
-              Start free trial
-              <ArrowRight size={17} className="group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <a href="#features" style={{ height: 52, padding: "0 24px", borderRadius: 14, fontSize: 16, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none", color: "#777", transition: "all 0.2s" }} className="hover:!text-[#111]">
-              Learn more
-              <ChevronDown size={16} />
-            </a>
-          </div>
+          <WaitlistForm />
 
-          <div className="flex items-center justify-center gap-5 mt-12 flex-wrap">
-            {["14-day free trial", "No credit card", "Mumbai data center"].map((t) => (
+          <div className="flex items-center justify-center gap-5 mt-10 flex-wrap">
+            {["Early access", "No credit card", "Mumbai data center"].map((t) => (
               <div key={t} className="flex items-center gap-1.5" style={{ fontSize: 13, color: "#aaa", fontWeight: 500 }}>
                 <Check size={13} style={{ color: "#6B7E6C" }} />
                 {t}
@@ -324,16 +412,11 @@ export default function HomePage() {
               Ready to simplify<br />your practice?
             </h2>
             <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", marginBottom: 32, position: "relative", zIndex: 1 }}>
-              Join therapists across India. 14-day free trial.
+              Join the waitlist. Be the first to know when we launch.
             </p>
-            <Link href="/signup" className="group" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 52, padding: "0 32px", borderRadius: 14, background: "#fff", color: "#111", fontSize: 16, fontWeight: 800, textDecoration: "none", position: "relative", zIndex: 1, letterSpacing: "-0.01em" }}>
-              Get Started Free
-              <ArrowRight size={17} className="group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <p style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.2)", position: "relative", zIndex: 1 }}>
-              Already have an account?{" "}
-              <Link href="/login" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "underline" }}>Log in</Link>
-            </p>
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <WaitlistForm dark />
+            </div>
           </div>
         </div>
       </section>
