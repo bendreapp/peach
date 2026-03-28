@@ -120,7 +120,7 @@ export default function HomePage() {
             <span style={{ fontSize: 20, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Bendre</span>
           </Link>
           <div className="hidden md:flex items-center gap-9">
-            {["Features", "Pricing", "FAQ"].map((item) => (
+            {["Features", /* "Pricing", */ "FAQ"].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="hover:!text-[#111] transition-colors" style={{ fontSize: 14, color: "#888", textDecoration: "none", fontWeight: 500 }}>{item}</a>
             ))}
           </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
           </div>
 
           <h1 style={{ fontSize: "clamp(42px, 6.5vw, 72px)", fontWeight: 900, lineHeight: 1.0, letterSpacing: "-0.045em", margin: "0 0 24px", color: "#111" }}>
-            Your practice,<br />finally at peace.
+            Your practice,<br />finally at <span style={{ color: "#6B7E6C" }}>peace.</span>
           </h1>
 
           <p style={{ fontSize: 19, lineHeight: 1.65, color: "#777", maxWidth: 480, margin: "0 auto 40px", fontWeight: 400 }}>
@@ -298,8 +298,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ PRICING ═══ */}
-      <section id="pricing" style={{ padding: "80px 0 100px", background: "#fff" }}>
+      {/* ═══ PRICING (hidden for now — enable when ready to launch) ═══ */}
+      {false && <section id="pricing" style={{ padding: "80px 0 100px", background: "#fff" }}>
         <div className="max-w-[980px] mx-auto px-8">
           <div className="text-center" style={{ marginBottom: 56 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#6B7E6C", marginBottom: 10 }}>Pricing</p>
@@ -361,7 +361,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ═══ FAQ ═══ */}
       <section id="faq" style={{ padding: "80px 0 100px" }}>
