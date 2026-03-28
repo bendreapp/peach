@@ -248,7 +248,7 @@ export default function HomePage() {
             { label: "Google Forms", x: "3%", y: "52%", rotate: -6, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
             { label: "UPI", x: "75%", y: "72%", rotate: 8, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
             { label: "Google Calendar", x: "12%", y: "78%", rotate: -10, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
-            { label: "Notes", x: "44%", y: "3%", rotate: 4, logo: "https://help.apple.com/assets/67A4EA943FAB3F55B503EBF8/67A4EA983FAB3F55B503EC0D/en_US/2f73a682a3e313cf40e4778c3f72e581.png" },
+            { label: "Google Docs", x: "44%", y: "3%", rotate: 4, logo: "https://www.gstatic.com/images/branding/product/2x/docs_2020q4_48dp.png" },
             { label: "Gmail", x: "58%", y: "80%", rotate: -5, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
           ].map((app, i) => (
             <div
