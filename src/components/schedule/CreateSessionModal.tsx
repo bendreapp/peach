@@ -59,12 +59,20 @@ export default function CreateSessionModal({ onClose, onCreated }: CreateSession
     e.preventDefault();
     const starts_at = new Date(`${date}T${startTime}:00+05:30`).toISOString();
     const ends_at = new Date(`${date}T${endTime}:00+05:30`).toISOString();
+    const startDate = new Date(starts_at);
+    const endDate = new Date(ends_at);
+    const duration_mins = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
+
     createSession.mutate(
       {
         client_id: clientId,
-        session_type_id: sessionTypeId || undefined,
+        session_type_name: sessionTypeId || undefined,
         starts_at,
         ends_at,
+        duration_mins,
+        status: "scheduled",
+        payment_status: "pending",
+        amount_inr: 0,
       },
       {
         onSuccess: () => {
