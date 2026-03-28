@@ -95,9 +95,24 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* Tabs — horizontal scrollable on mobile */}
-      <div className="mb-8 -mx-2">
-        <nav className="flex gap-1 overflow-x-auto pb-1 px-2 scrollbar-hide">
+      {/* Layout: sidebar tabs on desktop, dropdown on mobile */}
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Mobile: dropdown */}
+        <div className="md:hidden">
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value as TabKey)}
+            className="w-full h-11 px-4 rounded-xl border border-border bg-card text-ink text-[14px] font-semibold appearance-none cursor-pointer focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/10"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 14px center" }}
+          >
+            {TABS.map((tab) => (
+              <option key={tab.key} value={tab.key}>{tab.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop: sidebar tabs */}
+        <nav className="hidden md:flex flex-col gap-1 w-[200px] flex-shrink-0">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -105,22 +120,21 @@ export default function SettingsPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-[13px] font-medium text-left transition-all duration-150 ${
                   isActive
-                    ? "bg-ink text-white dark:bg-white dark:text-ink"
-                    : "text-ink-tertiary hover:text-ink hover:bg-border/30"
+                    ? "bg-sage/10 text-sage-dark font-semibold"
+                    : "text-ink-secondary hover:text-ink hover:bg-border/20"
                 }`}
               >
-                <Icon size={15} strokeWidth={isActive ? 2 : 1.5} />
+                <Icon size={16} strokeWidth={isActive ? 2 : 1.5} className={isActive ? "text-sage" : "text-ink-tertiary"} />
                 {tab.label}
               </button>
             );
           })}
         </nav>
-      </div>
 
-      {/* Tab content */}
-      <div>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
         {activeTab === "profile" && (
           <ProfileForm
             therapist={{
@@ -181,6 +195,7 @@ export default function SettingsPage() {
             }
           />
         )}
+        </div>
       </div>
     </div>
   );
