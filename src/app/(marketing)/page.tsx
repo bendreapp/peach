@@ -131,8 +131,8 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4">
             
-            <Link href="#" className="hover:!bg-[#111] transition-all" style={{ height: 40, padding: "0 22px", borderRadius: 10, background: "#1A1A1A", color: "#fff", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", textDecoration: "none" }} onClick={(e) => { e.preventDefault(); document.querySelector("input[type=email]")?.focus(); }}>
-              Get Started
+            <Link href="#" className="hover:!bg-[#111] transition-all" style={{ height: 40, padding: "0 22px", borderRadius: 10, background: "#1A1A1A", color: "#fff", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", textDecoration: "none" }} onClick={(e) => { e.preventDefault(); (document.querySelector("input[type=email]") as HTMLInputElement)?.focus(); }}>
+              Join Waitlist
             </Link>
           </div>
         </div>
@@ -373,7 +373,7 @@ export default function HomePage() {
               { icon: Calendar, title: "Scheduling", desc: "Booking page, availability, recurring slots, buffer times. Clients book directly.", color: "#6B7E6C", tags: ["Booking page", "Recurring", "Reminders"] },
               { icon: FileText, title: "Clinical Notes", desc: "SOAP, DAP, BIRP, or freeform. Encrypted with AES-256-GCM at rest.", color: "#3D6B72", tags: ["SOAP/DAP", "Encrypted", "Templates"] },
               { icon: IndianRupee, title: "Payments", desc: "Razorpay, auto-invoicing with GST. Tiered rates for Indian, NRI, couples.", color: "#9E8554", tags: ["Razorpay", "GST invoices", "Tiered"] },
-              { icon: MessageCircle, title: "Messaging", desc: "Encrypted client messaging. Keep work and personal communication separate.", color: "#6B7E6C", tags: null },
+              { icon: MessageCircle, title: "Broadcast", desc: "Send updates to all your clients via WhatsApp and email. One click, everyone informed.", color: "#6B7E6C", tags: null },
               { icon: ClipboardList, title: "Intake Forms", desc: "Custom form builder. Send via link. Encrypted responses on client records.", color: "#3D6B72", tags: null },
               { icon: Shield, title: "Privacy First", desc: "Column-level encryption. Row-level security. Mumbai data center. DPDP compliant.", color: "#1A1A1A", tags: null },
             ].map((f, i) => {
