@@ -31,6 +31,7 @@ interface SessionData {
   zoom_join_url: string | null;
   zoom_start_url: string | null;
   clients: SessionClient;
+  client_name?: string;
 }
 
 interface ListViewProps {
@@ -111,7 +112,7 @@ export default function ListView({
           </div>
           <div className="bg-surface rounded-card border border-border shadow-sm overflow-hidden divide-y divide-border">
             {daySessions.map((session) => {
-              const client = session.clients;
+              const client = session.clients ?? { full_name: session.client_name ?? "Client", email: "", phone: null };
               return (
                 <div key={session.id} className="px-6 py-4">
                   <div className="flex items-center justify-between">

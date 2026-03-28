@@ -21,7 +21,7 @@ interface SessionData {
   ends_at: string;
   status: string;
   session_type_name: string | null;
-  clients: { full_name: string; email: string; phone: string | null };
+  client_name?: string; clients?: { full_name: string; email: string; phone: string | null };
 }
 
 interface BlockedSlotData {
@@ -205,7 +205,7 @@ export default function WeekView({
                       <SessionBlock
                         key={session.id}
                         id={session.id}
-                        clientName={session.clients.full_name}
+                        clientName={session.clients?.full_name ?? session.client_name ?? "Client"}
                         startsAt={session.starts_at}
                         endsAt={session.ends_at}
                         status={session.status}

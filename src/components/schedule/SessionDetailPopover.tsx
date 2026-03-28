@@ -22,6 +22,7 @@ interface SessionData {
   zoom_start_url: string | null;
   cancellation_reason: string | null;
   clients: SessionClient;
+  client_name?: string;
 }
 
 interface SessionDetailPopoverProps {
@@ -75,7 +76,7 @@ export default function SessionDetailPopover({
   isLoading,
 }: SessionDetailPopoverProps) {
   const s = session;
-  const client = s.clients;
+  const client = s.clients ?? { full_name: s.client_name ?? "Client", email: "", phone: null };
   const statusBadge = STATUS_BADGES[s.status] ?? { label: s.status, className: "bg-bg text-ink-secondary" };
   const paymentBadge = PAYMENT_BADGES[s.payment_status] ?? { label: s.payment_status, className: "bg-bg text-ink-secondary" };
 
