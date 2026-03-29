@@ -3,136 +3,145 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Heart, Leaf, ArrowRight } from "lucide-react";
+import { Sun, Moon, ArrowRight } from "lucide-react";
 
 function RoleCard({
   href,
-  icon: Icon,
+  illustration,
   title,
   subtitle,
 }: {
   href: string;
-  icon: typeof Leaf;
+  illustration: React.ReactNode;
   title: string;
   subtitle: string;
 }) {
   return (
     <Link
       href={href}
-      className="group relative flex flex-col items-center text-center px-6 py-8 rounded-[20px] cursor-pointer transition-all duration-250 outline-none focus-visible:ring-2 focus-visible:ring-[#6B7E6C]/50 focus-visible:ring-offset-2"
+      className="group flex items-center gap-6 px-7 py-6 rounded-[20px] border cursor-pointer transition-all duration-200"
       style={{
         background: "var(--color-auth-card)",
-        border: "1px solid var(--color-auth-card-border)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02)",
+        borderColor: "var(--color-auth-card-border)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 4px 16px rgba(107,126,108,0.12), 0 8px 32px rgba(0,0,0,0.06)";
-        e.currentTarget.style.borderColor = "rgba(107,126,108,0.3)";
-        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.borderColor = "rgba(107,126,108,0.35)";
+        e.currentTarget.style.boxShadow = "0 4px 20px rgba(107,126,108,0.08)";
+        e.currentTarget.style.transform = "translateY(-1px)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02)";
         e.currentTarget.style.borderColor = "var(--color-auth-card-border)";
+        e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >
-      {/* Icon */}
       <div
-        className="w-[60px] h-[60px] rounded-[16px] flex items-center justify-center mb-5 transition-transform duration-250 group-hover:scale-110"
-        style={{
-          background: "linear-gradient(135deg, rgba(107,126,108,0.08), rgba(107,126,108,0.15))",
-        }}
+        className="w-[68px] h-[68px] rounded-[16px] flex items-center justify-center flex-shrink-0"
+        style={{ background: "linear-gradient(145deg, #EDF2EE, #E2EAE3)" }}
       >
-        <Icon size={26} strokeWidth={1.5} style={{ color: "#6B7E6C" }} />
+        {illustration}
       </div>
 
-      {/* Text */}
-      <div className="text-[17px] font-semibold tracking-tight mb-1" style={{ color: "var(--color-auth-text)" }}>
-        {title}
-      </div>
-      <div className="text-[13px] leading-relaxed mb-5" style={{ color: "var(--color-auth-text-secondary)" }}>
-        {subtitle}
+      <div className="flex-1 min-w-0">
+        <div className="text-[18px] font-bold tracking-[-0.01em]" style={{ color: "var(--color-auth-text)" }}>
+          {title}
+        </div>
+        <div className="text-[14px] mt-1 font-normal" style={{ color: "var(--color-auth-text-secondary)" }}>
+          {subtitle}
+        </div>
       </div>
 
-      {/* CTA */}
-      <div
-        className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider opacity-60 group-hover:opacity-100 transition-opacity duration-250"
-        style={{ color: "#6B7E6C" }}
-      >
-        Continue
-        <ArrowRight size={11} className="transition-transform duration-250 group-hover:translate-x-1" />
-      </div>
+      <ArrowRight
+        size={18}
+        strokeWidth={2}
+        className="flex-shrink-0 opacity-0 -translate-x-2 group-hover:opacity-40 group-hover:translate-x-0 transition-all duration-200"
+        style={{ color: "var(--color-auth-text)" }}
+      />
     </Link>
   );
 }
+
+const therapistSvg = (
+  <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+    <circle cx="18" cy="12" r="5" fill="#6B7E6C" opacity="0.8" />
+    <path d="M8 30c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#6B7E6C" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path d="M26 8l2 2-2 2" stroke="#8AA98B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="30" cy="10" r="3" stroke="#8AA98B" strokeWidth="1.5" fill="none" />
+  </svg>
+);
+
+const clientSvg = (
+  <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+    <circle cx="14" cy="13" r="5" fill="#6B7E6C" opacity="0.7" />
+    <circle cx="24" cy="11" r="3.5" fill="#8AA98B" opacity="0.6" />
+    <path d="M6 30c0-4.97 3.58-9.1 8.3-9.9" stroke="#6B7E6C" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path d="M20 28c0-3.866 2.239-7 5-7s5 3.134 5 7" stroke="#8AA98B" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    <path d="M18 18v4m-2-2h4" stroke="#8AA98B" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
 
 export default function LoginRolePicker() {
   const { theme, setTheme } = useTheme();
 
   return (
     <main
-      className="min-h-screen flex items-center justify-center px-6 relative transition-colors duration-300"
+      className="min-h-screen flex items-center justify-center px-6 relative"
       style={{ background: "var(--color-auth-bg)" }}
     >
-      {/* Theme toggle */}
       <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="absolute top-6 right-6 w-9 h-9 rounded-lg flex items-center justify-center transition-all cursor-pointer"
+        className="absolute top-6 right-6 w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer"
         style={{
           border: "1px solid var(--color-auth-toggle-border)",
           color: "var(--color-auth-toggle-color)",
         }}
-        title={theme === "dark" ? "Switch to light" : "Switch to dark"}
       >
-        {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+        {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
       </button>
 
-      <div className="w-full max-w-[460px]">
+      <div className="w-full max-w-[500px]">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-12">
-          <Image src="/logo.png" alt="Bendre" width={40} height={40} style={{ width: "auto", height: 40 }} />
-          <span
-            className="text-[24px] font-bold tracking-tight leading-none"
-            style={{ color: "var(--color-auth-text)" }}
-          >
+        <div className="flex items-center justify-center gap-2 mb-16">
+          <Image src="/logo.png" alt="Bendre" width={38} height={36} style={{ width: "auto", height: "auto" }} />
+          <span className="text-[23px] font-bold tracking-[-0.02em]" style={{ color: "var(--color-auth-text)" }}>
             Bendre
           </span>
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold tracking-tight leading-tight" style={{ color: "var(--color-auth-text)" }}>
+        <div className="text-center mb-12">
+          <h1
+            className="text-[36px] font-black tracking-[-0.03em] leading-none"
+            style={{ color: "var(--color-auth-text)" }}
+          >
             Welcome back
           </h1>
-          <p className="text-[15px] mt-2.5 font-normal" style={{ color: "var(--color-auth-text-secondary)" }}>
-            How would you like to sign in?
+          <p className="text-[15px] mt-3 font-medium" style={{ color: "var(--color-auth-text-muted)" }}>
+            Sign in as
           </p>
         </div>
 
-        {/* Role cards */}
-        <div className="grid grid-cols-2 gap-5">
+        {/* Cards */}
+        <div className="space-y-3.5">
           <RoleCard
             href="/login/therapist"
-            icon={Leaf}
+            illustration={therapistSvg}
             title="Therapist"
-            subtitle="I provide care"
+            subtitle="I provide care to my clients"
           />
           <RoleCard
             href="/login/client"
-            icon={Heart}
+            illustration={clientSvg}
             title="Client"
-            subtitle="I receive care"
+            subtitle="I receive care from my therapist"
           />
         </div>
 
-        {/* Footer link */}
-        <p className="text-[14px] text-center mt-12" style={{ color: "var(--color-auth-text-muted)" }}>
+        {/* Footer */}
+        <p className="text-[14px] text-center mt-12 font-medium" style={{ color: "var(--color-auth-text-muted)" }}>
           Don&apos;t have an account?{" "}
-          <Link
-            href="/signup"
-            className="font-semibold transition-colors hover:underline underline-offset-2"
-            style={{ color: "var(--color-sage)" }}
-          >
+          <Link href="/signup" className="font-bold hover:underline underline-offset-2" style={{ color: "#6B7E6C" }}>
             Sign up
           </Link>
         </p>

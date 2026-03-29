@@ -56,6 +56,13 @@ export default function DashboardLayout({
   // Prefetch at layout level
   useClientsList();
 
+  // Redirect to onboarding if therapist has no slug (new Google signup)
+  useEffect(() => {
+    if (therapist.data && !therapist.data.slug) {
+      router.push("/onboarding");
+    }
+  }, [therapist.data, router]);
+
   // Identify user in PostHog once therapist data loads
   useEffect(() => {
     if (therapist.data?.id) {

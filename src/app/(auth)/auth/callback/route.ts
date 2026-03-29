@@ -19,17 +19,18 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`);
       }
 
-      // Otherwise, check user role to decide redirect
+      // Check if therapist profile exists and has a slug
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: roleRow } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
+        const { data: therapist } = await supabase
+          .from("therapists")
+          .select("slug")
+          .eq("id", user.id)
           .single();
 
-        if (roleRow?.role === "client") {
-          return NextResponse.redirect(`${origin}/portal`);
+        // New user or no slug → onboarding
+        if (!therapist?.slug) {
+          return NextResponse.redirect(`${origin}/onboarding`);
         }
       }
 

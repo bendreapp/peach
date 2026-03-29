@@ -6,17 +6,14 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import posthog from "posthog-js";
 
-// Initialize PostHog
-if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+// Initialize PostHog (skip in local dev to avoid 431 header size errors)
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NODE_ENV !== "development") {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: "/ingest",
     ui_host: "https://us.posthog.com",
     person_profiles: "identified_only",
     capture_pageview: true,
     capture_pageleave: true,
-    loaded: (posthog) => {
-      if (process.env.NODE_ENV === "development") posthog.debug();
-    },
   });
 }
 
