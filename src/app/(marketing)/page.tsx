@@ -273,15 +273,7 @@ export default function HomePage() {
                 animation: `problemFloat ${app.d}s ease-in-out infinite alternate`,
               }}
             >
-              <div style={{
-                width: 64, height: 64, borderRadius: 18,
-                background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 12,
-              }}>
-                <img src={app.logo} alt={app.label} width={34} height={34} style={{ objectFit: "contain" }} />
-              </div>
+              <img src={app.logo} alt={app.label} width={44} height={44} style={{ objectFit: "contain", opacity: 0.7 }} />
               <span style={{ fontSize: 11, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
             </div>
           ))}
