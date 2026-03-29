@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { User, Users, Building2, ChevronDown, ArrowRight } from "lucide-react";
+import { User, Users, Building2, ArrowRight } from "lucide-react";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8095";
 
@@ -14,17 +15,6 @@ const orgOptions: { id: OrgType; icon: typeof User; label: string; desc: string 
   { id: "small", icon: Users, label: "Small Team", desc: "2–5 members" },
   { id: "medium", icon: Building2, label: "Clinic", desc: "6–20 members" },
   { id: "large", icon: Building2, label: "Organisation", desc: "20+ members" },
-];
-
-const countryCodes = [
-  { code: "+91", flag: "🇮🇳" },
-  { code: "+1", flag: "🇺🇸" },
-  { code: "+44", flag: "🇬🇧" },
-  { code: "+971", flag: "🇦🇪" },
-  { code: "+65", flag: "🇸🇬" },
-  { code: "+61", flag: "🇦🇺" },
-  { code: "+49", flag: "🇩🇪" },
-  { code: "+33", flag: "🇫🇷" },
 ];
 
 export default function OnboardingPage() {
@@ -139,30 +129,15 @@ export default function OnboardingPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className={labelCls} style={{ color: "var(--color-auth-text-secondary)" }}>
+              <label className={labelCls} style={{ color: "var(--color-auth-text-secondary)" }}>
                 Phone number
               </label>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="h-11 pl-3 pr-7 rounded-xl text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                    style={{ ...inputStyle, minWidth: 90 }}
-                  >
-                    {countryCodes.map((c) => (
-                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-auth-text-muted)" }} />
-                </div>
-                <input
-                  id="phone" type="tel" value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                  placeholder="98765 43210"
-                  className={`${inputCls} flex-1`} style={inputStyle}
-                />
-              </div>
+              <PhoneInput
+                countryCode={countryCode}
+                onCountryCodeChange={setCountryCode}
+                phone={phone}
+                onPhoneChange={setPhone}
+              />
             </div>
 
             {/* Org type */}
