@@ -257,7 +257,7 @@ export default function OnboardPage({ params }: OnboardPageProps) {
 
         <p className="text-xs text-ink-tertiary text-center">
           Already have an account?{" "}
-          <Link href="/client/login" className="text-sage font-medium hover:underline">
+          <Link href="/login/client" className="text-sage font-medium hover:underline">
             Sign in
           </Link>
         </p>

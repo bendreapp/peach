@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       const url = request.nextUrl.clone();
       // Redirect clients to client login, therapists to main login
-      url.pathname = pathname.startsWith("/portal") ? "/client/login" : "/login";
+      url.pathname = pathname.startsWith("/portal") ? "/login/client" : "/login/therapist";
       url.searchParams.set("redirect", pathname);
       return NextResponse.redirect(url);
     }

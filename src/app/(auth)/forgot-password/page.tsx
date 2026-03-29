@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <p className="text-sm text-center mt-6" style={{ color: "var(--color-auth-text-muted)" }}>
-          <Link href="/login" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
+          <Link href="/login/therapist" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
             Back to login
           </Link>
         </p>

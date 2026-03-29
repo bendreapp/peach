@@ -8,45 +8,41 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sun, Moon } from "lucide-react";
 
-export default function ClientSignupPage() {
+export default function ClientLoginPage() {
   return (
     <Suspense>
-      <ClientSignupForm />
+      <ClientLoginForm />
     </Suspense>
   );
 }
 
-function ClientSignupForm() {
+function ClientLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get("redirect");
+  const redirect =
+    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.includes("//")
+      ? rawRedirect
+      : "/portal";
   const oauthError = searchParams.get("error") === "oauth";
 
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(
-    oauthError ? "OAuth sign-up failed. Please try again." : null
+    oauthError ? "OAuth sign-in failed. Please try again." : null
   );
   const [loading, setLoading] = useState(false);
   const { theme, setTheme } = useTheme();
 
-  async function handleSignup(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signUp({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-          user_type: "client",
-          phone: phone || undefined,
-        },
-      },
     });
 
     if (authError) {
@@ -55,24 +51,12 @@ function ClientSignupForm() {
       return;
     }
 
-    if (!data.user) {
-      setError("Something went wrong. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    router.push("/portal");
+    router.push(redirect);
   }
-
-  const inputStyle: React.CSSProperties = {
-    background: "var(--color-auth-input)",
-    border: "1px solid var(--color-auth-input-border)",
-    color: "var(--color-auth-input-text)",
-  };
 
   return (
     <main
-      className="min-h-screen flex items-center justify-center px-6 py-12 relative transition-colors duration-300"
+      className="min-h-screen flex items-center justify-center px-6 relative transition-colors duration-300"
       style={{ background: "var(--color-auth-bg)" }}
     >
       {/* Theme toggle */}
@@ -110,10 +94,10 @@ function ClientSignupForm() {
         >
           <div className="text-center mb-7">
             <h1 className="text-xl font-bold" style={{ color: "var(--color-auth-text)" }}>
-              Client Sign Up
+              Client Login
             </h1>
             <p className="text-[13px] mt-1" style={{ color: "var(--color-auth-text-secondary)" }}>
-              Access your sessions and intake forms
+              Sign in to view your sessions
             </p>
           </div>
 
@@ -124,17 +108,7 @@ function ClientSignupForm() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label htmlFor="fullName" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Full name
-              </label>
-              <input
-                id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Your full name"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
                 Email
@@ -142,17 +116,11 @@ function ClientSignupForm() {
               <input
                 id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com"
                 className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Phone <span style={{ color: "var(--color-auth-text-muted)", fontWeight: 400 }}>(optional)</span>
-              </label>
-              <input
-                id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
+                style={{
+                  background: "var(--color-auth-input)",
+                  border: "1px solid var(--color-auth-input-border)",
+                  color: "var(--color-auth-input-text)",
+                }}
               />
             </div>
             <div>
@@ -160,34 +128,38 @@ function ClientSignupForm() {
                 Password
               </label>
               <input
-                id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Min 6 characters"
+                id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••"
                 className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
+                style={{
+                  background: "var(--color-auth-input)",
+                  border: "1px solid var(--color-auth-input-border)",
+                  color: "var(--color-auth-input-text)",
+                }}
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-lg text-white text-sm font-semibold disabled:opacity-50 transition-all mt-2"
+              className="w-full h-11 rounded-lg text-white text-sm font-semibold disabled:opacity-50 transition-all"
               style={{ background: "var(--color-sage)" }}
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
         </div>
 
         <p className="text-sm text-center mt-6" style={{ color: "var(--color-auth-text-muted)" }}>
-          Already have an account?{" "}
-          <Link href="/client/login" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
-            Sign in
+          Don&apos;t have an account?{" "}
+          <Link href="/signup/client" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
+            Sign up
           </Link>
         </p>
 
         <p className="text-xs text-center mt-3" style={{ color: "var(--color-auth-text-muted)" }}>
           Are you a therapist?{" "}
-          <Link href="/signup" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
-            Sign up here
+          <Link href="/login/therapist" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
+            Sign in here
           </Link>
         </p>
       </div>

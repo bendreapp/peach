@@ -65,7 +65,7 @@ export default function InvitePage({ params }: InvitePageProps) {
             This invitation link is invalid, expired, or has already been used.
           </p>
           <Link
-            href="/login"
+            href="/login/therapist"
             className="inline-block text-sm text-sage font-medium hover:text-sage-dark transition-colors"
           >
             Go to login

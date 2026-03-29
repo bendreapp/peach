@@ -122,7 +122,7 @@ export default function DashboardLayout({
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
     await supabase.auth.signOut();
-    window.location.href = "/login";
+    window.location.href = "/login/therapist";
   }
 
   const sidebarContent = (
