@@ -28,16 +28,26 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh auth session (single call, reused for protected route check)
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  // Refresh auth session
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // If auth check fails on a protected route, treat as unauthenticated
-  const isAuthenticated = !authError && !!user;
+  // --- Protected Routes ---
+  const isProtected =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/onboarding");
+
+  if (isProtected && !user) {
+    const loginPath = pathname.startsWith("/portal") ? "/login/client" : "/login/therapist";
+    const url = request.nextUrl.clone();
+    url.pathname = loginPath;
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
 
   // --- Subdomain Routing ---
-  // In production: vidhya.bendre.app → booking page for "vidhya"
-  // In dev: Use ?slug=vidhya query param or localhost subdomains
-  const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN ?? "localhost:3000";
+  const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN ?? "localhost:3035";
   const isSubdomain =
     hostname !== appDomain &&
     hostname !== `www.${appDomain}` &&
@@ -52,25 +62,19 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- Protected Routes ---
-  const isProtected =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/settings") ||
-    pathname.startsWith("/portal") ||
-    pathname.startsWith("/onboarding");
-
-  if (isProtected && !isAuthenticated) {
-    const url = request.nextUrl.clone();
-    url.pathname = pathname.startsWith("/portal") ? "/login/client" : "/login/therapist";
-    url.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(url);
-  }
-
   return response;
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|ingest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/dashboard/:path*",
+    "/settings/:path*",
+    "/portal/:path*",
+    "/onboarding",
+    "/login/:path*",
+    "/signup/:path*",
+    "/auth/:path*",
+    "/booking/:path*",
+    "/",
   ],
 };
