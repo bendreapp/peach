@@ -326,15 +326,7 @@ export default function HomePage() {
                   animationDelay: `${i * 0.3}s`,
                 }}
               >
-                <div style={{
-                  width: 42, height: 42, borderRadius: 11,
-                  background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  padding: 8, transform: `rotate(${app.r}deg)`,
-                }}>
-                  <img src={app.logo} alt={app.label} width={22} height={22} style={{ objectFit: "contain" }} />
-                </div>
+                <img src={app.logo} alt={app.label} width={32} height={32} style={{ objectFit: "contain", transform: `rotate(${app.r}deg)`, opacity: 0.7 }} />
                 <span style={{ fontSize: 9, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
               </div>
             ))}
@@ -364,15 +356,7 @@ export default function HomePage() {
                   animationDelay: `${i * 0.25}s`,
                 }}
               >
-                <div style={{
-                  width: 42, height: 42, borderRadius: 11,
-                  background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  padding: 8, transform: `rotate(${app.r}deg)`,
-                }}>
-                  <img src={app.logo} alt={app.label} width={22} height={22} style={{ objectFit: "contain" }} />
-                </div>
+                <img src={app.logo} alt={app.label} width={32} height={32} style={{ objectFit: "contain", transform: `rotate(${app.r}deg)`, opacity: 0.7 }} />
                 <span style={{ fontSize: 9, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
               </div>
             ))}
