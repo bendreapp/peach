@@ -314,23 +314,27 @@ export default function HomePage() {
             </h2>
           </div>
 
-          {/* Mobile icon grid — 3 columns */}
+          {/* Mobile icon grid — 3 columns with floating */}
           <div className="grid grid-cols-3 gap-3 max-w-[300px] mx-auto" style={{ marginBottom: 32 }}>
             {[
-              { label: "WhatsApp", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
-              { label: "Sheets", logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
-              { label: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-              { label: "Forms", logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
-              { label: "Gmail", logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
-              { label: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+              { label: "WhatsApp", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg", d: 3, r: -4 },
+              { label: "Sheets", logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png", d: 3.5, r: 3 },
+              { label: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", d: 4, r: -5 },
+              { label: "Forms", logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png", d: 3.8, r: 4 },
+              { label: "Gmail", logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png", d: 3.3, r: -3 },
+              { label: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg", d: 4.2, r: 5 },
             ].map((app, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5">
+              <div key={i} className="flex flex-col items-center gap-1.5" style={{
+                animation: `problemFloat ${app.d}s ease-in-out infinite alternate`,
+                animationDelay: `${i * 0.3}s`,
+              }}>
                 <div style={{
                   width: 52, height: 52, borderRadius: 14,
                   background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
-                  boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   padding: 10,
+                  transform: `rotate(${app.r}deg)`,
                 }}>
                   <img src={app.logo} alt={app.label} width={28} height={28} style={{ objectFit: "contain" }} />
                 </div>
