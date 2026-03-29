@@ -6,7 +6,7 @@ import { useState } from "react";
 import posthog from "posthog-js";
 import {
   Calendar, FileText, MessageCircle, IndianRupee, ClipboardList, Shield,
-  ArrowRight, Check, ChevronDown, Lock, Server, Zap, Globe,
+  ArrowRight, Check, ChevronDown, Lock, Zap, Globe,
   Video, Users, BarChart3, Bell, Star, Sparkles,
 } from "lucide-react";
 
@@ -164,7 +164,7 @@ export default function HomePage() {
           <WaitlistForm />
 
           <div className="flex items-center justify-center gap-5 mt-10 flex-wrap">
-            {["Early access", "No credit card", "Mumbai data center"].map((t) => (
+            {["Early access", "Built for India"].map((t) => (
               <div key={t} className="flex items-center gap-1.5" style={{ fontSize: 13, color: "#aaa", fontWeight: 500 }}>
                 <Check size={13} style={{ color: "#6B7E6C" }} />
                 {t}
@@ -235,7 +235,6 @@ export default function HomePage() {
         <div className="max-w-[800px] mx-auto px-4 md:px-8 flex items-center justify-center gap-4 md:gap-14 flex-wrap">
           {[
             { icon: Lock, text: "AES-256 Encrypted" },
-            { icon: Server, text: "Mumbai Data Center" },
             { icon: Shield, text: "DPDP Compliant" },
             { icon: Globe, text: "Works Everywhere" },
           ].map((item) => (
@@ -381,7 +380,7 @@ export default function HomePage() {
               { icon: IndianRupee, title: "Payments", desc: "Razorpay, auto-invoicing with GST. Tiered rates for Indian, NRI, couples.", color: "#9E8554", tags: ["Razorpay", "GST invoices", "Tiered"] },
               { icon: MessageCircle, title: "Broadcast", desc: "Send updates to all your clients via WhatsApp and email. One click, everyone informed.", color: "#6B7E6C", tags: null },
               { icon: ClipboardList, title: "Intake Forms", desc: "Custom form builder. Send via link. Encrypted responses on client records.", color: "#3D6B72", tags: null },
-              { icon: Shield, title: "Privacy First", desc: "Column-level encryption. Row-level security. Mumbai data center. DPDP compliant.", color: "#1A1A1A", tags: null },
+              { icon: Shield, title: "Privacy First", desc: "Column-level encryption. Row-level security. DPDP compliant. Your data stays safe.", color: "#1A1A1A", tags: null },
             ].map((f, i) => {
               const Icon = f.icon;
               return (
@@ -501,12 +500,11 @@ export default function HomePage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {[
-              { q: "Is my data stored in India?", a: "Yes. All data is hosted in Mumbai (ap-south-1), fully compliant with the DPDP Act 2023. Your client data never leaves India." },
+              { q: "Is my data secure?", a: "Yes. All clinical data is encrypted with AES-256 at the column level, with row-level security ensuring therapists can only access their own data. Fully compliant with the DPDP Act 2023." },
               { q: "Can clients see my session notes?", a: "No. Session notes are strictly therapist-only. Clients have zero access to your clinical observations." },
               { q: "Do I need to install anything?", a: "No. Bendre is fully web-based and works on any device with a browser." },
               { q: "Can I use my own Zoom?", a: "Yes. Connect your Zoom account via OAuth in settings. Meeting links are auto-generated for each session." },
               { q: "What payment methods do you support?", a: "UPI, cards, net banking, and wallets via Razorpay. GST-compliant invoices are generated automatically." },
-              { q: "Is there a free trial?", a: "Yes — 14 days free on all plans. No credit card required. Cancel anytime." },
             ].map((faq, i) => (
               <button
                 key={i}
