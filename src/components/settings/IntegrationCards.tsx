@@ -25,16 +25,26 @@ export default function IntegrationCards({
   });
 
   function connectZoom() {
-    const clientId = process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID || "MOHSIgorTsuMa9Q8Y6bc7A";
+    const clientId = process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID;
+    if (!clientId) {
+      alert("Zoom integration is not configured. Please set NEXT_PUBLIC_ZOOM_CLIENT_ID.");
+      return;
+    }
     const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/zoom/callback`);
     window.location.href = `https://zoom.us/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
   }
 
   function connectGoogle() {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "81063395245-ifmk79r57sft83tfh4nufagpt7qcm88o.apps.googleusercontent.com";
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      alert("Google Calendar integration is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID.");
+      return;
+    }
     const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/google/callback`);
     const scope = encodeURIComponent("https://www.googleapis.com/auth/calendar.events");
     const state = crypto.randomUUID();
+    // Store state in a cookie for CSRF validation on server callback
+    document.cookie = `google_oauth_state=${state}; path=/; max-age=600; SameSite=Lax; Secure`;
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent&state=${state}`;
   }
 

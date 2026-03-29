@@ -20,7 +20,11 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/dashboard";
+  const rawRedirect = searchParams.get("redirect");
+  const redirect =
+    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.includes("//")
+      ? rawRedirect
+      : "/dashboard";
   const oauthError = searchParams.get("error") === "oauth";
   const resetSuccess = searchParams.get("reset") === "success";
 

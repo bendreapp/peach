@@ -50,10 +50,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- Protected Routes ---
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/settings")) {
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/settings") || pathname.startsWith("/portal")) {
     if (!user) {
       const url = request.nextUrl.clone();
-      url.pathname = "/login";
+      // Redirect clients to client login, therapists to main login
+      url.pathname = pathname.startsWith("/portal") ? "/client/login" : "/login";
       url.searchParams.set("redirect", pathname);
       return NextResponse.redirect(url);
     }

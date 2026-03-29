@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
@@ -7,6 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
 
+    const safeEmail = escapeHtml(email);
     const resendKey = process.env.RESEND_API_KEY;
     if (!resendKey) {
       console.error("RESEND_API_KEY not set");
@@ -22,8 +32,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: "Bendre <noreply@notification.bendre.app>",
         to: ["bendrehq@gmail.com"],
-        subject: `Waitlist: ${email}`,
-        html: `<p>New waitlist signup: <strong>${email}</strong></p><p>Time: ${new Date().toISOString()}</p>`,
+        subject: `Waitlist: ${safeEmail}`,
+        html: `<p>New waitlist signup: <strong>${safeEmail}</strong></p><p>Time: ${new Date().toISOString()}</p>`,
       }),
     });
 

@@ -19,7 +19,11 @@ export default function ClientLoginPage() {
 function ClientLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/portal";
+  const rawRedirect = searchParams.get("redirect");
+  const redirect =
+    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.includes("//")
+      ? rawRedirect
+      : "/portal";
   const oauthError = searchParams.get("error") === "oauth";
 
   const [email, setEmail] = useState("");

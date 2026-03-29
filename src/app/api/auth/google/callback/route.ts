@@ -18,9 +18,22 @@ function encrypt(plaintext: string): string {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
+  const state = searchParams.get("state");
 
   if (!code) {
     return NextResponse.redirect(new URL("/settings?error=google_auth", req.url));
+  }
+
+  // Validate OAuth state parameter against stored cookie to prevent CSRF
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const storedState = cookieHeader
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith("google_oauth_state="))
+    ?.split("=")[1];
+
+  if (!state || !storedState || state !== storedState) {
+    return NextResponse.redirect(new URL("/settings?error=google_auth&reason=state_mismatch", req.url));
   }
 
   try {
@@ -98,9 +111,14 @@ export async function GET(req: Request) {
         .eq("id", therapist.id);
     }
 
-    return NextResponse.redirect(new URL("/settings?google=connected", req.url));
+    const successResponse = NextResponse.redirect(new URL("/settings?google=connected", req.url));
+    // Clear the OAuth state cookie
+    successResponse.cookies.set("google_oauth_state", "", { path: "/", maxAge: 0 });
+    return successResponse;
   } catch (err) {
     console.error("Google Calendar OAuth error:", err);
-    return NextResponse.redirect(new URL("/settings?error=google_exchange", req.url));
+    const errorResponse = NextResponse.redirect(new URL("/settings?error=google_exchange", req.url));
+    errorResponse.cookies.set("google_oauth_state", "", { path: "/", maxAge: 0 });
+    return errorResponse;
   }
 }
