@@ -29,7 +29,10 @@ export async function middleware(request: NextRequest) {
   );
 
   // Refresh auth session (single call, reused for protected route check)
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  // If auth check fails on a protected route, treat as unauthenticated
+  const isAuthenticated = !authError && !!user;
 
   // --- Subdomain Routing ---
   // In production: vidhya.bendre.app → booking page for "vidhya"
@@ -50,14 +53,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- Protected Routes ---
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/settings") || pathname.startsWith("/portal")) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      // Redirect clients to client login, therapists to main login
-      url.pathname = pathname.startsWith("/portal") ? "/login/client" : "/login/therapist";
-      url.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(url);
-    }
+  const isProtected =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/onboarding");
+
+  if (isProtected && !isAuthenticated) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.startsWith("/portal") ? "/login/client" : "/login/therapist";
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
   }
 
   return response;
