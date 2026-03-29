@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import posthog from "posthog-js";
 import {
   Calendar, FileText, MessageCircle, IndianRupee, ClipboardList, Shield,
   ArrowRight, Check, ChevronDown, Lock, Server, Zap, Globe,
@@ -38,6 +39,7 @@ function WaitlistForm({ dark }: { dark?: boolean }) {
       const emailOk = emailRes.status === "fulfilled" && emailRes.value.ok;
 
       if (dbOk || emailOk) {
+        posthog.capture("waitlist_joined", { source: dark ? "cta_section" : "hero" });
         setStatus("success");
         setEmail("");
       } else {

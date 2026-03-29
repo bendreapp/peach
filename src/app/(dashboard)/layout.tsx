@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import posthog from "posthog-js";
 import { useTherapistMe, useClientsList } from "@/lib/api-hooks";
 import {
   LayoutDashboard,
@@ -54,6 +55,16 @@ export default function DashboardLayout({
 
   // Prefetch at layout level
   useClientsList();
+
+  // Identify user in PostHog once therapist data loads
+  useEffect(() => {
+    if (therapist.data?.id) {
+      posthog.identify(therapist.data.id, {
+        name: therapist.data.display_name || therapist.data.full_name,
+        email: therapist.data.email,
+      });
+    }
+  }, [therapist.data?.id]);
 
   const { theme, setTheme } = useTheme();
 
@@ -106,6 +117,8 @@ export default function DashboardLayout({
   }
 
   async function handleLogout() {
+    posthog.capture("logout");
+    posthog.reset();
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
     await supabase.auth.signOut();

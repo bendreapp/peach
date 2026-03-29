@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
@@ -49,6 +50,7 @@ function LoginForm() {
       return;
     }
 
+    posthog.capture("login_completed", { method: "email" });
     router.push(redirect);
   }
 

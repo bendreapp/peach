@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,6 +59,7 @@ function SignupForm() {
       return;
     }
 
+    posthog.capture("signup_completed", { method: "email" });
     if (practiceName.trim()) {
       localStorage.setItem("bendre_pending_practice", practiceName.trim());
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import posthog from "posthog-js";
 import { api } from "./api";
 
 // ─── React Query hooks wrapping the Rust backend API ─────────────────────────
@@ -36,7 +37,10 @@ export function useUpdateTherapist() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Record<string, unknown>) => api.therapist.update(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["therapist", "me"] }),
+    onSuccess: () => {
+      posthog.capture("profile_updated");
+      qc.invalidateQueries({ queryKey: ["therapist", "me"] });
+    },
   });
 }
 
@@ -73,7 +77,10 @@ export function useCreateClient() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Record<string, unknown>) => api.clients.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }),
+    onSuccess: () => {
+      posthog.capture("client_added");
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    },
   });
 }
 
@@ -139,6 +146,7 @@ export function useApproveSession() {
   return useMutation({
     mutationFn: (id: string) => api.session.approve(id),
     onSuccess: () => {
+      posthog.capture("session_approved");
       qc.invalidateQueries({ queryKey: ["sessions"] });
     },
   });
@@ -148,7 +156,10 @@ export function useRejectSession() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.session.reject(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
+    onSuccess: () => {
+      posthog.capture("session_rejected");
+      qc.invalidateQueries({ queryKey: ["sessions"] });
+    },
   });
 }
 
@@ -160,7 +171,10 @@ export function useCancelSession() {
       ...data
     }: { id: string } & Record<string, unknown>) =>
       api.session.cancel(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
+    onSuccess: () => {
+      posthog.capture("session_cancelled");
+      qc.invalidateQueries({ queryKey: ["sessions"] });
+    },
   });
 }
 
@@ -168,7 +182,10 @@ export function useCompleteSession() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.session.complete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
+    onSuccess: () => {
+      posthog.capture("session_completed");
+      qc.invalidateQueries({ queryKey: ["sessions"] });
+    },
   });
 }
 
@@ -176,7 +193,10 @@ export function useCreateSession() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Record<string, unknown>) => api.session.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
+    onSuccess: () => {
+      posthog.capture("session_created");
+      qc.invalidateQueries({ queryKey: ["sessions"] });
+    },
   });
 }
 
@@ -205,7 +225,10 @@ export function useCreateNote() {
   return useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       api.session.createNote(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["notes"] }),
+    onSuccess: () => {
+      posthog.capture("note_created");
+      qc.invalidateQueries({ queryKey: ["notes"] });
+    },
   });
 }
 
@@ -217,7 +240,10 @@ export function useUpdateNote() {
       ...data
     }: { noteId: string } & Record<string, unknown>) =>
       api.session.updateNote(noteId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["notes"] }),
+    onSuccess: () => {
+      posthog.capture("note_updated");
+      qc.invalidateQueries({ queryKey: ["notes"] });
+    },
   });
 }
 
@@ -236,8 +262,10 @@ export function useCreateTreatmentPlan() {
   return useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       api.treatmentPlan.create(data),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["treatment-plans"] }),
+    onSuccess: () => {
+      posthog.capture("treatment_plan_created");
+      qc.invalidateQueries({ queryKey: ["treatment-plans"] });
+    },
   });
 }
 
@@ -272,7 +300,10 @@ export function useCreateResource() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Record<string, unknown>) => api.resource.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["resources"] }),
+    onSuccess: () => {
+      posthog.capture("resource_created");
+      qc.invalidateQueries({ queryKey: ["resources"] });
+    },
   });
 }
 
@@ -281,7 +312,10 @@ export function useShareResource() {
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
       api.resource.share(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["resources"] }),
+    onSuccess: () => {
+      posthog.capture("resource_shared");
+      qc.invalidateQueries({ queryKey: ["resources"] });
+    },
   });
 }
 
@@ -368,7 +402,10 @@ export function useAcceptInvitation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (token: string) => api.practice.acceptInvitation(token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["practice"] }),
+    onSuccess: () => {
+      posthog.capture("invitation_accepted");
+      qc.invalidateQueries({ queryKey: ["practice"] });
+    },
   });
 }
 
