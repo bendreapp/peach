@@ -56,9 +56,9 @@ export default function DashboardLayout({
   // Prefetch at layout level
   useClientsList();
 
-  // Redirect to onboarding if therapist has no slug (new Google signup)
+  // Redirect to onboarding if therapist hasn't completed setup (no phone)
   useEffect(() => {
-    if (therapist.data && !therapist.data.slug) {
+    if (therapist.data && !therapist.data.phone) {
       router.push("/onboarding");
     }
   }, [therapist.data, router]);

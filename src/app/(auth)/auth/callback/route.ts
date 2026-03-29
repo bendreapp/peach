@@ -24,12 +24,12 @@ export async function GET(request: Request) {
       if (user) {
         const { data: therapist } = await supabase
           .from("therapists")
-          .select("slug")
+          .select("phone")
           .eq("id", user.id)
           .single();
 
-        // New user or no slug → onboarding
-        if (!therapist?.slug) {
+        // New user (no phone set yet) → onboarding
+        if (!therapist?.phone) {
           return NextResponse.redirect(`${origin}/onboarding`);
         }
       }
