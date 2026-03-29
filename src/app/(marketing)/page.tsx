@@ -306,55 +306,60 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Mobile: compact grid layout */}
-        <div className="md:hidden px-6">
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
+        {/* Mobile: scattered icons around text */}
+        <div className="md:hidden relative" style={{ minHeight: 480, padding: "0 24px" }}>
+
+          {/* Floating icons scattered around the heading */}
+          {[
+            { label: "WhatsApp", x: "2%", y: "2%", r: -6, d: 3, logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+            { label: "Sheets", x: "68%", y: "0%", r: 5, d: 3.5, logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png" },
+            { label: "Notion", x: "75%", y: "28%", r: 7, d: 4, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+            { label: "Forms", x: "0%", y: "35%", r: -5, d: 3.8, logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png" },
+            { label: "Gmail", x: "60%", y: "56%", r: -3, d: 3.3, logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png" },
+            { label: "Zoom", x: "5%", y: "60%", r: 5, d: 4.2, logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+            { label: "Calendar", x: "35%", y: "65%", r: -4, d: 3.6, logo: "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png" },
+            { label: "UPI", x: "72%", y: "68%", r: 4, d: 4.1, logo: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
+          ].map((app, i) => (
+            <div
+              key={i}
+              className="absolute flex flex-col items-center gap-1"
+              style={{
+                left: app.x, top: app.y, zIndex: 1,
+                animation: `problemFloat ${app.d}s ease-in-out infinite alternate`,
+                animationDelay: `${i * 0.2}s`,
+              }}
+            >
+              <div style={{
+                width: 46, height: 46, borderRadius: 12,
+                background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: 8,
+                transform: `rotate(${app.r}deg)`,
+              }}>
+                <img src={app.logo} alt={app.label} width={24} height={24} style={{ objectFit: "contain" }} />
+              </div>
+              <span style={{ fontSize: 9, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
+            </div>
+          ))}
+
+          {/* Center text */}
+          <div style={{ position: "relative", zIndex: 2, textAlign: "center", paddingTop: 100, paddingBottom: 60 }}>
             <h2 style={{ fontSize: 32, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "#111" }}>
               The current way therapists work is <span style={{ color: "#C62828" }}>chaotic.</span>
             </h2>
-          </div>
-
-          {/* Mobile icon grid — 3 columns with floating */}
-          <div className="grid grid-cols-3 gap-3 max-w-[300px] mx-auto" style={{ marginBottom: 32 }}>
-            {[
-              { label: "WhatsApp", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg", d: 3, r: -4 },
-              { label: "Sheets", logo: "https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png", d: 3.5, r: 3 },
-              { label: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", d: 4, r: -5 },
-              { label: "Forms", logo: "https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png", d: 3.8, r: 4 },
-              { label: "Gmail", logo: "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png", d: 3.3, r: -3 },
-              { label: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg", d: 4.2, r: 5 },
-            ].map((app, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5" style={{
-                animation: `problemFloat ${app.d}s ease-in-out infinite alternate`,
-                animationDelay: `${i * 0.3}s`,
-              }}>
-                <div style={{
-                  width: 52, height: 52, borderRadius: 14,
-                  background: "#fff", border: "1px solid rgba(0,0,0,0.05)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  padding: 10,
-                  transform: `rotate(${app.r}deg)`,
-                }}>
-                  <img src={app.logo} alt={app.label} width={28} height={28} style={{ objectFit: "contain" }} />
+            <div className="flex justify-center gap-6" style={{ marginTop: 40 }}>
+              {[
+                { stat: "5+", desc: "apps daily" },
+                { stat: "2hrs", desc: "admin work" },
+                { stat: "0", desc: "for therapists" },
+              ].map((s) => (
+                <div key={s.desc} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: "#111" }}>{s.stat}</div>
+                  <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{s.desc}</div>
                 </div>
-                <span style={{ fontSize: 10, color: "#ccc", fontWeight: 500 }}>{app.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile stats */}
-          <div className="flex justify-center gap-6">
-            {[
-              { stat: "5+", desc: "apps daily" },
-              { stat: "2hrs", desc: "admin work" },
-              { stat: "0", desc: "for therapists" },
-            ].map((s) => (
-              <div key={s.desc} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#111" }}>{s.stat}</div>
-                <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{s.desc}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
