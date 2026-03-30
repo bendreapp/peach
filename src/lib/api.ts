@@ -433,6 +433,30 @@ export const api = {
       apiFetch("/api/v1/broadcast", { method: "POST", body: data }),
   },
 
+  // ── Leads ──────────────────────────────────────────────────────────
+  leads: {
+    list: (params?: Record<string, string>) =>
+      apiFetch("/api/v1/leads", { params }),
+    getById: (id: string) => apiFetch(`/api/v1/leads/${id}`),
+    create: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/leads", { method: "POST", body: data }),
+    update: (id: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/leads/${id}`, { method: "PUT", body: data }),
+  },
+
+  // ── Client Invitations ────────────────────────────────────────────
+  clientInvitations: {
+    create: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/client-invitations", { method: "POST", body: data }),
+    getByToken: (token: string) =>
+      apiFetch(`/api/v1/client-invitations/by-token/${token}`, { auth: false }),
+    claim: (token: string) =>
+      apiFetch(`/api/v1/client-invitations/by-token/${token}/claim`, {
+        method: "POST",
+        auth: false,
+      }),
+  },
+
   // ── Analytics ────────────────────────────────────────────────────────
   analytics: {
     overview: () => apiFetch("/api/v1/analytics/overview"),

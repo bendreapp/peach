@@ -1,74 +1,12 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useTheme } from "next-themes";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
-import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Sun, Moon, ShieldCheck } from "lucide-react";
 
-export default function ClientSignupPage() {
-  return (
-    <Suspense>
-      <ClientSignupForm />
-    </Suspense>
-  );
-}
-
-function ClientSignupForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const oauthError = searchParams.get("error") === "oauth";
-
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [error, setError] = useState<string | null>(
-    oauthError ? "OAuth sign-up failed. Please try again." : null
-  );
-  const [loading, setLoading] = useState(false);
+export default function ClientSignupInfoPage() {
   const { theme, setTheme } = useTheme();
-
-  async function handleSignup(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          user_type: "client",
-          phone: phone || undefined,
-        },
-      },
-    });
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (!data.user) {
-      setError("Something went wrong. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    router.push("/portal");
-  }
-
-  const inputStyle: React.CSSProperties = {
-    background: "var(--color-auth-input)",
-    border: "1px solid var(--color-auth-input-border)",
-    color: "var(--color-auth-input-text)",
-  };
 
   return (
     <main
@@ -88,7 +26,7 @@ function ClientSignupForm() {
         {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
       </button>
 
-      <div className="w-full max-w-[380px]">
+      <div className="w-full max-w-[420px] text-center">
         {/* Logo + brand */}
         <div className="flex items-center justify-center gap-1.5 mb-10">
           <Image src="/logo.png" alt="Bendre" width={52} height={52} />
@@ -102,91 +40,59 @@ function ClientSignupForm() {
 
         {/* Card */}
         <div
-          className="rounded-2xl border p-8 transition-colors duration-300"
+          className="rounded-2xl border p-10 transition-colors duration-300"
           style={{
             background: "var(--color-auth-card)",
             borderColor: "var(--color-auth-card-border)",
           }}
         >
-          <div className="text-center mb-7">
-            <h1 className="text-xl font-bold" style={{ color: "var(--color-auth-text)" }}>
-              Client Sign Up
-            </h1>
-            <p className="text-[13px] mt-1" style={{ color: "var(--color-auth-text-secondary)" }}>
-              Access your sessions and intake forms
-            </p>
+          <div
+            className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center"
+            style={{ background: "rgba(107,126,108,0.1)" }}
+          >
+            <ShieldCheck size={28} style={{ color: "var(--color-sage)" }} />
           </div>
 
-          {error && (
-            <div role="alert" className="mb-5 px-4 py-3 rounded-lg text-[13px]" style={{ background: "rgba(229,57,53,0.08)", border: "1px solid rgba(229,57,53,0.15)", color: "#e55" }}>
-              {error}
-            </div>
-          )}
+          <h1
+            className="text-xl font-bold mb-3"
+            style={{ color: "var(--color-auth-text)" }}
+          >
+            Client accounts are invite-only
+          </h1>
 
-          {/* Form */}
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label htmlFor="fullName" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Full name
-              </label>
-              <input
-                id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Your full name"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Email
-              </label>
-              <input
-                id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Phone <span style={{ color: "var(--color-auth-text-muted)", fontWeight: 400 }}>(optional)</span>
-              </label>
-              <input
-                id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Password
-              </label>
-              <input
-                id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Min 6 characters"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 rounded-lg text-white text-sm font-semibold disabled:opacity-50 transition-all mt-2"
-              style={{ background: "var(--color-sage)" }}
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </button>
-          </form>
+          <p
+            className="text-[14px] leading-relaxed"
+            style={{ color: "var(--color-auth-text-secondary)" }}
+          >
+            Your therapist will send you an invite link to create your portal
+            account.
+          </p>
         </div>
 
-        <p className="text-sm text-center mt-6" style={{ color: "var(--color-auth-text-muted)" }}>
+        <p
+          className="text-sm mt-8"
+          style={{ color: "var(--color-auth-text-muted)" }}
+        >
           Already have an account?{" "}
-          <Link href="/login/client" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
+          <Link
+            href="/login/client"
+            className="font-medium transition-colors"
+            style={{ color: "var(--color-sage)" }}
+          >
             Sign in
           </Link>
         </p>
 
-        <p className="text-xs text-center mt-3" style={{ color: "var(--color-auth-text-muted)" }}>
+        <p
+          className="text-xs mt-3"
+          style={{ color: "var(--color-auth-text-muted)" }}
+        >
           Are you a therapist?{" "}
-          <Link href="/signup/therapist" className="font-medium transition-colors" style={{ color: "var(--color-sage)" }}>
+          <Link
+            href="/signup/therapist"
+            className="font-medium transition-colors"
+            style={{ color: "var(--color-sage)" }}
+          >
             Sign up here
           </Link>
         </p>

@@ -461,6 +461,41 @@ export function useSubmitIntakeForm() {
   });
 }
 
+// ── Leads ───────────────────────────────────────────────────────────────────
+
+export function useLeadsList(params?: Record<string, string>) {
+  return useQuery({
+    queryKey: ["leads", "list", params],
+    queryFn: () => api.leads.list(params),
+  });
+}
+
+export function useUpdateLead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
+      api.leads.update(id, data),
+    onSuccess: () => {
+      posthog.capture("lead_updated");
+      qc.invalidateQueries({ queryKey: ["leads"] });
+    },
+  });
+}
+
+// ── Client Invitations ──────────────────────────────────────────────────────
+
+export function useCreateClientInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) =>
+      api.clientInvitations.create(data),
+    onSuccess: () => {
+      posthog.capture("client_invitation_created");
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+}
+
 // ── Client Portal ────────────────────────────────────────────────────────────
 
 export function usePortalMe() {

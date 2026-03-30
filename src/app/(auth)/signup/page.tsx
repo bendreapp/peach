@@ -129,7 +129,7 @@ export default function SignupRolePicker() {
             href="/signup/client"
             illustration={clientSvg}
             title="Client"
-            subtitle="I receive care from my therapist"
+            subtitle="Invite only"
           />
         </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useUpdateClient, useUpdateClientStatus } from "@/lib/api-hooks";
+import { useUpdateClient, useUpdateClientStatus, useCreateClientInvitation } from "@/lib/api-hooks";
 import { CLIENT_STATUSES, CLIENT_CATEGORIES, DAYS_OF_WEEK } from "@bendre/shared";
 import { toast } from "sonner";
 import { formatDate } from "./utils";
@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Clock,
   Repeat,
+  Send,
 } from "lucide-react";
 
 interface ClientHeaderProps {
@@ -26,6 +27,7 @@ interface ClientHeaderProps {
     session_count: number;
     last_session: { starts_at: string } | null;
     created_at: string;
+    user_id: string | null;
     recurring_reservations: { id: string; day_of_week: number; start_time: string; end_time: string }[] | null;
   };
 }
@@ -59,6 +61,31 @@ export default function ClientHeader({ clientId, client: c }: ClientHeaderProps)
       });
     },
   };
+
+  const createInvitation = useCreateClientInvitation();
+
+  function handleInviteToPortal() {
+    createInvitation.mutate(
+      {
+        client_id: clientId,
+        email: c.email || undefined,
+        phone: c.phone || undefined,
+      },
+      {
+        onSuccess: (data: any) => {
+          const inviteLink = data?.invite_url || data?.invite_link;
+          if (inviteLink) {
+            toast.success(`Invite sent! Link: ${inviteLink}`);
+          } else {
+            toast.success("Invite sent successfully");
+          }
+        },
+        onError: (err: any) => {
+          toast.error(err.message || "Failed to send invite");
+        },
+      }
+    );
+  }
 
   const updateStatus = useUpdateClientStatus();
   const updateStatusWithCallbacks = {
@@ -97,6 +124,16 @@ export default function ClientHeader({ clientId, client: c }: ClientHeaderProps)
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-medium bg-blue-50 text-blue-600">
                 <Repeat size={10} /> Regular
               </span>
+            )}
+            {!c.user_id && (
+              <button
+                onClick={handleInviteToPortal}
+                disabled={createInvitation.isPending}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-sage-50 text-sage hover:bg-sage-100 transition-colors disabled:opacity-50"
+              >
+                <Send size={10} />
+                {createInvitation.isPending ? "Sending..." : "Invite to Portal"}
+              </button>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
