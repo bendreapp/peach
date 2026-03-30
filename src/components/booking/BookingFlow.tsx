@@ -148,7 +148,7 @@ export default function BookingFlow({ slug }: { slug: string }) {
     }
   }
 
-  function handleBook(data: { name: string; email: string; phone: string }) {
+  function handleBook(data: { name: string; email: string; phone: string; reason: string }) {
     if (!selectedType) return;
 
     if (multiSelectMode && selectedSlots.length > 1) {
@@ -158,6 +158,7 @@ export default function BookingFlow({ slug }: { slug: string }) {
         client_name: data.name,
         client_email: data.email,
         client_phone: data.phone || undefined,
+        reason: data.reason || undefined,
         slots: selectedSlots.map((s) => ({ start: s.start, end: s.end })),
       });
     } else {
@@ -168,6 +169,7 @@ export default function BookingFlow({ slug }: { slug: string }) {
         client_name: data.name,
         client_email: data.email,
         client_phone: data.phone || undefined,
+        reason: data.reason || undefined,
         slot_start: slot.start,
         slot_end: slot.end,
       });

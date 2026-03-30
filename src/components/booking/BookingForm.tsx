@@ -15,7 +15,7 @@ interface BookingFormProps {
   defaultName?: string;
   defaultEmail?: string;
   defaultPhone?: string;
-  onSubmit: (data: { name: string; email: string; phone: string }) => void;
+  onSubmit: (data: { name: string; email: string; phone: string; reason: string }) => void;
   onBack: () => void;
 }
 
@@ -54,6 +54,7 @@ export default function BookingForm({
   const [name, setName] = useState(defaultName);
   const [email, setEmail] = useState(defaultEmail);
   const [phone, setPhone] = useState(defaultPhone);
+  const [reason, setReason] = useState("");
 
   // Update if defaults change (e.g. logged-in client data loads)
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function BookingForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    onSubmit({ name, email, phone });
+    onSubmit({ name, email, phone, reason });
   }
 
   const allSlots = slots && slots.length > 1 ? slots : [{ start: slotStart, end: slotEnd }];
@@ -163,7 +164,7 @@ export default function BookingForm({
           </div>
           <div>
             <label htmlFor="phone" className="block text-xs font-medium text-ink-secondary mb-1.5">
-              Phone number <span className="text-ink-tertiary font-normal">(optional)</span>
+              Phone number
             </label>
             <input
               id="phone"
@@ -171,7 +172,22 @@ export default function BookingForm({
               placeholder="+91 98765 43210"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              required
               className="w-full px-3.5 py-2.5 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm transition-shadow"
+            />
+          </div>
+          <div>
+            <label htmlFor="reason" className="block text-xs font-medium text-ink-secondary mb-1.5">
+              What brings you here?
+            </label>
+            <textarea
+              id="reason"
+              placeholder="Briefly describe what you'd like to work on..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required
+              rows={3}
+              className="w-full px-3.5 py-2.5 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm transition-shadow resize-none"
             />
           </div>
         </div>
