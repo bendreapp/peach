@@ -10,7 +10,10 @@ import {
   useAnalyticsOverview,
   useApproveSession,
   useRejectSession,
+  useTherapistAvailability,
 } from "@/lib/api-hooks";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import {
   CalendarDays,
   Users,
@@ -25,6 +28,7 @@ import {
   CircleDot,
   Plus,
   UserPlus,
+  Circle,
 } from "lucide-react";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -257,6 +261,91 @@ function StatCard({
   );
 }
 
+// ── Setup Checklist ───────────────────────────────────────────────────────────
+
+interface ChecklistItem {
+  label: string;
+  done: boolean;
+  href: string;
+  hrefLabel: string;
+}
+
+function SetupChecklist({ items }: { items: ChecklistItem[] }) {
+  const pending = items.filter((i) => !i.done);
+  const completed = items.filter((i) => i.done).length;
+  const total = items.length;
+
+  if (pending.length === 0) return null;
+
+  return (
+    <div
+      className="rounded-card overflow-hidden"
+      style={{
+        background: "#FFFFFF",
+        border: "1px solid #E5E0D8",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)",
+      }}
+    >
+      {/* Two-tone header */}
+      <div
+        className="flex items-center justify-between"
+        style={{
+          background: "#FAFAF8",
+          borderBottom: "1px solid #E5E0D8",
+          padding: "14px 20px",
+        }}
+      >
+        <h2 className="font-semibold" style={{ fontSize: "14px", color: "#1C1C1E" }}>
+          Complete your setup
+        </h2>
+        <span
+          className="font-medium"
+          style={{ fontSize: "12px", color: "#8A8480" }}
+        >
+          {completed} of {total} complete
+        </span>
+      </div>
+
+      {/* Items */}
+      <div className="divide-y divide-[#F0ECE6]">
+        {pending.map((item, idx) => (
+          <div
+            key={idx}
+            className="flex items-center gap-3 transition-colors duration-100"
+            style={{ height: "48px", padding: "0 20px" }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLDivElement).style.background = "#F7F5F2")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLDivElement).style.background = "")
+            }
+          >
+            <Circle
+              size={16}
+              strokeWidth={1.5}
+              style={{ color: "#C5BFB8", flexShrink: 0 }}
+            />
+            <span
+              className="flex-1 font-medium"
+              style={{ fontSize: "14px", color: "#5C5856" }}
+            >
+              {item.label}
+            </span>
+            <Link
+              href={item.href}
+              className="flex items-center gap-1 font-medium transition-colors duration-100 hover:opacity-80"
+              style={{ fontSize: "13px", color: "#5C7A6B" }}
+            >
+              {item.hrefLabel}
+              <ArrowRight size={12} strokeWidth={1.5} />
+            </Link>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -265,6 +354,11 @@ export default function DashboardPage() {
   const clients = useClientsList();
   const therapist = useTherapistMe();
   const analytics = useAnalyticsOverview();
+  const availability = useTherapistAvailability();
+  const sessionTypes = useQuery({
+    queryKey: ["session-types", "list"],
+    queryFn: () => api.sessionType.list(),
+  });
 
   const approve = useApproveSession();
   const reject = useRejectSession();
@@ -280,6 +374,34 @@ export default function DashboardPage() {
   const firstName = displayName.split(" ")[0];
 
   const isLoading = today.isLoading;
+
+  // ── Setup checklist items ──
+  const checklistItems: ChecklistItem[] = [
+    {
+      label: "Add your bio",
+      done: !!therapist.data?.bio,
+      href: "/settings?tab=profile",
+      hrefLabel: "Go to Profile",
+    },
+    {
+      label: "Set your availability",
+      done: Array.isArray(availability.data) && availability.data.length > 0,
+      href: "/settings?tab=availability",
+      hrefLabel: "Set availability",
+    },
+    {
+      label: "Create session types",
+      done: Array.isArray((sessionTypes.data as any[])) && (sessionTypes.data as any[]).length > 0,
+      href: "/settings?tab=session-types",
+      hrefLabel: "Add session type",
+    },
+    {
+      label: "Write cancellation policy",
+      done: !!therapist.data?.cancellation_policy,
+      href: "/settings?tab=policies",
+      hrefLabel: "Add policy",
+    },
+  ];
 
   // ── Skeleton state ──
   if (isLoading) {
@@ -375,6 +497,11 @@ export default function DashboardPage() {
           style={{ borderBottom: "1px solid #E5E0D8" }}
         />
       </div>
+
+      {/* ── Setup checklist (shown while pending items exist) ── */}
+      {!therapist.isLoading && !availability.isLoading && !sessionTypes.isLoading && (
+        <SetupChecklist items={checklistItems} />
+      )}
 
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

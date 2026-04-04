@@ -44,6 +44,31 @@ export function useUpdateTherapist() {
   });
 }
 
+export function useSelectPlan() {
+  return useMutation({
+    mutationFn: (plan: "solo" | "team" | "clinic") =>
+      api.therapist.selectPlan(plan),
+    onSuccess: (_data, plan) => {
+      posthog.capture("plan_selected", { plan });
+    },
+  });
+}
+
+export function useCompleteOnboarding() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      avatar_key: string;
+      bio: string;
+      support_requested: boolean;
+    }) => api.therapist.completeOnboarding(data),
+    onSuccess: () => {
+      posthog.capture("onboarding_completed");
+      qc.invalidateQueries({ queryKey: ["therapist", "me"] });
+    },
+  });
+}
+
 // ── Clients ──────────────────────────────────────────────────────────────────
 
 export function useClientsList(params?: {

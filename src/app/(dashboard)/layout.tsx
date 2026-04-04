@@ -22,6 +22,7 @@ import {
   LogOut,
   Menu,
   X,
+  Clock,
 } from "lucide-react";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
@@ -387,6 +388,24 @@ export default function DashboardLayout({
         className="flex-1 min-h-screen md:ml-[220px]"
         style={{ backgroundColor: "#F4F1EC" }}
       >
+        {/* Plan pending banner */}
+        {therapist.data?.plan_status === "pending" && (
+          <div
+            className="flex items-center justify-center gap-2 w-full"
+            style={{
+              background: "#FBF0E8",
+              color: "#B5733A",
+              height: "44px",
+              fontSize: "13px",
+              fontWeight: 500,
+              borderRadius: 0,
+            }}
+          >
+            <Clock size={16} strokeWidth={1.5} />
+            <span>Plan pending activation — our team will reach out soon</span>
+          </div>
+        )}
+
         <div
           className="animate-fade-in pt-20 md:pt-8 px-4 md:px-8 pb-8 mx-auto"
           style={{ maxWidth: "1200px" }}

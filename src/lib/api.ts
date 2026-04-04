@@ -115,6 +115,20 @@ export const api = {
         method: "PUT",
         body: data,
       }),
+    selectPlan: (plan: "solo" | "team" | "clinic") =>
+      apiFetch("/api/v1/therapists/me/select-plan", {
+        method: "POST",
+        body: { plan },
+      }),
+    completeOnboarding: (data: {
+      avatar_key: string;
+      bio: string;
+      support_requested: boolean;
+    }) =>
+      apiFetch("/api/v1/therapists/me/complete-onboarding", {
+        method: "POST",
+        body: data,
+      }),
   },
 
   // ── Clients ──────────────────────────────────────────────────────────
