@@ -7,8 +7,6 @@ import { useResourcesList } from "@/lib/api-hooks";
 import { useCustomTags } from "@/lib/use-custom-tags";
 import AddResourceModal from "@/components/resources/AddResourceModal";
 import {
-
-
   FolderOpen,
   Plus,
   FileText,
@@ -17,6 +15,7 @@ import {
   ExternalLink,
   Trash2,
   Tag,
+  Search,
 } from "lucide-react";
 
 // Unwrap API response: handles both flat arrays and { data: [...] }
@@ -26,23 +25,32 @@ function toArray(d: any): any[] {
   return [];
 }
 
-
 const TYPE_ICONS: Record<string, typeof FileText> = {
   file: Upload,
   link: LinkIcon,
   worksheet: FileText,
 };
 
-const TYPE_BADGE: Record<string, string> = {
-  file: "badge-teal",
-  link: "badge-gold",
-  worksheet: "badge-sage",
+const TYPE_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
+  file: { bg: "#EBF0EB", text: "#5C7A6B", icon: "#5C7A6B" },
+  link: { bg: "#FBF4EE", text: "#B5733A", icon: "#B5733A" },
+  worksheet: { bg: "#EAF4F1", text: "#3D8B7A", icon: "#3D8B7A" },
 };
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Kolkata",
+  });
+}
 
 export default function ResourcesPage() {
   const { modalities } = useCustomTags();
   const [showAdd, setShowAdd] = useState(false);
   const [filterModality, setFilterModality] = useState<string>("");
+  const [search, setSearch] = useState("");
 
   const resources = useResourcesList();
   const qc = useQueryClient();
@@ -54,93 +62,119 @@ export default function ResourcesPage() {
 
   const resourcesData = toArray(resources.data);
 
-  const filteredResources = filterModality
-    ? resourcesData.filter((r: any) =>
-        (r.modality_tags ?? []).includes(filterModality)
-      )
-    : resourcesData;
-
-  function formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      timeZone: "Asia/Kolkata",
-    });
-  }
+  const filteredResources = resourcesData.filter((r: any) => {
+    const matchesModality = filterModality
+      ? (r.modality_tags ?? []).includes(filterModality)
+      : true;
+    const matchesSearch = search
+      ? r.title?.toLowerCase().includes(search.toLowerCase()) ||
+        r.description?.toLowerCase().includes(search.toLowerCase())
+      : true;
+    return matchesModality && matchesSearch;
+  });
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* Page header */}
+      <div className="flex items-start justify-between">
         <div>
-          <div className="flex items-center gap-2.5">
-            <FolderOpen size={22} className="text-sage" />
-            <h1 className="text-2xl font-semibold text-ink">Resources</h1>
-          </div>
-          <p className="text-sm text-ink-secondary mt-1">
+          <h1 className="text-2xl font-bold text-[#1C1C1E] tracking-tight">Resources</h1>
+          <p className="text-sm text-[#5C5856] mt-1">
             Worksheets, links, and files to share with clients.
           </p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="btn-primary">
-          <Plus size={14} /> Add Resource
+        <button
+          onClick={() => setShowAdd(true)}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px] bg-[#5C7A6B] text-white text-sm font-medium transition-all duration-150 hover:bg-[#496158] min-h-[36px]"
+        >
+          <Plus size={14} />
+          Add Resource
         </button>
       </div>
 
-      {/* Modality filter */}
-      <div className="flex flex-wrap gap-1.5">
-        <button
-          onClick={() => setFilterModality("")}
-          className={`px-3.5 py-1.5 rounded-small text-xs font-medium transition-all duration-200 ${
-            !filterModality
-              ? "bg-sage text-white shadow-sage"
-              : "text-ink-secondary hover:bg-bg hover:text-ink"
-          }`}
-        >
-          All
-        </button>
-        {modalities.map((m) => (
+      {/* Filter + search bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8480] pointer-events-none"
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search resources..."
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+          />
+        </div>
+
+        {/* Category filters */}
+        <div className="flex flex-wrap gap-1.5">
           <button
-            key={m.key}
-            onClick={() => setFilterModality(m.key)}
-            className={`px-3.5 py-1.5 rounded-small text-xs font-medium transition-all duration-200 ${
-              filterModality === m.key
-                ? "bg-sage text-white shadow-sage"
-                : "text-ink-secondary hover:bg-bg hover:text-ink"
+            onClick={() => setFilterModality("")}
+            className={`px-3.5 py-2 rounded-[8px] text-xs font-medium transition-all duration-150 min-h-[36px] ${
+              !filterModality
+                ? "bg-[#EBF0EB] text-[#5C7A6B] border border-[#5C7A6B]/20"
+                : "bg-white border border-[#E5E0D8] text-[#5C5856] hover:bg-[#F4F1EC] hover:text-[#1C1C1E]"
             }`}
           >
-            {m.name}
+            All
           </button>
-        ))}
+          {modalities.map((m) => (
+            <button
+              key={m.key}
+              onClick={() => setFilterModality(m.key)}
+              className={`px-3.5 py-2 rounded-[8px] text-xs font-medium transition-all duration-150 min-h-[36px] ${
+                filterModality === m.key
+                  ? "bg-[#EBF0EB] text-[#5C7A6B] border border-[#5C7A6B]/20"
+                  : "bg-white border border-[#E5E0D8] text-[#5C5856] hover:bg-[#F4F1EC] hover:text-[#1C1C1E]"
+              }`}
+            >
+              {m.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Resource grid */}
       {resources.isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-32 bg-card rounded-card border border-border shadow-card animate-pulse"
+              className="h-44 bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] animate-pulse"
             />
           ))}
         </div>
       ) : filteredResources.length === 0 ? (
-        <div className="bg-card rounded-card border border-border shadow-card p-12 text-center">
-          <FolderOpen size={28} className="mx-auto text-ink-tertiary mb-3" />
-          <p className="text-sm text-ink-secondary font-medium">
-            {filterModality
-              ? "No resources match this filter"
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-16 flex flex-col items-center justify-center text-center">
+          <FolderOpen size={40} className="text-[#C5BFB8] mb-4" strokeWidth={1.5} />
+          <p className="text-base font-medium text-[#5C5856]">
+            {search || filterModality
+              ? "No resources match your search"
               : "Your resource library is empty"}
           </p>
-          <p className="text-xs text-ink-tertiary mt-1">
-            Add worksheets, links, and files to share with clients
+          <p className="text-sm text-[#8A8480] mt-1">
+            {search || filterModality
+              ? "Try adjusting your filters"
+              : "Add worksheets, links, and files to share with clients"}
           </p>
+          {!search && !filterModality && (
+            <button
+              onClick={() => setShowAdd(true)}
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px] bg-[#5C7A6B] text-white text-sm font-medium transition-all duration-150 hover:bg-[#496158]"
+            >
+              <Plus size={14} />
+              Add your first resource
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredResources.map((r: any) => {
             const Icon = TYPE_ICONS[r.resource_type] ?? FileText;
-            const badgeClass = TYPE_BADGE[r.resource_type] ?? "badge-sage";
+            const typeColor = TYPE_COLORS[r.resource_type] ?? TYPE_COLORS.worksheet;
             const mods = (r.modality_tags ?? [])
               .map(
                 (t: string) => modalities.find((m) => m.key === t)?.name ?? t
@@ -151,52 +185,66 @@ export default function ResourcesPage() {
             return (
               <div
                 key={r.id}
-                className="bg-card rounded-card border border-border shadow-card p-5 transition-all duration-200 hover:border-border-hover hover:shadow-card-hover hover:-translate-y-0.5"
+                className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-5 transition-all duration-150 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 group"
               >
-                <div className="flex items-start justify-between mb-2.5">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className={`badge ${badgeClass} inline-flex items-center gap-1`}
-                    >
-                      <Icon size={11} /> {r.resource_type}
-                    </span>
-                    <h3 className="text-sm font-semibold text-ink truncate">
-                      {r.title}
-                    </h3>
+                {/* Card top row: icon + type badge + delete */}
+                <div className="flex items-start justify-between mb-3">
+                  <div
+                    className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: typeColor.bg }}
+                  >
+                    <Icon size={18} style={{ color: typeColor.icon }} />
                   </div>
                   <button
-                    onClick={() =>
-                      deleteResource.mutate({ resource_id: r.id })
-                    }
-                    className="p-1.5 rounded-small text-ink-tertiary hover:text-error hover:bg-error-bg transition-all duration-200 flex-shrink-0"
+                    onClick={() => deleteResource.mutate({ resource_id: r.id })}
+                    className="p-1.5 rounded-[6px] text-[#8A8480] opacity-0 group-hover:opacity-100 hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
+                    title="Delete resource"
                   >
                     <Trash2 size={13} />
                   </button>
                 </div>
 
+                {/* Title */}
+                <h3 className="text-sm font-semibold text-[#1C1C1E] leading-snug mb-1 line-clamp-2">
+                  {r.title}
+                </h3>
+
+                {/* Type badge */}
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[999px] text-[11px] font-medium mb-2"
+                  style={{ backgroundColor: typeColor.bg, color: typeColor.text }}
+                >
+                  <Icon size={9} />
+                  {r.resource_type}
+                </span>
+
+                {/* Description */}
                 {r.description && (
-                  <p className="text-xs text-ink-secondary mb-2.5 line-clamp-2">
+                  <p className="text-xs text-[#5C5856] mb-2.5 line-clamp-2 leading-relaxed">
                     {r.description}
                   </p>
                 )}
 
+                {/* External link */}
                 {r.external_url && (
                   <a
                     href={r.external_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-sage font-medium hover:text-sage-dark transition-colors mb-2.5"
+                    className="inline-flex items-center gap-1 text-xs text-[#5C7A6B] font-medium hover:text-[#496158] transition-colors mb-2.5"
                   >
-                    <ExternalLink size={11} /> Open link
+                    <ExternalLink size={10} />
+                    Open link
                   </a>
                 )}
 
+                {/* Tags */}
                 {(mods.length > 0 || categories.length > 0) && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {mods.map((m: string) => (
                       <span
                         key={m}
-                        className="text-[10px] px-2 py-0.5 bg-bg text-ink-secondary rounded-md font-medium"
+                        className="text-[10px] px-2 py-0.5 bg-[#F4F1EC] text-[#5C5856] rounded-[999px] font-medium"
                       >
                         {m}
                       </span>
@@ -204,15 +252,17 @@ export default function ResourcesPage() {
                     {categories.map((c: string) => (
                       <span
                         key={c}
-                        className="text-[10px] px-2 py-0.5 bg-sage-bg text-sage rounded-md font-medium flex items-center gap-0.5"
+                        className="text-[10px] px-2 py-0.5 bg-[#EAF4F1] text-[#3D8B7A] rounded-[999px] font-medium inline-flex items-center gap-0.5"
                       >
-                        <Tag size={8} /> {c}
+                        <Tag size={8} />
+                        {c}
                       </span>
                     ))}
                   </div>
                 )}
 
-                <div className="text-[10px] text-ink-tertiary mt-2.5">
+                {/* Date footer */}
+                <div className="text-[10px] text-[#8A8480] mt-3 pt-3 border-t border-[#E5E0D8]">
                   Added {formatDate(r.created_at)}
                 </div>
               </div>

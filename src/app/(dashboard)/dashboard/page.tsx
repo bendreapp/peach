@@ -1,29 +1,33 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   useSessionsToday,
-  useSessionsUpcoming,
   useSessionsPending,
   useClientsList,
   useTherapistMe,
+  useAnalyticsOverview,
   useApproveSession,
   useRejectSession,
 } from "@/lib/api-hooks";
 import {
-  Clock,
   CalendarDays,
   Users,
   ArrowRight,
   Video,
+  FileText,
+  TrendingUp,
+  CalendarOff,
+  Clock,
   CheckCircle2,
   AlertCircle,
   CircleDot,
-  FileText,
-  TrendingUp,
-  CalendarCheck,
+  Plus,
+  UserPlus,
 } from "lucide-react";
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-IN", {
@@ -34,197 +38,478 @@ function formatTime(iso: string): string {
   });
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    timeZone: "Asia/Kolkata",
-  });
-}
-
 function formatTodayDate(): string {
   return new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
-    year: "numeric",
     timeZone: "Asia/Kolkata",
   });
 }
 
 function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
+  const istHour = parseInt(
+    new Date().toLocaleString("en-IN", {
+      hour: "numeric",
+      hour12: false,
+      timeZone: "Asia/Kolkata",
+    }),
+    10
+  );
+  if (istHour < 12) return "Good morning";
+  if (istHour < 17) return "Good afternoon";
   return "Good evening";
 }
 
-export default function TodayPage() {
+function formatINR(amount: number): string {
+  if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+  if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
+  return `₹${amount}`;
+}
+
+function getSessionStatusLabel(status: string): string {
+  if (status === "scheduled") return "Confirmed";
+  if (status === "completed") return "Completed";
+  if (status === "pending_approval") return "Pending";
+  if (status === "cancelled") return "Cancelled";
+  return status;
+}
+
+// Deterministic color from name for avatar backgrounds
+function getAvatarColor(name: string): { bg: string; text: string } {
+  const colors = [
+    { bg: "#EEF7F4", text: "#457A6C" },
+    { bg: "#EBF0EB", text: "#5C7A6B" },
+    { bg: "#FBF0E8", text: "#B5733A" },
+    { bg: "#EAF4F1", text: "#3D8B7A" },
+    { bg: "#F0F5EF", text: "#567252" },
+  ];
+  const index = name.charCodeAt(0) % colors.length;
+  return colors[index];
+}
+
+// ── Skeleton components ───────────────────────────────────────────────────────
+
+function StatCardSkeleton({ delay = 0 }: { delay?: number }) {
+  return (
+    <div
+      className="rounded-card border border-[#E5E0D8] p-5"
+      style={{
+        background: "#FFFFFF",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)",
+        animationDelay: `${delay}ms`,
+      }}
+    >
+      {/* Icon circle skeleton */}
+      <div className="shimmer w-9 h-9 rounded-full mb-4" />
+      {/* Number skeleton */}
+      <div className="shimmer h-7 w-14 mb-2" />
+      {/* Label skeleton */}
+      <div className="shimmer h-3 w-24" />
+    </div>
+  );
+}
+
+function SessionRowSkeleton() {
+  return (
+    <div className="px-5 flex items-center gap-4" style={{ height: "52px" }}>
+      <div className="shimmer w-9 h-9 rounded-full flex-shrink-0" />
+      <div className="flex-1 space-y-1.5">
+        <div className="shimmer h-3.5 w-32" />
+        <div className="shimmer h-3 w-24" />
+      </div>
+      <div className="shimmer h-6 w-16 rounded-full" />
+    </div>
+  );
+}
+
+// ── Status badge ──────────────────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { bg: string; text: string; icon: ReactNode }> = {
+    scheduled: {
+      bg: "#EAF4F1",
+      text: "#3D8B7A",
+      icon: <CircleDot size={10} strokeWidth={1.5} />,
+    },
+    completed: {
+      bg: "#EAF4F1",
+      text: "#3D8B7A",
+      icon: <CheckCircle2 size={10} strokeWidth={1.5} />,
+    },
+    pending_approval: {
+      bg: "#FBF0E8",
+      text: "#B5733A",
+      icon: <AlertCircle size={10} strokeWidth={1.5} />,
+    },
+    cancelled: {
+      bg: "#F9EDED",
+      text: "#A0504A",
+      icon: null,
+    },
+  };
+
+  const style = map[status] ?? { bg: "#F0EFED", text: "#6B6460", icon: null };
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 font-medium"
+      style={{
+        background: style.bg,
+        color: style.text,
+        borderRadius: "999px",
+        fontSize: "12px",
+        padding: "3px 10px",
+      }}
+    >
+      {style.icon}
+      {getSessionStatusLabel(status)}
+    </span>
+  );
+}
+
+// ── Stat card ─────────────────────────────────────────────────────────────────
+
+function StatCard({
+  icon,
+  iconColor,
+  value,
+  label,
+  valueSize = "28px",
+  pendingWarning = false,
+  delay = 0,
+  loading = false,
+}: {
+  icon: ReactNode;
+  iconColor: string;
+  value: ReactNode;
+  label: string;
+  valueSize?: string;
+  pendingWarning?: boolean;
+  delay?: number;
+  loading?: boolean;
+}) {
+  // Icon bg: 6% opacity of the icon color
+  const iconBg = `${iconColor}0F`;
+
+  return (
+    <div
+      className="rounded-card border border-[#E5E0D8] p-5 flex flex-col gap-3 transition-all duration-150 ease-out cursor-default"
+      style={{
+        background: "#FFFFFF",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)",
+        animation: `slideUp 300ms ease-out forwards`,
+        animationDelay: `${delay}ms`,
+        opacity: 0,
+        borderLeft: pendingWarning ? "3px solid #D4956A" : undefined,
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-1px)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
+          "0 4px 12px rgba(0,0,0,0.06)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLDivElement).style.transform = "";
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
+          "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)";
+      }}
+    >
+      {/* Icon circle */}
+      <div
+        className="flex items-center justify-center flex-shrink-0"
+        style={{
+          width: "36px",
+          height: "36px",
+          borderRadius: "50%",
+          background: iconBg,
+          color: iconColor,
+        }}
+      >
+        {icon}
+      </div>
+
+      {/* Number + label */}
+      <div>
+        {loading ? (
+          <div className="shimmer mb-2" style={{ height: "28px", width: "56px" }} />
+        ) : (
+          <div
+            className="font-bold leading-none"
+            data-stat
+            style={{
+              fontSize: valueSize,
+              color: "#1C1C1E",
+              letterSpacing: "-0.03em",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {value}
+          </div>
+        )}
+        <div
+          className="font-medium mt-1"
+          style={{ fontSize: "13px", color: "#8A8480" }}
+        >
+          {label}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+
+export default function DashboardPage() {
   const today = useSessionsToday();
-  const upcoming = useSessionsUpcoming();
   const pending = useSessionsPending();
   const clients = useClientsList();
   const therapist = useTherapistMe();
-  const qc = useQueryClient();
+  const analytics = useAnalyticsOverview();
 
   const approve = useApproveSession();
   const reject = useRejectSession();
 
   const todayCount = today.data?.length ?? 0;
   const pendingCount = pending.data?.length ?? 0;
-  const upcomingCount = upcoming.data?.length ?? 0;
   const clientCount = clients.data?.length ?? 0;
+  const monthlyRevenue = (analytics.data as any)?.total_revenue_inr ?? 0;
+
   const greeting = getGreeting();
   const displayName =
     therapist.data?.display_name || therapist.data?.full_name || "";
+  const firstName = displayName.split(" ")[0];
 
-  if (today.isLoading) {
+  const isLoading = today.isLoading;
+
+  // ── Skeleton state ──
+  if (isLoading) {
     return (
       <div className="max-w-[1000px] mx-auto space-y-6 animate-fade-in">
-        <div className="space-y-2">
-          <div className="h-8 w-64 bg-border rounded-lg animate-pulse" />
-          <div className="h-4 w-48 bg-border rounded-lg animate-pulse" />
+        {/* Greeting skeleton */}
+        <div>
+          <div className="shimmer mb-2" style={{ height: "28px", width: "280px" }} />
+          <div className="shimmer" style={{ height: "16px", width: "200px" }} />
+          <div
+            className="mt-6"
+            style={{ borderBottom: "1px solid #E5E0D8" }}
+          />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-28 bg-surface rounded-card border border-border animate-pulse"
-            />
+
+        {/* Stat cards skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[0, 60, 120, 180].map((delay, i) => (
+            <StatCardSkeleton key={i} delay={delay} />
           ))}
         </div>
-        <div className="h-64 bg-surface rounded-card border border-border animate-pulse" />
+
+        {/* Main content skeleton */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Sessions card skeleton */}
+          <div
+            className="flex-1 rounded-card border border-[#E5E0D8] overflow-hidden"
+            style={{ background: "#FFFFFF" }}
+          >
+            <div
+              className="flex items-center justify-between"
+              style={{
+                background: "#FAFAF8",
+                borderBottom: "1px solid #E5E0D8",
+                padding: "16px 20px",
+              }}
+            >
+              <div className="shimmer" style={{ height: "16px", width: "140px" }} />
+              <div className="shimmer" style={{ height: "14px", width: "60px" }} />
+            </div>
+            {[1, 2, 3].map((i) => (
+              <SessionRowSkeleton key={i} />
+            ))}
+          </div>
+
+          {/* Quick actions skeleton */}
+          <div
+            className="lg:w-[280px] rounded-card border border-[#E5E0D8] p-5"
+            style={{ background: "#FFFFFF" }}
+          >
+            <div className="shimmer mb-4" style={{ height: "16px", width: "100px" }} />
+            <div className="space-y-3">
+              <div className="shimmer" style={{ height: "38px", borderRadius: "8px" }} />
+              <div className="shimmer" style={{ height: "38px", borderRadius: "8px" }} />
+              <div className="shimmer" style={{ height: "38px", borderRadius: "8px" }} />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-[1000px] mx-auto space-y-6 animate-fade-in">
-      {/* Header */}
+
+      {/* ── Greeting ── */}
       <div>
-        <h1 className="text-2xl font-bold text-ink">
+        <h1
+          className="font-bold"
+          style={{
+            fontSize: "24px",
+            color: "#1C1C1E",
+            lineHeight: "1.15",
+            letterSpacing: "-0.02em",
+          }}
+        >
           {greeting}
-          {displayName ? `, ${displayName}` : ""}
+          {firstName ? `, ${firstName}` : ""}
         </h1>
-        <p className="text-sm text-ink-secondary mt-1 flex items-center gap-2">
-          <span>{formatTodayDate()}</span>
-          <span className="text-ink-tertiary">&middot;</span>
-          <span>
-            {todayCount === 0
-              ? "No sessions today"
-              : `${todayCount} session${todayCount !== 1 ? "s" : ""} today`}
-          </span>
+        <p
+          className="mt-1"
+          style={{ fontSize: "14px", color: "#8A8480" }}
+        >
+          {formatTodayDate()}
+          {" · "}
+          {todayCount === 0
+            ? "No sessions today"
+            : `${todayCount} session${todayCount !== 1 ? "s" : ""} today`}
+          {pendingCount > 0 && `, ${pendingCount} pending approval`}
         </p>
+        <div
+          className="mt-6"
+          style={{ borderBottom: "1px solid #E5E0D8" }}
+        />
       </div>
 
-      {/* Stat cards — 4 grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Today's sessions */}
-        <div className="ui-card flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-small bg-sage-bg flex items-center justify-center">
-              <Clock size={18} className="text-sage" />
-            </div>
-            {todayCount > 0 && (
-              <span className="badge badge-sage">
-                <CircleDot size={10} className="mr-1" />
-                Live
-              </span>
-            )}
-          </div>
-          <div className="text-2xl font-bold text-ink">{todayCount}</div>
-          <div className="text-xs text-ink-secondary mt-0.5">
-            Today&apos;s sessions
-          </div>
-        </div>
-
-        {/* Pending approval */}
-        <div className="ui-card flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-small bg-warning-bg flex items-center justify-center">
-              <AlertCircle size={18} className="text-warning" />
-            </div>
-            {pendingCount > 0 && (
-              <span className="badge badge-warning">
-                <TrendingUp size={10} className="mr-1" />
-                {pendingCount}
-              </span>
-            )}
-          </div>
-          <div className="text-2xl font-bold text-ink">{pendingCount}</div>
-          <div className="text-xs text-ink-secondary mt-0.5">
-            Pending approval
-          </div>
-        </div>
-
-        {/* This week's sessions (upcoming) */}
-        <div className="ui-card flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-small bg-info-bg flex items-center justify-center">
-              <CalendarCheck size={18} className="text-info" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-ink">{upcomingCount}</div>
-          <div className="text-xs text-ink-secondary mt-0.5">
-            This week&apos;s sessions
-          </div>
-        </div>
-
-        {/* Active clients */}
-        <div className="ui-card flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-small bg-success-bg flex items-center justify-center">
-              <Users size={18} className="text-success" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-ink">{clientCount}</div>
-          <div className="text-xs text-ink-secondary mt-0.5">
-            Active clients
-          </div>
-        </div>
+      {/* ── Stat cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          icon={<CalendarDays size={18} strokeWidth={1.5} />}
+          iconColor="#5C7A6B"
+          value={todayCount}
+          label="Today's sessions"
+          valueSize="28px"
+          delay={0}
+        />
+        <StatCard
+          icon={<AlertCircle size={18} strokeWidth={1.5} />}
+          iconColor="#D4956A"
+          value={pendingCount}
+          label="Pending approvals"
+          valueSize="24px"
+          pendingWarning={pendingCount > 0}
+          delay={60}
+        />
+        <StatCard
+          icon={<Users size={18} strokeWidth={1.5} />}
+          iconColor="#8FAF8A"
+          value={clientCount}
+          label="Active clients"
+          valueSize="28px"
+          delay={120}
+        />
+        <StatCard
+          icon={<TrendingUp size={18} strokeWidth={1.5} />}
+          iconColor="#5C7A6B"
+          value={analytics.isLoading ? null : formatINR(monthlyRevenue)}
+          label="This month's revenue"
+          valueSize="24px"
+          delay={180}
+          loading={analytics.isLoading}
+        />
       </div>
 
-      {/* Pending Requests */}
+      {/* ── Pending Approvals section (conditional) ── */}
       {pendingCount > 0 && (
-        <div className="bg-surface border border-border rounded-card shadow-card overflow-hidden">
-          <div className="px-6 py-4 border-b border-border flex items-center gap-2">
-            <AlertCircle size={16} className="text-warning" />
-            <h2 className="text-sm font-semibold text-ink">
-              {pendingCount} Pending Request
-              {pendingCount !== 1 ? "s" : ""}
+        <div
+          className="rounded-card overflow-hidden"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #E5E0D8",
+            borderLeft: "3px solid #D4956A",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)",
+          }}
+        >
+          {/* Two-tone header */}
+          <div
+            className="flex items-center gap-2"
+            style={{
+              background: "#FAFAF8",
+              borderBottom: "1px solid #E5E0D8",
+              padding: "16px 20px",
+            }}
+          >
+            <AlertCircle size={14} strokeWidth={1.5} style={{ color: "#D4956A" }} />
+            <h2
+              className="font-semibold"
+              style={{ fontSize: "14px", color: "#1C1C1E" }}
+            >
+              Pending Approvals
             </h2>
+            <span
+              className="ml-auto font-medium"
+              style={{
+                background: "#FBF0E8",
+                color: "#B5733A",
+                borderRadius: "999px",
+                fontSize: "12px",
+                padding: "2px 8px",
+              }}
+            >
+              {pendingCount}
+            </span>
           </div>
-          <div className="divide-y divide-border">
+
+          {/* Rows */}
+          <div className="divide-y divide-[#F0ECE6]">
             {pending.data?.map((session: any) => {
               const client = session.clients as {
                 full_name: string;
                 email: string | null;
                 phone: string | null;
               } | null;
+              const avatarColor = getAvatarColor(client?.full_name ?? "?");
               return (
                 <div
                   key={session.id}
-                  className="px-6 py-4 flex items-center justify-between"
+                  className="flex items-center justify-between transition-colors duration-100"
+                  style={{ padding: "12px 20px", height: "52px" }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLDivElement).style.background = "#F7F5F2")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLDivElement).style.background = "")
+                  }
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-warning-bg flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-semibold text-warning">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{
+                        width: "36px",
+                        height: "36px",
+                        background: avatarColor.bg,
+                      }}
+                    >
+                      <span
+                        className="font-semibold"
+                        style={{ fontSize: "13px", color: avatarColor.text }}
+                      >
                         {client?.full_name?.charAt(0)?.toUpperCase() ?? "?"}
                       </span>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-ink">
+                      <div
+                        className="font-medium"
+                        style={{ fontSize: "14px", color: "#1C1C1E" }}
+                      >
                         {client?.full_name ?? "Unknown"}
                       </div>
-                      <div className="text-xs text-ink-secondary flex items-center gap-1">
-                        <CalendarDays size={11} />
-                        {formatDate(session.starts_at)} &middot;{" "}
+                      <div
+                        className="flex items-center gap-1 mt-0.5"
+                        style={{ fontSize: "12px", color: "#8A8480" }}
+                      >
+                        <Clock size={11} strokeWidth={1.5} />
                         {formatTime(session.starts_at)} &ndash;{" "}
                         {formatTime(session.ends_at)}
                       </div>
                     </div>
                   </div>
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => approve.mutate(session.id)}
@@ -252,159 +537,236 @@ export default function TodayPage() {
         </div>
       )}
 
-      {/* Today's sessions */}
-      <div className="bg-surface border border-border rounded-card shadow-card overflow-hidden">
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock size={15} className="text-ink-secondary" />
-            <h2 className="text-sm font-semibold text-ink">
+      {/* ── Row 2: Sessions (65%) + Quick Actions (35%) ── */}
+      <div className="flex flex-col lg:flex-row gap-4">
+
+        {/* Today's Sessions — two-tone card */}
+        <div
+          className="flex-1 rounded-card overflow-hidden"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #E5E0D8",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)",
+          }}
+        >
+          {/* Two-tone header */}
+          <div
+            className="flex items-center justify-between"
+            style={{
+              background: "#FAFAF8",
+              borderBottom: "1px solid #E5E0D8",
+              padding: "16px 20px",
+            }}
+          >
+            <h2
+              className="font-semibold"
+              style={{ fontSize: "14px", color: "#1C1C1E" }}
+            >
               Today&apos;s Sessions
             </h2>
+            <Link
+              href="/dashboard/schedule"
+              className="flex items-center gap-1 font-medium transition-colors duration-100"
+              style={{ fontSize: "13px", color: "#5C7A6B" }}
+            >
+              View all <ArrowRight size={13} strokeWidth={1.5} />
+            </Link>
           </div>
-          <Link
-            href="/dashboard/schedule"
-            className="btn-ghost btn-sm flex items-center gap-1"
-          >
-            View all <ArrowRight size={14} />
-          </Link>
-        </div>
 
-        {todayCount === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-sage-bg mx-auto mb-3 flex items-center justify-center">
-              <Clock size={20} className="text-sage" />
+          {/* Empty state */}
+          {todayCount === 0 ? (
+            <div
+              className="flex flex-col items-center justify-center gap-3"
+              style={{ padding: "48px 20px" }}
+            >
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  background: "#F4F1EC",
+                }}
+              >
+                <CalendarOff
+                  size={32}
+                  strokeWidth={1.5}
+                  style={{ color: "#C5BFB8" }}
+                />
+              </div>
+              <div className="text-center">
+                <p
+                  className="font-medium"
+                  style={{ fontSize: "16px", color: "#5C5856" }}
+                >
+                  No sessions today
+                </p>
+                <p className="mt-1" style={{ fontSize: "14px", color: "#8A8480" }}>
+                  Enjoy your free day!
+                </p>
+              </div>
             </div>
-            <p className="text-sm font-medium text-ink-secondary">
-              No sessions today
-            </p>
-            <p className="text-xs text-ink-tertiary mt-1">
-              Enjoy your free day!
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            {today.data?.map((session: any) => {
-              const client = session.clients as {
-                full_name: string;
-                email: string | null;
-                phone: string | null;
-              } | null;
-              return (
-                <div
-                  key={session.id}
-                  className="px-6 py-4 flex items-center justify-between hover:bg-sage-bg/30 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-semibold text-sage-dark">
-                        {client?.full_name?.charAt(0)?.toUpperCase() ?? "?"}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-ink">
-                        {client?.full_name ?? "Unknown"}
-                      </div>
-                      <div className="text-xs text-ink-secondary flex items-center gap-1.5">
-                        <Clock size={11} />
-                        {formatTime(session.starts_at)} &ndash;{" "}
-                        {formatTime(session.ends_at)} &middot;{" "}
-                        {session.duration_mins} min
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/dashboard/notes/new?session_id=${session.id}`}
-                      className="btn-ghost btn-sm"
-                      title="Add note"
-                    >
-                      <FileText size={14} />
-                    </Link>
-                    {session.zoom_join_url && (
-                      <a
-                        href={session.zoom_join_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-secondary btn-sm flex items-center gap-1"
-                      >
-                        <Video size={13} />
-                        Join
-                      </a>
-                    )}
-                    <span
-                      className={`badge ${
-                        session.status === "scheduled"
-                          ? "badge-sage"
-                          : session.status === "completed"
-                            ? "badge-success"
-                            : "badge-warning"
-                      }`}
-                    >
-                      {session.status === "scheduled" && (
-                        <CircleDot size={10} className="mr-1" />
-                      )}
-                      {session.status === "completed" && (
-                        <CheckCircle2 size={10} className="mr-1" />
-                      )}
-                      {session.status === "pending_approval" && (
-                        <AlertCircle size={10} className="mr-1" />
-                      )}
-                      {session.status}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+          ) : (
+            <div>
+              {today.data?.map((session: any, idx: number) => {
+                const client = session.clients as {
+                  full_name: string;
+                  email: string | null;
+                  phone: string | null;
+                } | null;
+                const sessionType = session.session_types as {
+                  name: string;
+                } | null;
+                const avatarColor = getAvatarColor(client?.full_name ?? "?");
+                const isLast = idx === (today.data?.length ?? 0) - 1;
 
-      {/* Upcoming sessions */}
-      {upcomingCount > 0 && (
-        <div className="bg-surface border border-border rounded-card shadow-card overflow-hidden">
-          <div className="px-6 py-4 border-b border-border flex items-center gap-2">
-            <CalendarDays size={15} className="text-ink-secondary" />
-            <h2 className="text-sm font-semibold text-ink">Upcoming</h2>
+                return (
+                  <div
+                    key={session.id}
+                    className="flex items-center justify-between transition-colors duration-100"
+                    style={{
+                      height: "52px",
+                      padding: "12px 20px",
+                      borderBottom: isLast ? "none" : "1px solid #F0ECE6",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget as HTMLDivElement).style.background = "#F7F5F2")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLDivElement).style.background = "")
+                    }
+                  >
+                    {/* Left: avatar + info */}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          background: avatarColor.bg,
+                        }}
+                      >
+                        <span
+                          className="font-semibold"
+                          style={{ fontSize: "13px", color: avatarColor.text }}
+                        >
+                          {client?.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+                        </span>
+                      </div>
+
+                      <div>
+                        <div
+                          className="font-medium"
+                          style={{ fontSize: "14px", color: "#1C1C1E" }}
+                        >
+                          {client?.full_name ?? "Unknown"}
+                        </div>
+                        <div
+                          className="flex items-center gap-1.5 mt-0.5"
+                          style={{ fontSize: "12px", color: "#8A8480" }}
+                        >
+                          <Clock size={11} strokeWidth={1.5} />
+                          <span>
+                            {formatTime(session.starts_at)} &ndash;{" "}
+                            {formatTime(session.ends_at)}
+                          </span>
+                          {sessionType?.name && (
+                            <>
+                              <span style={{ color: "#C5BFB8" }}>&middot;</span>
+                              <span>{sessionType.name}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: status badge + actions */}
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={session.status} />
+
+                      <Link
+                        href={`/dashboard/notes/new?session_id=${session.id}`}
+                        className="btn-ghost btn-sm"
+                        title="Add note"
+                      >
+                        <FileText size={14} strokeWidth={1.5} />
+                      </Link>
+
+                      {session.zoom_join_url && (
+                        <a
+                          href={session.zoom_join_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-secondary btn-sm flex items-center gap-1"
+                        >
+                          <Video size={13} strokeWidth={1.5} />
+                          Join
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Quick Actions — right column */}
+        <div
+          className="lg:w-[260px] rounded-card overflow-hidden"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #E5E0D8",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)",
+          }}
+        >
+          {/* Two-tone header */}
+          <div
+            style={{
+              background: "#FAFAF8",
+              borderBottom: "1px solid #E5E0D8",
+              padding: "16px 20px",
+            }}
+          >
+            <h2
+              className="font-semibold"
+              style={{ fontSize: "14px", color: "#1C1C1E" }}
+            >
+              Quick Actions
+            </h2>
           </div>
-          <div className="divide-y divide-border">
-            {upcoming.data?.map((session: any) => {
-              const client = session.clients as {
-                full_name: string;
-                email: string | null;
-                phone: string | null;
-              } | null;
-              return (
-                <div
-                  key={session.id}
-                  className="px-6 py-3.5 flex items-center justify-between hover:bg-sage-bg/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-sage-bg flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-semibold text-sage-dark">
-                        {client?.full_name?.charAt(0)?.toUpperCase() ?? "?"}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-ink">
-                        {client?.full_name ?? "Unknown"}
-                      </div>
-                      <div className="text-xs text-ink-secondary flex items-center gap-1">
-                        <CalendarDays size={11} />
-                        {formatDate(session.starts_at)} &middot;{" "}
-                        {formatTime(session.starts_at)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-ink-secondary flex items-center gap-1">
-                    <Clock size={11} />
-                    {session.duration_mins} min
-                  </div>
-                </div>
-              );
-            })}
+
+          <div className="p-4 flex flex-col gap-2.5">
+            <Link
+              href="/dashboard/schedule?new=true"
+              className="btn-primary w-full flex items-center justify-center gap-2"
+              style={{ height: "38px", fontSize: "14px" }}
+            >
+              <Plus size={15} strokeWidth={2} />
+              New Session
+            </Link>
+
+            <Link
+              href="/dashboard/clients/new"
+              className="btn-secondary w-full flex items-center justify-center gap-2"
+              style={{ height: "38px", fontSize: "14px" }}
+            >
+              <UserPlus size={15} strokeWidth={1.5} />
+              Add Client
+            </Link>
+
+            <Link
+              href="/dashboard/schedule"
+              className="btn-ghost w-full flex items-center justify-center gap-2"
+              style={{ height: "38px", fontSize: "14px" }}
+            >
+              <CalendarDays size={15} strokeWidth={1.5} />
+              View Schedule
+            </Link>
           </div>
         </div>
-      )}
+
+      </div>
     </div>
   );
 }

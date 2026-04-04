@@ -14,7 +14,8 @@ interface SessionData {
   ends_at: string;
   status: string;
   session_type_name: string | null;
-  client_name?: string; clients?: { full_name: string; email: string; phone: string | null };
+  client_name?: string;
+  clients?: { full_name: string; email: string; phone: string | null };
 }
 
 interface BlockedSlotData {
@@ -34,13 +35,31 @@ interface MonthViewProps {
 
 const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const STATUS_DOT: Record<string, string> = {
-  pending_approval: "bg-amber",
-  scheduled: "bg-sage",
-  completed: "bg-border",
-  cancelled: "bg-red-300",
-  no_show: "bg-red-400",
+// Session type → dot color
+function getSessionDotColor(typeName: string | null): string {
+  const name = (typeName ?? "").toLowerCase();
+  if (name.includes("online") || name.includes("video") || name.includes("virtual") || name.includes("tele")) {
+    return "#7BAF9E";
+  }
+  if (name.includes("group") || name.includes("family") || name.includes("couple") || name.includes("workshop")) {
+    return "#D4956A";
+  }
+  return "#5C7A6B";
+}
+
+// Status-based fallback dot color
+const STATUS_DOT_COLOR: Record<string, string> = {
+  pending_approval: "#D4956A",
+  scheduled: "#5C7A6B",
+  completed: "#C8C0B8",
+  cancelled: "#E8AFA3",
+  no_show: "#C0705A",
 };
+
+function getDotColor(session: SessionData): string {
+  if (session.session_type_name) return getSessionDotColor(session.session_type_name);
+  return STATUS_DOT_COLOR[session.status] ?? "#5C7A6B";
+}
 
 export default function MonthView({
   monthDate,
@@ -53,7 +72,6 @@ export default function MonthView({
   const currentMonth = getISTMonth(monthDate);
   const todayStr = toISTDateString(new Date());
 
-  // Group sessions by IST date string for fast lookup
   const sessionsByDate = useMemo(() => {
     const map: Record<string, SessionData[]> = {};
     for (const s of sessions) {
@@ -64,7 +82,6 @@ export default function MonthView({
     return map;
   }, [sessions]);
 
-  // Group blocked slots by date
   const blockedByDate = useMemo(() => {
     const map: Record<string, number> = {};
     for (const b of blockedSlots) {
@@ -76,10 +93,15 @@ export default function MonthView({
 
   if (isLoading) {
     return (
-      <div className="bg-surface rounded-card border border-border shadow-sm p-4">
+      <div
+        className="bg-surface rounded-card border border-border p-4"
+        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}
+      >
         <div className="grid grid-cols-7 gap-1 mb-2">
           {DAY_HEADERS.map((d) => (
-            <div key={d} className="text-center text-[11px] font-medium text-ink-tertiary py-1">{d}</div>
+            <div key={d} className="text-center py-2">
+              <div className="w-8 h-2 bg-bg rounded animate-pulse mx-auto" />
+            </div>
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -92,11 +114,20 @@ export default function MonthView({
   }
 
   return (
-    <div className="bg-surface rounded-card border border-border shadow-sm p-4">
+    <div
+      className="bg-surface rounded-card border border-border p-4"
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}
+    >
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {DAY_HEADERS.map((d) => (
-          <div key={d} className="text-center text-[11px] font-medium text-ink-tertiary py-1">{d}</div>
+          <div
+            key={d}
+            className="text-center py-2 text-[11px] font-semibold uppercase tracking-wider"
+            style={{ color: "var(--color-ink-tertiary)", letterSpacing: "0.08em" }}
+          >
+            {d}
+          </div>
         ))}
       </div>
 
@@ -110,67 +141,71 @@ export default function MonthView({
           const daySessions = sessionsByDate[dateStr] ?? [];
           const hasBlocked = (blockedByDate[dateStr] ?? 0) > 0;
 
-          // Count by status
-          const statusCounts: Record<string, number> = {};
-          for (const s of daySessions) {
-            statusCounts[s.status] = (statusCounts[s.status] ?? 0) + 1;
-          }
-
           return (
             <button
               key={i}
               onClick={() => onDayClick(day)}
               className={`
-                relative h-20 rounded-small p-1.5 text-left transition-colors
-                ${isToday ? "bg-sage-50/50 ring-1 ring-sage/10" : "hover:bg-bg"}
-                ${!isCurrentMonth ? "opacity-40" : ""}
+                relative h-[88px] rounded-small p-2 text-left transition-colors
+                ${!isCurrentMonth ? "opacity-35" : "hover:bg-bg"}
               `}
+              style={isToday ? { background: "#EBF0EB", boxShadow: "inset 0 0 0 1.5px rgba(74,111,165,0.25)" } : {}}
             >
               {/* Date number */}
-              <span className={`text-xs font-medium ${isToday ? "text-sage font-bold" : "text-ink-secondary"}`}>
+              <span
+                className="text-[12px] font-semibold block leading-none mb-1.5"
+                style={
+                  isToday
+                    ? { color: "var(--color-primary)" }
+                    : { color: isCurrentMonth ? "var(--color-ink-secondary)" : "var(--color-ink-tertiary)" }
+                }
+              >
                 {day.toLocaleDateString("en-IN", { day: "numeric", timeZone: "Asia/Kolkata" })}
               </span>
 
-              {/* Session dots */}
+              {/* Session type dots */}
               {daySessions.length > 0 && (
-                <div className="mt-1 flex flex-wrap gap-0.5">
-                  {daySessions.length <= 4 ? (
-                    daySessions.map((s) => (
-                      <span
-                        key={s.id}
-                        className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[s.status] ?? "bg-bg"}`}
-                        title={`${s.clients?.full_name ?? s.client_name ?? "Client"} (${s.status})`}
-                      />
-                    ))
-                  ) : (
-                    <>
-                      {daySessions.slice(0, 3).map((s) => (
-                        <span
-                          key={s.id}
-                          className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[s.status] ?? "bg-bg"}`}
-                        />
-                      ))}
-                      <span className="text-[9px] text-ink-tertiary leading-none">
-                        +{daySessions.length - 3}
-                      </span>
-                    </>
+                <div className="flex flex-wrap gap-[3px]">
+                  {daySessions.slice(0, 5).map((s, idx) => (
+                    <span
+                      key={s.id}
+                      className="w-[7px] h-[7px] rounded-full flex-shrink-0"
+                      style={{ background: getDotColor(s) }}
+                      title={`${s.clients?.full_name ?? s.client_name ?? "Client"}${s.session_type_name ? ` · ${s.session_type_name}` : ""}`}
+                    />
+                  ))}
+                  {daySessions.length > 5 && (
+                    <span
+                      className="text-[9px] leading-none self-center"
+                      style={{ color: "var(--color-ink-tertiary)" }}
+                    >
+                      +{daySessions.length - 5}
+                    </span>
                   )}
                 </div>
               )}
 
-              {/* Session count badge (bottom) */}
+              {/* Session count — bottom right */}
               {daySessions.length > 0 && (
-                <div className="absolute bottom-1.5 right-1.5">
-                  <span className="text-[10px] font-medium text-ink-tertiary">
+                <div className="absolute bottom-2 right-2">
+                  <span
+                    className="text-[10px] font-semibold"
+                    style={{ color: "var(--color-ink-tertiary)" }}
+                  >
                     {daySessions.length}
                   </span>
                 </div>
               )}
 
-              {/* Blocked indicator */}
-              {hasBlocked && (
-                <div className="absolute top-1.5 right-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-border block" />
+              {/* Blocked slot indicator */}
+              {hasBlocked && !daySessions.length && (
+                <div className="absolute bottom-2 left-2">
+                  <span
+                    className="text-[9px]"
+                    style={{ color: "var(--color-ink-tertiary)" }}
+                  >
+                    blocked
+                  </span>
                 </div>
               )}
             </button>

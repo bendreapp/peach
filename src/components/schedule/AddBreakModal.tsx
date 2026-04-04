@@ -78,60 +78,83 @@ export default function AddBreakModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: "rgba(28,28,30,0.4)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={isEditing ? "Edit break" : "Add break"}
-        className="bg-surface rounded-card border border-border shadow-xl p-6 w-full max-w-sm space-y-4"
+        className="bg-surface w-full max-w-sm space-y-5 p-7"
+        style={{
+          borderRadius: "16px",
+          border: "1px solid var(--color-border)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-sans font-semibold text-ink">
-            {isEditing ? "Edit Break" : "Add Break"}
-          </h3>
-          <button onClick={onClose} aria-label="Close" className="p-1 text-ink-tertiary hover:text-ink transition-colors">
+          <div>
+            <h3
+              className="text-lg font-bold"
+              style={{ color: "var(--color-ink)", letterSpacing: "-0.01em" }}
+            >
+              {isEditing ? "Edit Break" : "Block Time"}
+            </h3>
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-ink-tertiary)" }}>
+              {formatDateIST(defaultStart)}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="p-1.5 rounded-small transition-colors hover:bg-bg"
+            style={{ color: "var(--color-ink-tertiary)" }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        <p className="text-xs text-ink-tertiary">{formatDateIST(defaultStart)}</p>
-
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-ink-secondary mb-1">Start</label>
+              <label className="ui-label">Start</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 required
-                className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm"
+                className="ui-input"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-ink-secondary mb-1">End</label>
+              <label className="ui-label">End</label>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 required
-                className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm"
+                className="ui-input"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-ink-secondary mb-1">
-              Reason <span className="text-ink-tertiary font-normal">(optional)</span>
+            <label className="ui-label">
+              Reason{" "}
+              <span className="font-normal" style={{ color: "var(--color-ink-tertiary)" }}>
+                (optional)
+              </span>
             </label>
             <input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               maxLength={200}
-              placeholder="e.g., Lunch break, Personal time"
-              className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm"
+              placeholder="e.g. Lunch break, Personal time"
+              className="ui-input"
             />
           </div>
 
@@ -139,9 +162,10 @@ export default function AddBreakModal({
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 bg-sage text-white py-2.5 rounded-small text-sm font-semibold hover:bg-sage-dark transition-all disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-small text-sm font-semibold text-white transition-all disabled:opacity-50 hover:-translate-y-px"
+              style={{ background: "var(--color-primary)", boxShadow: "0 2px 8px rgba(74,111,165,0.25)" }}
             >
-              {isSaving ? "Saving..." : isEditing ? "Update Break" : "Add Break"}
+              {isSaving ? "Saving…" : isEditing ? "Update" : "Block time"}
             </button>
             {isEditing && onDelete && (
               <button
@@ -149,11 +173,16 @@ export default function AddBreakModal({
                 onClick={handleDelete}
                 disabled={isSaving}
                 aria-label={confirmDelete ? "Confirm delete break" : "Delete break"}
-                className={`px-4 py-2.5 rounded-small text-sm font-medium transition-all disabled:opacity-50 ${
+                className="px-3 py-2.5 rounded-small text-sm font-medium transition-all disabled:opacity-50"
+                style={
                   confirmDelete
-                    ? "bg-red-600 text-white hover:bg-red-700"
-                    : "border border-red-200 text-red-600 hover:bg-red-50"
-                }`}
+                    ? { background: "var(--color-danger)", color: "white" }
+                    : {
+                        background: "rgba(192,112,90,0.08)",
+                        color: "var(--color-danger)",
+                        border: "1px solid rgba(192,112,90,0.18)",
+                      }
+                }
               >
                 <Trash2 size={14} className="inline -mt-0.5" />
                 {confirmDelete ? " Confirm" : ""}
@@ -162,7 +191,7 @@ export default function AddBreakModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-small border border-border text-sm font-medium text-ink-secondary hover:bg-bg transition-colors"
+              className="btn-secondary"
             >
               Cancel
             </button>

@@ -97,32 +97,51 @@ export default function CreateSessionModal({ onClose, onCreated }: CreateSession
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: "rgba(28,28,30,0.4)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Add session"
-        className="bg-surface rounded-card border border-border shadow-xl p-6 w-full max-w-md space-y-4"
+        className="bg-surface w-full max-w-md space-y-5 p-8"
+        style={{
+          borderRadius: "16px",
+          border: "1px solid var(--color-border)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-sans font-semibold text-ink">Add Session</h3>
-          <button onClick={onClose} aria-label="Close" className="p-1 text-ink-tertiary hover:text-ink transition-colors">
+          <h3
+            className="text-xl font-bold"
+            style={{ color: "var(--color-ink)", letterSpacing: "-0.01em" }}
+          >
+            New Session
+          </h3>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="p-1.5 rounded-small transition-colors hover:bg-bg"
+            style={{ color: "var(--color-ink-tertiary)" }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Client picker */}
           <div>
-            <label className="block text-xs font-medium text-ink-secondary mb-1">Client</label>
+            <label className="ui-label">Client</label>
             <select
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm appearance-none"
+              className="ui-input appearance-none"
             >
-              <option value="">Select a client...</option>
+              <option value="">Select a client…</option>
               {clientsArray.map((c: { id: string; full_name: string; email: string }) => (
                 <option key={c.id} value={c.id}>
                   {c.full_name} ({c.email})
@@ -134,16 +153,20 @@ export default function CreateSessionModal({ onClose, onCreated }: CreateSession
           {/* Session type */}
           {sessionTypes.length > 0 && (
             <div>
-              <label className="block text-xs font-medium text-ink-secondary mb-1">Session type</label>
+              <label className="ui-label">Session type</label>
               <select
                 value={sessionTypeId}
                 onChange={(e) => handleTypeChange(e.target.value)}
-                className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm appearance-none"
+                className="ui-input appearance-none"
               >
                 <option value="">Default</option>
                 {sessionTypes.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.name} ({t.duration_mins} min{t.rate_inr > 0 ? ` · ₹${(t.rate_inr / 100).toLocaleString("en-IN")}` : " · Free"})
+                    {t.name} ({t.duration_mins} min
+                    {t.rate_inr > 0
+                      ? ` · ₹${(t.rate_inr / 100).toLocaleString("en-IN")}`
+                      : " · Free"}
+                    )
                   </option>
                 ))}
               </select>
@@ -152,56 +175,59 @@ export default function CreateSessionModal({ onClose, onCreated }: CreateSession
 
           {/* Date */}
           <div>
-            <label className="block text-xs font-medium text-ink-secondary mb-1">Date</label>
+            <label className="ui-label">Date</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm"
+              className="ui-input"
             />
           </div>
 
           {/* Time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-ink-secondary mb-1">Start</label>
+              <label className="ui-label">Start time</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => handleStartTimeChange(e.target.value)}
                 required
-                className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm"
+                className="ui-input"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-ink-secondary mb-1">End</label>
+              <label className="ui-label">End time</label>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 required
-                className="w-full px-3 py-2 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm"
+                className="ui-input"
               />
             </div>
           </div>
 
           {createSession.error && (
-            <p className="text-xs text-red-600">{createSession.error.message}</p>
+            <p className="text-xs" style={{ color: "var(--color-danger)" }}>
+              {createSession.error.message}
+            </p>
           )}
 
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-3 pt-1">
             <button
               type="submit"
               disabled={createSession.isPending || !clientId}
-              className="flex-1 bg-sage text-white py-2.5 rounded-small text-sm font-semibold hover:bg-sage-dark transition-all disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-small text-sm font-semibold text-white transition-all disabled:opacity-50 hover:-translate-y-px"
+              style={{ background: "var(--color-primary)", boxShadow: "0 2px 8px rgba(74,111,165,0.25)" }}
             >
-              {createSession.isPending ? "Creating..." : "Create Session"}
+              {createSession.isPending ? "Creating…" : "Create Session"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-small border border-border text-sm font-medium text-ink-secondary hover:bg-bg transition-colors"
+              className="btn-secondary"
             >
               Cancel
             </button>

@@ -16,7 +16,6 @@ import PoliciesForm from "@/components/settings/PoliciesForm";
 import TagManager from "@/components/settings/TagManager";
 import IntakeFormEditor from "@/components/settings/IntakeFormEditor";
 import {
-  Settings,
   User,
   Clock,
   LayoutList,
@@ -51,28 +50,59 @@ export default function SettingsPage() {
     retry: false,
   });
 
+  // Loading skeleton
   if (therapist.isLoading || availability.isLoading) {
     return (
-      <div className="max-w-[900px] mx-auto">
-        <div className="flex items-center gap-2.5 mb-8">
-          <Settings size={22} className="text-sage" />
-          <div className="h-7 w-32 bg-border rounded-lg animate-pulse" />
+      <div className="max-w-[1100px] mx-auto">
+        {/* Page header skeleton */}
+        <div className="mb-6">
+          <div className="h-7 w-28 bg-border rounded-small animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-border/60 rounded animate-pulse" />
         </div>
-        <div className="h-12 bg-border/50 rounded-xl mb-8 animate-pulse" />
-        <div className="space-y-4">
-          <div className="h-10 bg-border/30 rounded-lg animate-pulse" />
-          <div className="h-10 bg-border/30 rounded-lg animate-pulse" />
-          <div className="h-10 bg-border/30 rounded-lg animate-pulse" />
+
+        <div className="flex gap-6">
+          {/* Left nav skeleton */}
+          <div
+            className="flex-shrink-0 bg-surface rounded-card border border-border shadow-card p-3 space-y-1"
+            style={{ width: 180 }}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div
+                key={i}
+                className="h-9 rounded-small animate-pulse"
+                style={{ background: i % 3 === 0 ? "#E5E0D8" : "#F4F1EC" }}
+              />
+            ))}
+          </div>
+
+          {/* Content skeleton */}
+          <div className="flex-1 bg-surface rounded-card border border-border shadow-card p-6 space-y-4">
+            <div className="h-6 w-32 bg-border rounded animate-pulse" />
+            <div className="h-10 bg-border/50 rounded-small animate-pulse" />
+            <div className="h-10 bg-border/50 rounded-small animate-pulse" />
+            <div className="h-10 bg-border/50 rounded-small animate-pulse" />
+            <div className="h-10 bg-border/50 rounded-small animate-pulse" />
+          </div>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (therapist.error || !therapist.data) {
     return (
-      <div className="max-w-[900px] mx-auto">
-        <div className="rounded-2xl border border-error/20 bg-error-bg p-8 text-center">
-          <p className="text-error text-sm font-medium">
+      <div className="max-w-[1100px] mx-auto">
+        <div
+          className="rounded-card border p-8 text-center"
+          style={{
+            background: "#F9EDED",
+            borderColor: "rgba(192,112,90,0.2)",
+          }}
+        >
+          <p
+            className="text-[14px] font-medium"
+            style={{ color: "#A0504A" }}
+          >
             Failed to load settings. Please refresh the page.
           </p>
         </div>
@@ -83,118 +113,159 @@ export default function SettingsPage() {
   const t = therapist.data as any;
 
   return (
-    <div className="max-w-[900px] mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2.5">
-          <Settings size={22} className="text-sage" />
-          <h1 className="text-2xl font-bold text-ink tracking-tight">Settings</h1>
-        </div>
-        <p className="text-[14px] text-ink-secondary mt-1 ml-[34px]">
+    <div className="max-w-[1100px] mx-auto">
+      {/* Page header */}
+      <div className="mb-6">
+        <h1 className="text-[20px] font-bold text-ink tracking-tight">
+          Settings
+        </h1>
+        <p className="text-[14px] text-ink-secondary mt-0.5">
           Manage your profile, availability, and practice preferences.
         </p>
       </div>
 
-      {/* Layout: sidebar tabs on desktop, dropdown on mobile */}
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Mobile: dropdown */}
-        <div className="md:hidden">
+      <div className="flex gap-6 items-start">
+        {/* ── Mobile: dropdown ── */}
+        <div className="md:hidden w-full mb-2">
           <select
             value={activeTab}
             onChange={(e) => setActiveTab(e.target.value as TabKey)}
-            className="w-full h-11 px-4 rounded-xl border border-border bg-card text-ink text-[14px] font-semibold appearance-none cursor-pointer focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/10"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 14px center" }}
+            className="w-full h-10 px-3 rounded-small border border-border bg-surface text-ink text-[14px] font-medium appearance-none cursor-pointer focus:outline-none transition-colors"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238A8480' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 12px center",
+            }}
           >
             {TABS.map((tab) => (
-              <option key={tab.key} value={tab.key}>{tab.label}</option>
+              <option key={tab.key} value={tab.key}>
+                {tab.label}
+              </option>
             ))}
           </select>
         </div>
 
-        {/* Desktop: sidebar tabs */}
-        <nav className="hidden md:flex flex-col gap-1 w-[200px] flex-shrink-0">
+        {/* ── Desktop: Left sub-nav (180px) ── */}
+        <nav
+          className="hidden md:flex flex-col flex-shrink-0 bg-surface rounded-card border border-border shadow-card p-2"
+          style={{ width: 180 }}
+        >
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
+
             return (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-[13px] font-medium text-left transition-all duration-150 ${
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-small text-[13px] font-medium text-left w-full transition-colors duration-150"
+                style={
                   isActive
-                    ? "bg-sage/10 text-sage-dark font-semibold"
-                    : "text-ink-secondary hover:text-ink hover:bg-border/20"
-                }`}
+                    ? {
+                        background: "#EBF0EB",
+                        color: "#5C7A6B",
+                      }
+                    : {
+                        background: "transparent",
+                        color: "var(--color-ink-secondary)",
+                      }
+                }
+                onMouseEnter={(e) => {
+                  if (!isActive)
+                    e.currentTarget.style.background = "#F4F1EC";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive)
+                    e.currentTarget.style.background = "transparent";
+                }}
               >
-                <Icon size={16} strokeWidth={isActive ? 2 : 1.5} className={isActive ? "text-sage" : "text-ink-tertiary"} />
-                {tab.label}
+                <Icon
+                  size={15}
+                  strokeWidth={isActive ? 2 : 1.5}
+                  style={{
+                    color: isActive
+                      ? "#5C7A6B"
+                      : "var(--color-ink-tertiary)",
+                    flexShrink: 0,
+                  }}
+                />
+                <span className="truncate">{tab.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Content */}
+        {/* ── Right content panel ── */}
         <div className="flex-1 min-w-0">
-        {activeTab === "profile" && (
-          <ProfileForm
-            therapist={{
-              full_name: t.full_name,
-              display_name: t.display_name,
-              slug: t.slug,
-              bio: t.bio,
-              qualifications: t.qualifications,
-              phone: t.phone,
-              gstin: t.gstin,
-            }}
-          />
-        )}
+          <div
+            className="bg-surface rounded-card border border-border shadow-card overflow-hidden"
+            style={{ minHeight: 480 }}
+          >
+            {/* Content panel inner padding */}
+            <div className="p-6 md:p-8">
+              {activeTab === "profile" && (
+                <ProfileForm
+                  therapist={{
+                    full_name: t.full_name,
+                    display_name: t.display_name,
+                    slug: t.slug,
+                    bio: t.bio,
+                    qualifications: t.qualifications,
+                    phone: t.phone,
+                    gstin: t.gstin,
+                  }}
+                />
+              )}
 
-        {activeTab === "session-types" && (
-          <SessionTypesEditor
-            sessionTypes={t.session_types ?? []}
-            bufferMins={t.buffer_mins}
-          />
-        )}
+              {activeTab === "session-types" && (
+                <SessionTypesEditor
+                  sessionTypes={t.session_types ?? []}
+                  bufferMins={t.buffer_mins}
+                />
+              )}
 
-        {activeTab === "intake-forms" && (
-          <IntakeFormEditor sessionTypes={t.session_types ?? []} />
-        )}
+              {activeTab === "intake-forms" && (
+                <IntakeFormEditor sessionTypes={t.session_types ?? []} />
+              )}
 
-        {activeTab === "availability" && (
-          <AvailabilityEditor availability={(availability.data as any) ?? []} />
-        )}
+              {activeTab === "availability" && (
+                <AvailabilityEditor
+                  availability={(availability.data as any) ?? []}
+                />
+              )}
 
-        {activeTab === "booking" && (
-          <BookingPageSection
-            slug={t.slug}
-            bookingPageActive={t.booking_page_active}
-          />
-        )}
+              {activeTab === "booking" && <BookingPageSection />}
 
-        {activeTab === "tags" && <TagManager customTags={t.custom_tags} />}
+              {activeTab === "tags" && (
+                <TagManager customTags={t.custom_tags} />
+              )}
 
-        {activeTab === "policies" && (
-          <PoliciesForm
-            therapist={{
-              cancellation_policy: t.cancellation_policy,
-              late_policy: t.late_policy,
-              rescheduling_policy: t.rescheduling_policy,
-              cancellation_hours: t.cancellation_hours ?? 24,
-              min_booking_advance_hours: t.min_booking_advance_hours ?? 24,
-              no_show_charge_percent: t.no_show_charge_percent ?? 100,
-              late_cancel_charge_percent: t.late_cancel_charge_percent ?? 100,
-            }}
-          />
-        )}
+              {activeTab === "policies" && (
+                <PoliciesForm
+                  therapist={{
+                    cancellation_policy: t.cancellation_policy,
+                    late_policy: t.late_policy,
+                    rescheduling_policy: t.rescheduling_policy,
+                    cancellation_hours: t.cancellation_hours ?? 24,
+                    min_booking_advance_hours:
+                      t.min_booking_advance_hours ?? 24,
+                    no_show_charge_percent: t.no_show_charge_percent ?? 100,
+                    late_cancel_charge_percent:
+                      t.late_cancel_charge_percent ?? 100,
+                  }}
+                />
+              )}
 
-        {activeTab === "integrations" && (
-          <IntegrationCards
-            zoomConnected={(integrations.data as any)?.zoom ?? false}
-            googleConnected={
-              (integrations.data as any)?.google_calendar ?? false
-            }
-          />
-        )}
+              {activeTab === "integrations" && (
+                <IntegrationCards
+                  zoomConnected={(integrations.data as any)?.zoom ?? false}
+                  googleConnected={
+                    (integrations.data as any)?.google_calendar ?? false
+                  }
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

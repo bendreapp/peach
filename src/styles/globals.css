@@ -1,4 +1,31 @@
-@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap");
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+  font-style: normal;
+}
 
 @tailwind base;
 @tailwind components;
@@ -7,32 +34,54 @@
 @layer base {
   /* ── Light theme (default) ─────────────────────────── */
   :root {
-    --color-bg: #FAFAF8;
+    --color-bg: #F4F1EC;
     --color-surface: #FFFFFF;
     --color-card: #FFFFFF;
-    --color-border: #E5E5E0;
-    --color-border-hover: #D0D0C8;
-    --color-ink: #1A1A1A;
-    --color-ink-secondary: #6B6B6B;
-    --color-ink-tertiary: #999999;
-    --color-sage: #6B7E6C;
-    --color-sage-light: #B7C4B8;
-    --color-sage-dark: #4A5C4B;
+    --color-border: #E5E0D8;
+    --color-border-hover: #A8BFD8;
+    --color-ink: #1C1C1E;
+    --color-ink-secondary: #5C5856;
+    --color-ink-tertiary: #8A8480;
+
+    /* Primary — Deep sage-green (from logo) */
+    --color-primary: #5C7A6B;
+    --color-primary-hover: #496158;
+
+    /* Accent — Sage (pulled from logo brushstroke) */
+    --color-accent: #8FAF8A;
+    --color-accent-hover: #6E906A;
+
+    /* Danger — Terracotta */
+    --color-danger: #C0705A;
+    --color-danger-hover: #A85A46;
+
+    /* Warning — Amber warm */
+    --color-warning-color: #D4956A;
+
+    /* Status badges */
+    --badge-confirmed-bg: #EAF4F1;
+    --badge-confirmed-text: #3D8B7A;
+    --badge-pending-bg: #FBF0E8;
+    --badge-pending-text: #B5733A;
+    --badge-cancelled-bg: #F9EDED;
+    --badge-cancelled-text: #A0504A;
+    --badge-noshow-bg: #F0EFED;
+    --badge-noshow-text: #6B6460;
 
     /* Auth page specific */
-    --color-auth-bg: #FAFAF8;
+    --color-auth-bg: #F4F1EC;
     --color-auth-card: #FFFFFF;
-    --color-auth-card-border: #E5E5E0;
-    --color-auth-input: #F5F5F2;
-    --color-auth-input-border: #E0E0DB;
-    --color-auth-input-text: #1A1A1A;
-    --color-auth-placeholder: #AAAAAA;
-    --color-auth-text: #1A1A1A;
-    --color-auth-text-secondary: #777777;
-    --color-auth-text-muted: #999999;
-    --color-auth-divider: #E5E5E0;
-    --color-auth-toggle-border: #E0E0DB;
-    --color-auth-toggle-color: #999;
+    --color-auth-card-border: #E5E0D8;
+    --color-auth-input: #F8F6F2;
+    --color-auth-input-border: #E5E0D8;
+    --color-auth-input-text: #1C1C1E;
+    --color-auth-placeholder: #8A8480;
+    --color-auth-text: #1C1C1E;
+    --color-auth-text-secondary: #5C5856;
+    --color-auth-text-muted: #8A8480;
+    --color-auth-divider: #E5E0D8;
+    --color-auth-toggle-border: #E5E0D8;
+    --color-auth-toggle-color: #8A8480;
     --color-auth-toggle-hover: rgba(0,0,0,0.04);
   }
 
@@ -42,13 +91,35 @@
     --color-surface: #141414;
     --color-card: #1C1C1C;
     --color-border: #2A2A2A;
-    --color-border-hover: #3A3A3A;
+    --color-border-hover: #496158;
     --color-ink: #EAEAEA;
     --color-ink-secondary: #A3A3A3;
     --color-ink-tertiary: #666666;
-    --color-sage: #8A9A8B;
-    --color-sage-light: #B7C4B8;
-    --color-sage-dark: #5F6F63;
+
+    /* Primary — Deep sage (lightened for dark) */
+    --color-primary: #7B9E8B;
+    --color-primary-hover: #5C7A6B;
+
+    /* Accent — Sage from logo */
+    --color-accent: #A3C49E;
+    --color-accent-hover: #8FAF8A;
+
+    /* Danger — Terracotta */
+    --color-danger: #D4806A;
+    --color-danger-hover: #C0705A;
+
+    /* Warning */
+    --color-warning-color: #E0A878;
+
+    /* Status badges */
+    --badge-confirmed-bg: rgba(61,139,122,0.15);
+    --badge-confirmed-text: #7FCFBE;
+    --badge-pending-bg: rgba(181,115,58,0.15);
+    --badge-pending-text: #E0A070;
+    --badge-cancelled-bg: rgba(160,80,74,0.15);
+    --badge-cancelled-text: #D88880;
+    --badge-noshow-bg: rgba(107,100,96,0.15);
+    --badge-noshow-text: #A8A4A0;
 
     /* Auth page specific */
     --color-auth-bg: #060606;
@@ -71,18 +142,84 @@
     background-color: var(--color-bg);
     color: var(--color-ink);
     @apply font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.2s, color 0.2s;
+  }
+
+  /* Tabular numbers for data displays */
+  table, [data-stat] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Custom scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #C5BFB8 transparent;
+  }
+  *::-webkit-scrollbar { width: 4px; height: 4px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: #C5BFB8; border-radius: 4px; }
+  *::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
-  /* Primary button */
+  /* ── Shimmer skeleton utility ───────────────────────────── */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      #E5E0D8 25%,
+      #F0ECE6 50%,
+      #E5E0D8 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+  }
+
+  /* ── Two-tone card ──────────────────────────────────────── */
+  .two-tone-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E0D8;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .two-tone-card-header {
+    background: #FAFAF8;
+    border-bottom: 1px solid #E5E0D8;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── Primary button — Deep sage ────────────────────────── */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-small
-           bg-sage text-white font-semibold text-sm
-           shadow-sage hover:bg-sage-dark hover:shadow-sage-hover
-           transition-all duration-200 hover:-translate-y-px
+           text-white font-semibold text-sm
+           transition-all duration-150
            disabled:opacity-50 disabled:pointer-events-none;
+    background-color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(92,122,107,0.25);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    box-shadow: 0 4px 14px rgba(92,122,107,0.35);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: scale(0.97);
+    transition-duration: 100ms;
   }
 
   /* Secondary button */
@@ -96,8 +233,8 @@
     border-color: var(--color-border);
   }
   .btn-secondary:hover {
-    border-color: var(--color-sage);
-    color: var(--color-sage-dark);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
   }
 
   /* Ghost button */
@@ -106,22 +243,27 @@
            font-semibold text-sm transition-all duration-200
            disabled:opacity-50 disabled:pointer-events-none;
     background: transparent;
-    color: var(--color-sage);
+    color: var(--color-primary);
   }
   .btn-ghost:hover {
-    background: rgba(107,126,108,0.06);
+    background: rgba(92,122,107,0.07);
   }
   .dark .btn-ghost:hover {
-    background: rgba(138,154,139,0.1);
+    background: rgba(123,158,139,0.12);
   }
 
   /* Danger button */
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-small
-           bg-error-bg text-error font-semibold text-sm
-           border border-error/15 hover:bg-error/10
+           font-semibold text-sm
            transition-all duration-200
            disabled:opacity-50 disabled:pointer-events-none;
+    background: rgba(192,112,90,0.08);
+    color: var(--color-danger);
+    border: 1px solid rgba(192,112,90,0.18);
+  }
+  .btn-danger:hover {
+    background: rgba(192,112,90,0.14);
   }
 
   /* Small button modifier */
@@ -134,11 +276,11 @@
     @apply rounded-card p-7 transition-all duration-200;
     background: var(--color-card);
     border: 1px solid var(--color-border);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
   .ui-card:hover {
     border-color: var(--color-border-hover);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     transform: translateY(-2px);
   }
   .dark .ui-card {
@@ -156,11 +298,11 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     color: var(--color-ink);
-    --tw-ring-color: rgba(107,126,108,0.1);
+    --tw-ring-color: rgba(143,175,138,0.25);
   }
   .ui-input::placeholder { color: var(--color-ink-tertiary); }
-  .ui-input:focus { border-color: var(--color-sage); }
-  .ui-input:hover { border-color: var(--color-border-hover); }
+  .ui-input:focus { border-color: var(--color-accent); }
+  .ui-input:hover { border-color: #C8C0B8; }
 
   /* Label */
   .ui-label {
@@ -171,18 +313,56 @@
   /* Section label */
   .ui-section-label {
     @apply text-[11px] font-semibold tracking-[0.12em] uppercase;
-    color: var(--color-sage);
+    color: var(--color-accent);
   }
 
-  /* Badge */
+  /* Badge — base */
   .badge {
-    @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold;
+    @apply inline-flex items-center px-2.5 py-1 text-xs font-semibold;
+    border-radius: 999px;
   }
 
-  .badge-sage { @apply bg-sage-bg text-sage; }
-  .badge-teal { @apply bg-teal-bg text-teal; }
-  .badge-gold { @apply bg-gold-bg text-gold; }
-  .badge-success { @apply bg-success-bg text-success; }
-  .badge-warning { @apply bg-warning-bg text-warning; }
-  .badge-error { @apply bg-error-bg text-error; }
+  /* Status badges */
+  .badge-confirmed {
+    background: var(--badge-confirmed-bg);
+    color: var(--badge-confirmed-text);
+  }
+  .badge-pending {
+    background: var(--badge-pending-bg);
+    color: var(--badge-pending-text);
+  }
+  .badge-cancelled {
+    background: var(--badge-cancelled-bg);
+    color: var(--badge-cancelled-text);
+  }
+  .badge-noshow {
+    background: var(--badge-noshow-bg);
+    color: var(--badge-noshow-text);
+  }
+
+  /* Legacy semantic badges (kept for backward compat) */
+  .badge-sage {
+    background: rgba(123,175,158,0.12);
+    color: #3D8B7A;
+  }
+  .badge-teal {
+    background: rgba(61,107,114,0.08);
+    color: #3D6B72;
+  }
+  .badge-gold {
+    background: rgba(212,149,106,0.12);
+    color: #A8703A;
+  }
+  .badge-success {
+    background: var(--badge-confirmed-bg);
+    color: var(--badge-confirmed-text);
+  }
+  .badge-warning {
+    background: var(--badge-pending-bg);
+    color: var(--badge-pending-text);
+  }
+  .badge-error {
+    background: var(--badge-cancelled-bg);
+    color: var(--badge-cancelled-text);
+  }
 }

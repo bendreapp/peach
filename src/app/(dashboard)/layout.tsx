@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import posthog from "posthog-js";
-import { useTherapistMe, useClientsList } from "@/lib/api-hooks";
+import { useTherapistMe, useClientsList, useUpdateTherapist } from "@/lib/api-hooks";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -23,8 +22,6 @@ import {
   LogOut,
   Menu,
   X,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
@@ -45,6 +42,48 @@ const secondaryNavItems = [
   { href: "/dashboard/team", label: "Team", icon: UsersRound },
 ];
 
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  active,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  active: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={`group flex items-center gap-[10px] w-full text-[13px] font-medium transition-colors duration-[120ms] ease-out ${
+        active
+          ? "text-[#5C7A6B] bg-[#EBF0EB]"
+          : "text-[#5C5856] hover:text-[#1C1C1E] hover:bg-[#F4F1EC]"
+      }`}
+      style={{
+        height: "36px",
+        paddingLeft: "10px",
+        paddingRight: "10px",
+        borderRadius: "7px",
+      }}
+    >
+      <Icon
+        size={16}
+        strokeWidth={1.5}
+        className={`flex-shrink-0 transition-colors ${
+          active ? "text-[#5C7A6B]" : "text-[#8A8480] group-hover:text-[#5C5856]"
+        }`}
+      />
+      {label}
+    </Link>
+  );
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -54,14 +93,48 @@ export default function DashboardLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const therapist = useTherapistMe();
+  const updateTherapist = useUpdateTherapist();
+  const [autoSaving, setAutoSaving] = useState(false);
 
   // Prefetch at layout level
   useClientsList();
 
-  // Redirect to onboarding if therapist hasn't completed setup (no phone)
+  // If phone is missing, check localStorage for pending signup data and auto-save
   useEffect(() => {
-    if (therapist.data && !therapist.data.phone) {
-      router.push("/onboarding");
+    if (therapist.data && !therapist.data.phone && !autoSaving) {
+      const pendingSlug = localStorage.getItem("bendre_pending_slug");
+      // The signup form stores phone in Supabase auth metadata — retrieve it
+      const tryAutoSave = async () => {
+        setAutoSaving(true);
+        try {
+          const { createClient } = await import("@/lib/supabase/client");
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          const meta = user?.user_metadata;
+          const phone = meta?.phone;
+          const slug = pendingSlug || meta?.username;
+
+          if (phone) {
+            // We have signup data — save it to therapists table
+            const updateData: Record<string, unknown> = { phone };
+            if (slug) updateData.slug = slug;
+            if (meta?.full_name) updateData.full_name = meta.full_name;
+
+            await updateTherapist.mutateAsync(updateData);
+
+            // Clean up localStorage
+            localStorage.removeItem("bendre_pending_slug");
+            localStorage.removeItem("bendre_pending_practice");
+          } else {
+            // No pending data — redirect to onboarding
+            router.push("/onboarding");
+          }
+        } catch {
+          // If auto-save fails, redirect to onboarding as fallback
+          router.push("/onboarding");
+        }
+      };
+      tryAutoSave();
     }
   }, [therapist.data, router]);
 
@@ -74,8 +147,6 @@ export default function DashboardLayout({
       });
     }
   }, [therapist.data?.id]);
-
-  const { theme, setTheme } = useTheme();
 
   const displayName =
     therapist.data?.display_name || therapist.data?.full_name || "";
@@ -99,32 +170,6 @@ export default function DashboardLayout({
     return pathname.startsWith(href);
   }
 
-  function renderNavItem(item: (typeof mainNavItems)[0]) {
-    const Icon = item.icon;
-    const active = isActive(item.href);
-
-    return (
-      <Link
-        key={item.href}
-        href={item.href}
-        onClick={() => setSidebarOpen(false)}
-        aria-current={active ? "page" : undefined}
-        className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
-          active
-            ? "bg-sage/10 text-sage-dark"
-            : "text-ink-secondary hover:text-ink hover:bg-black/[0.03]"
-        }`}
-      >
-        <Icon
-          size={18}
-          strokeWidth={active ? 2 : 1.5}
-          className={`flex-shrink-0 ${active ? "text-sage" : "text-ink-tertiary group-hover:text-ink-secondary"}`}
-        />
-        {item.label}
-      </Link>
-    );
-  }
-
   async function handleLogout() {
     posthog.capture("logout");
     posthog.reset();
@@ -135,134 +180,171 @@ export default function DashboardLayout({
   }
 
   const sidebarContent = (
-    <>
-      {/* Logo */}
-      <div className="px-5 pt-5 pb-6">
-        <Link href="/dashboard" className="flex items-center gap-1.5 group">
+    <div className="flex flex-col h-full">
+      {/* Logo area */}
+      <div
+        className="flex items-center gap-2 px-4 py-4"
+        style={{ borderBottom: "1px solid #E8E4DC" }}
+      >
+        <Link href="/dashboard" className="flex items-center gap-2 group">
           <Image
             src="/logo.png"
             alt="Bendre"
-            width={44}
-            height={44}
-            className="transition-transform group-hover:scale-105"
+            width={28}
+            height={28}
+            className="transition-transform group-hover:scale-105 flex-shrink-0"
           />
-          <span className="text-[22px] font-sans font-bold text-ink tracking-tight">
+          <span
+            className="font-bold text-[#1C1C1E]"
+            style={{ fontSize: "16px", letterSpacing: "-0.01em" }}
+          >
             Bendre
           </span>
         </Link>
       </div>
 
       {/* Main navigation */}
-      <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-3">
-        <div className="space-y-0.5">
-          {mainNavItems.map(renderNavItem)}
+      <nav
+        aria-label="Main navigation"
+        className="flex-1 overflow-y-auto px-2 pt-3"
+      >
+        <div className="space-y-[2px]">
+          {mainNavItems.map((item) => (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              active={isActive(item.href)}
+              onClick={() => setSidebarOpen(false)}
+            />
+          ))}
         </div>
 
-        {/* Secondary section */}
-        <div className="mt-6 mb-2">
-          <p className="px-3 mb-2 text-[10px] font-semibold tracking-[0.1em] uppercase text-ink-tertiary">
+        {/* Manage section */}
+        <div className="mt-5 mb-2">
+          <p
+            className="px-2 mb-2 font-semibold uppercase text-[#8A8480]"
+            style={{
+              fontSize: "10px",
+              letterSpacing: "0.08em",
+            }}
+          >
             Manage
           </p>
-          <div className="space-y-0.5">
-            {secondaryNavItems.map(renderNavItem)}
+          <div className="space-y-[2px]">
+            {secondaryNavItems.map((item) => (
+              <NavItem
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                active={isActive(item.href)}
+                onClick={() => setSidebarOpen(false)}
+              />
+            ))}
           </div>
         </div>
       </nav>
 
-      {/* Settings */}
-      <div className="px-3 py-2">
-        <Link
+      {/* Bottom section */}
+      <div className="px-2 pb-3 flex flex-col gap-[2px]">
+        {/* Settings */}
+        <NavItem
           href="/settings"
+          label="Settings"
+          icon={Settings}
+          active={pathname.startsWith("/settings")}
           onClick={() => setSidebarOpen(false)}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
-            pathname.startsWith("/settings")
-              ? "bg-sage/10 text-sage-dark"
-              : "text-ink-secondary hover:text-ink hover:bg-black/[0.03]"
-          }`}
-        >
-          <Settings
-            size={18}
-            strokeWidth={pathname.startsWith("/settings") ? 2 : 1.5}
-            className={pathname.startsWith("/settings") ? "text-sage" : "text-ink-tertiary"}
-          />
-          Settings
-        </Link>
-      </div>
+        />
 
-      {/* Theme toggle */}
-      <div className="px-3 py-1">
-        <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-ink-secondary hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-all"
-        >
-          {theme === "dark" ? <Sun size={18} strokeWidth={1.5} className="text-ink-tertiary" /> : <Moon size={18} strokeWidth={1.5} className="text-ink-tertiary" />}
-          {theme === "dark" ? "Light mode" : "Dark mode"}
-        </button>
-      </div>
+        {/* Divider */}
+        <div className="border-t border-[#E8E4DC] my-2 mx-0" />
 
-      {/* User card */}
-      <div className="border-t border-border mx-3" />
-      <div className="px-3 py-3">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition-colors cursor-pointer group">
+        {/* User card */}
+        <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-[7px] hover:bg-[#F4F1EC] transition-colors duration-[120ms] cursor-pointer group">
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt={displayName}
-              className="w-9 h-9 rounded-full flex-shrink-0 ring-2 ring-white dark:ring-[#2A2A2A] shadow-sm"
+              className="flex-shrink-0 rounded-full ring-1 ring-white shadow-sm"
+              style={{ width: "32px", height: "32px" }}
             />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-sage-200 flex items-center justify-center flex-shrink-0 ring-2 ring-white dark:ring-[#2A2A2A] shadow-sm">
-              <span className="text-[11px] font-bold text-sage-dark">{initials}</span>
+            <div
+              className="rounded-full bg-[#8A9A8B] flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm"
+              style={{ width: "32px", height: "32px" }}
+            >
+              <span className="text-[10px] font-bold text-white">{initials}</span>
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold truncate leading-tight">
+            <p
+              className="font-semibold text-[#1C1C1E] truncate leading-tight"
+              style={{ fontSize: "13px" }}
+            >
               {displayName || "Loading..."}
             </p>
-            <p className="text-[11px] text-ink-tertiary truncate leading-tight mt-0.5">
+            <p
+              className="text-[#8A8480] truncate leading-tight mt-0.5"
+              style={{ fontSize: "11px" }}
+            >
               {email}
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-error-bg text-ink-tertiary hover:text-error"
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-red-50 text-[#8A8480] hover:text-red-600"
             title="Log out"
           >
             <LogOut size={14} />
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 
   return (
-    <div className="min-h-screen flex bg-bg">
+    <div className="min-h-screen flex" style={{ backgroundColor: "#F4F1EC" }}>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-sage focus:text-white focus:rounded-lg focus:text-sm focus:font-medium"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#5C7A6B] focus:text-white focus:rounded-lg focus:text-sm focus:font-medium"
       >
         Skip to content
       </a>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-[#0B0B0B]/80 backdrop-blur-xl border-b border-border/60 h-14 flex items-center px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#FDFCFA] border-b border-[#E8E4DC] h-14 flex items-center px-4">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="text-ink-secondary hover:text-ink transition-colors p-1"
+          className="text-[#5C5856] hover:text-[#1C1C1E] transition-colors p-1"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <Link href="/dashboard" className="flex items-center ml-2">
-          <Image src="/logo.png" alt="Bendre" width={36} height={36} className="" />
-          <span className="text-lg font-sans font-bold text-ink tracking-tight">Bendre</span>
+        <Link href="/dashboard" className="flex items-center ml-2 gap-1.5">
+          <Image src="/logo.png" alt="Bendre" width={28} height={28} />
+          <span
+            className="font-bold text-[#1C1C1E]"
+            style={{ fontSize: "16px", letterSpacing: "-0.01em" }}
+          >
+            Bendre
+          </span>
         </Link>
         <div className="ml-auto">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="w-8 h-8 rounded-full ring-2 ring-white dark:ring-[#2A2A2A] shadow-sm" />
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              className="rounded-full ring-1 ring-white shadow-sm"
+              style={{ width: "32px", height: "32px" }}
+            />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-sage-200 flex items-center justify-center ring-2 ring-white dark:ring-[#2A2A2A] shadow-sm">
-              <span className="text-[10px] font-bold text-sage-dark">{initials}</span>
+            <div
+              className="rounded-full bg-[#8A9A8B] flex items-center justify-center ring-1 ring-white shadow-sm"
+              style={{ width: "32px", height: "32px" }}
+            >
+              <span className="text-[10px] font-bold text-white">{initials}</span>
             </div>
           )}
         </div>
@@ -271,20 +353,25 @@ export default function DashboardLayout({
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          className="fixed inset-0 bg-black/25 backdrop-blur-[2px] z-40 md:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[252px] bg-surface dark:bg-[#141414] border-r border-border/60 flex flex-col transform transition-transform duration-200 ease-out ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col transform transition-transform duration-200 ease-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0`}
+        style={{
+          width: "220px",
+          backgroundColor: "#FDFCFA",
+          borderRight: "1px solid #E8E4DC",
+        }}
       >
-        {/* Mobile close */}
+        {/* Mobile close button */}
         <button
-          className="md:hidden absolute top-4 right-4 text-ink-tertiary hover:text-ink transition-colors p-1 rounded-md hover:bg-black/[0.04]"
+          className="md:hidden absolute top-4 right-4 text-[#8A8480] hover:text-[#1C1C1E] transition-colors p-1 rounded-md hover:bg-[#F4F1EC]"
           onClick={() => setSidebarOpen(false)}
           aria-label="Close menu"
         >
@@ -297,23 +384,13 @@ export default function DashboardLayout({
       {/* Main content */}
       <main
         id="main-content"
-        className="flex-1 md:ml-[252px] min-h-screen bg-bg"
+        className="flex-1 min-h-screen md:ml-[220px]"
+        style={{ backgroundColor: "#F4F1EC" }}
       >
-        {/* Top bar */}
-        <div className="hidden md:flex items-center justify-end h-14 px-8 border-b border-border/40 bg-white/50 dark:bg-[#0B0B0B]/50 backdrop-blur-sm sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <div className="text-right mr-1">
-              <p className="text-[13px] font-medium text-ink leading-tight">
-                {displayName || "Loading..."}
-              </p>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sage-200 to-sage-100 flex items-center justify-center ring-2 ring-white shadow-sm">
-              <span className="text-[10px] font-bold text-sage-dark">{initials}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 md:px-10 md:py-8 pt-20 md:pt-8">
+        <div
+          className="animate-fade-in pt-20 md:pt-8 px-4 md:px-8 pb-8 mx-auto"
+          style={{ maxWidth: "1200px" }}
+        >
           <ErrorBoundary>{children}</ErrorBoundary>
         </div>
       </main>

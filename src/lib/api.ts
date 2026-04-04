@@ -196,6 +196,14 @@ export const api = {
         body: data,
         auth: false,
       }),
+    getPublicProfile: (slug: string) =>
+      apiFetch(`/api/v1/booking/${slug}/profile`, { auth: false }),
+    inquire: (slug: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/booking/${slug}/inquire`, {
+        method: "POST",
+        body: data,
+        auth: false,
+      }),
   },
 
   // ── Billing ──────────────────────────────────────────────────────────

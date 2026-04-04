@@ -19,6 +19,7 @@ import {
   Link as LinkIcon,
   X,
   UserPlus,
+  ChevronDown,
 } from "lucide-react";
 
 const ROLE_ICONS = {
@@ -27,10 +28,26 @@ const ROLE_ICONS = {
   admin: ShieldAlert,
 } as const;
 
+const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
+  owner: { bg: "#EBF0EB", text: "#5C7A6B" },
+  admin: { bg: "#FBF0E8", text: "#B5733A" },
+  therapist: { bg: "#EAF4F1", text: "#3D8B7A" },
+  intern: { bg: "#F0EFED", text: "#6B6460" },
+};
+
 function toArray(d: any): any[] {
   if (Array.isArray(d)) return d;
   if (d && Array.isArray(d.data)) return d.data;
   return [];
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 export default function TeamPage() {
@@ -53,12 +70,11 @@ export default function TeamPage() {
   const [practiceName, setPracticeName] = useState("");
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"therapist" | "admin">(
-    "therapist"
-  );
+  const [inviteRole, setInviteRole] = useState<"therapist" | "admin">("therapist");
   const [inviteNotesAccess, setInviteNotesAccess] = useState(false);
   const [showOnboardingForm, setShowOnboardingForm] = useState(false);
   const [onboardingLabel, setOnboardingLabel] = useState("");
+  const [showPastInvites, setShowPastInvites] = useState(false);
 
   const createPractice = useMutation({
     mutationFn: (data: Record<string, unknown>) => api.practice.create(data),
@@ -156,11 +172,28 @@ export default function TeamPage() {
     toast.success("Copied to clipboard");
   }
 
+  // Loading skeleton
   if (practice.isLoading) {
     return (
-      <div className="max-w-3xl space-y-6">
-        <div className="h-8 w-48 bg-bg rounded-small animate-pulse" />
-        <div className="h-40 bg-card rounded-card border border-border shadow-card animate-pulse" />
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <div className="h-7 w-24 bg-[#E5E0D8] rounded-[8px] animate-pulse" />
+            <div className="h-4 w-64 bg-[#E5E0D8] rounded-[6px] animate-pulse" />
+          </div>
+          <div className="h-9 w-36 bg-[#E5E0D8] rounded-[8px] animate-pulse" />
+        </div>
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] overflow-hidden">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-[72px] px-6 border-b border-[#E5E0D8] last:border-b-0 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[#E5E0D8] animate-pulse" />
+              <div className="space-y-2 flex-1">
+                <div className="h-4 w-32 bg-[#E5E0D8] rounded animate-pulse" />
+                <div className="h-3 w-48 bg-[#E5E0D8] rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -170,37 +203,31 @@ export default function TeamPage() {
   // No practice yet
   if (!practiceData) {
     return (
-      <div className="max-w-3xl space-y-6">
+      <div className="space-y-6">
         <div>
-          <div className="flex items-center gap-2.5">
-            <UsersRound size={22} className="text-sage" />
-            <h1 className="text-2xl font-semibold text-ink">Team</h1>
-          </div>
-          <p className="text-sm text-ink-secondary mt-1">
+          <h1 className="text-2xl font-bold text-[#1C1C1E] tracking-tight">Team</h1>
+          <p className="text-sm text-[#5C5856] mt-1">
             Create a practice to invite therapists and admin staff.
           </p>
         </div>
 
-        <div className="bg-card rounded-card border border-border shadow-card p-10 text-center space-y-5">
-          <div className="w-14 h-14 rounded-full bg-bg mx-auto flex items-center justify-center">
-            <UsersRound size={24} className="text-ink-tertiary" />
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-12 flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 rounded-full bg-[#F4F1EC] flex items-center justify-center mb-4">
+            <UsersRound size={24} className="text-[#C5BFB8]" />
           </div>
-          <div>
-            <p className="text-sm text-ink font-medium">
-              You don&apos;t have a practice yet
-            </p>
-            <p className="text-xs text-ink-secondary mt-1">
-              Create one to start managing a team. You&apos;ll be the owner with
-              full access.
-            </p>
-          </div>
+          <p className="text-base font-medium text-[#5C5856]">
+            You don&apos;t have a practice yet
+          </p>
+          <p className="text-sm text-[#8A8480] mt-1 max-w-sm">
+            Create one to start managing a team. You&apos;ll be the owner with full access.
+          </p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               if (!practiceName.trim()) return;
               createPractice.mutate({ name: practiceName.trim() });
             }}
-            className="flex items-center gap-2 max-w-sm mx-auto"
+            className="flex items-center gap-2 max-w-sm mx-auto mt-6"
           >
             <input
               type="text"
@@ -208,12 +235,12 @@ export default function TeamPage() {
               onChange={(e) => setPracticeName(e.target.value)}
               placeholder="Practice name"
               required
-              className="ui-input"
+              className="flex-1 px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
             />
             <button
               type="submit"
               disabled={createPractice.isPending}
-              className="btn-primary"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-[8px] bg-[#5C7A6B] text-white text-sm font-medium transition-all duration-150 hover:bg-[#496158] disabled:opacity-60 whitespace-nowrap"
             >
               <Plus size={14} />
               {createPractice.isPending ? "Creating..." : "Create"}
@@ -244,153 +271,160 @@ export default function TeamPage() {
 
   const isOwner = practiceData.role === "owner";
   const invitationsData = toArray(invitations.data);
-  const pendingInvitations = invitationsData.filter(
-    (i) => i.status === "pending"
-  );
-  const pastInvitations = invitationsData.filter(
-    (i) => i.status !== "pending"
-  );
+  const pendingInvitations = invitationsData.filter((i) => i.status === "pending");
+  const pastInvitations = invitationsData.filter((i) => i.status !== "pending");
   const membersData = toArray(members.data);
 
   return (
-    <div className="max-w-3xl space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2.5">
-          <UsersRound size={22} className="text-sage" />
-          <h1 className="text-2xl font-semibold text-ink">Team</h1>
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1C1C1E] tracking-tight">Team</h1>
+          <p className="text-sm text-[#5C5856] mt-1">
+            {practiceData.name} — manage your team members and their access.
+          </p>
         </div>
-        <p className="text-sm text-ink-secondary mt-1">
-          {practiceData.name} -- manage your team members and their access.
-        </p>
+        {isOwner && !showInviteForm && (
+          <button
+            type="button"
+            onClick={() => setShowInviteForm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px] bg-[#5C7A6B] text-white text-sm font-medium transition-all duration-150 hover:bg-[#496158] min-h-[36px]"
+          >
+            <UserPlus size={14} />
+            Invite Member
+          </button>
+        )}
       </div>
 
-      {/* Invite button */}
-      {isOwner && (
-        <div>
-          {showInviteForm ? (
-            <div className="bg-card rounded-card border border-border shadow-card p-7 space-y-5 animate-slide-up">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-ink">
-                  Create invitation
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowInviteForm(false)}
-                  className="p-1.5 rounded-small text-ink-tertiary hover:text-ink hover:bg-bg transition-all duration-200"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  createInvitation.mutate({
-                    email: inviteEmail.trim() || undefined,
-                    role: inviteRole,
-                    can_view_notes: inviteNotesAccess,
-                  });
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="ui-label">
-                    Email{" "}
-                    <span className="text-ink-tertiary font-normal">
-                      (optional -- leave blank for open link)
-                    </span>
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="therapist@example.com"
-                    className="ui-input"
-                  />
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <label className="ui-label">Role</label>
-                    <select
-                      value={inviteRole}
-                      onChange={(e) =>
-                        setInviteRole(
-                          e.target.value as "therapist" | "admin"
-                        )
-                      }
-                      className="ui-input"
-                    >
-                      <option value="therapist">Therapist</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <label className="flex items-center gap-2 cursor-pointer mt-5">
-                    <input
-                      type="checkbox"
-                      checked={inviteNotesAccess}
-                      onChange={(e) =>
-                        setInviteNotesAccess(e.target.checked)
-                      }
-                      className="rounded border-border text-sage focus:ring-sage/20 focus:ring-offset-0"
-                    />
-                    <span className="text-xs text-ink-secondary font-medium">
-                      Notes access
-                    </span>
-                  </label>
-                </div>
-                <button
-                  type="submit"
-                  disabled={createInvitation.isPending}
-                  className="btn-primary"
-                >
-                  {createInvitation.isPending
-                    ? "Creating..."
-                    : "Create Invitation"}
-                </button>
-              </form>
-            </div>
-          ) : (
+      {/* Invite form */}
+      {isOwner && showInviteForm && (
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-6 animate-slide-up">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-sm font-semibold text-[#1C1C1E]">
+              Invite a team member
+            </h3>
             <button
               type="button"
-              onClick={() => setShowInviteForm(true)}
-              className="btn-primary"
+              onClick={() => setShowInviteForm(false)}
+              className="p-1.5 rounded-[6px] text-[#8A8480] hover:text-[#1C1C1E] hover:bg-[#F4F1EC] transition-all duration-150"
             >
-              <UserPlus size={14} />
-              Invite team member
+              <X size={16} />
             </button>
-          )}
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              createInvitation.mutate({
+                email: inviteEmail.trim() || undefined,
+                role: inviteRole,
+                can_view_notes: inviteNotesAccess,
+              });
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
+                Email{" "}
+                <span className="text-[#8A8480] font-normal">
+                  (optional — leave blank for open link)
+                </span>
+              </label>
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="therapist@example.com"
+                className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4 items-end">
+              <div>
+                <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
+                  Role
+                </label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) =>
+                    setInviteRole(e.target.value as "therapist" | "admin")
+                  }
+                  className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+                >
+                  <option value="therapist">Therapist</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer pb-2">
+                <input
+                  type="checkbox"
+                  checked={inviteNotesAccess}
+                  onChange={(e) => setInviteNotesAccess(e.target.checked)}
+                  className="w-4 h-4 rounded border-[#E5E0D8] text-[#5C7A6B] focus:ring-[rgba(74,111,165,0.15)] focus:ring-offset-0"
+                />
+                <span className="text-sm text-[#5C5856] font-medium">
+                  Can view notes
+                </span>
+              </label>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="submit"
+                disabled={createInvitation.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px] bg-[#5C7A6B] text-white text-sm font-medium transition-all duration-150 hover:bg-[#496158] disabled:opacity-60 min-h-[36px]"
+              >
+                {createInvitation.isPending ? "Creating..." : "Create Invitation"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowInviteForm(false)}
+                className="px-4 py-2.5 rounded-[8px] bg-white border border-[#E5E0D8] text-[#1C1C1E] text-sm font-medium transition-all duration-150 hover:bg-[#F4F1EC] min-h-[36px]"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
       {/* Pending invitations */}
       {pendingInvitations.length > 0 && (
-        <div className="space-y-2.5">
-          <h3 className="ui-section-label">Pending invitations</h3>
-          <div className="bg-card rounded-card border border-border shadow-card overflow-hidden divide-y divide-border">
+        <div className="space-y-2">
+          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+            Pending Invitations
+          </p>
+          <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#E5E0D8]">
             {pendingInvitations.map((inv: any) => {
               const inviteUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/invite/${inv.token}`;
               return (
                 <div
                   key={inv.id}
-                  className="px-6 py-3.5 flex items-center justify-between gap-4"
+                  className="px-6 py-4 flex items-center justify-between gap-4"
                 >
-                  <div className="min-w-0">
-                    <div className="text-sm text-ink font-medium truncate">
-                      {inv.email || "Open invitation"}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-[#FBF0E8] flex items-center justify-center flex-shrink-0">
+                      <UserPlus size={14} className="text-[#B5733A]" />
                     </div>
-                    <div className="text-xs text-ink-secondary capitalize">
-                      {inv.role} &middot; Expires{" "}
-                      {new Date(inv.expires_at).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                      })}
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-[#1C1C1E] truncate">
+                        {inv.email || "Open invitation"}
+                      </div>
+                      <div className="text-xs text-[#5C5856] capitalize">
+                        {inv.role} · Expires{" "}
+                        {new Date(inv.expires_at).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-[999px] bg-[#FBF0E8] text-[#B5733A] text-[11px] font-medium">
+                      Pending
+                    </span>
                     <button
                       type="button"
                       onClick={() => copyToClipboard(inviteUrl)}
-                      className="p-2 rounded-small text-ink-tertiary hover:text-sage hover:bg-sage-bg transition-all duration-200"
+                      className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150"
                       title="Copy invite link"
                     >
                       <Copy size={14} />
@@ -399,12 +433,10 @@ export default function TeamPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          revokeInvitation.mutate({
-                            invitation_id: inv.id,
-                          })
+                          revokeInvitation.mutate({ invitation_id: inv.id })
                         }
-                        className="p-2 rounded-small text-ink-tertiary hover:text-error hover:bg-error-bg transition-all duration-200"
-                        title="Revoke"
+                        className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
+                        title="Revoke invitation"
                       >
                         <X size={14} />
                       </button>
@@ -417,159 +449,202 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* Members list */}
-      <div className="bg-card rounded-card border border-border shadow-card overflow-hidden divide-y divide-border">
-        {membersData.map((m: any) => {
-          const therapistInfo = m.therapists as {
-            full_name: string;
-            email: string | null;
-            avatar_url: string | null;
-          } | null;
-          const RoleIcon =
-            ROLE_ICONS[m.role as keyof typeof ROLE_ICONS] ?? Shield;
-          const roleInfo =
-            PRACTICE_ROLES[m.role as keyof typeof PRACTICE_ROLES];
-
-          return (
-            <div
-              key={m.id}
-              className="px-6 py-4 flex items-center justify-between hover:bg-bg transition-colors duration-200"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-sage-bg flex items-center justify-center flex-shrink-0">
-                  <RoleIcon size={16} className="text-sage" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-ink">
-                    {therapistInfo?.full_name ?? "Invited member"}
-                  </div>
-                  <div className="text-xs text-ink-secondary flex items-center gap-2.5 mt-0.5">
-                    <span className="capitalize">
-                      {roleInfo?.label ?? m.role}
-                    </span>
-                    <span className="text-border">|</span>
-                    <span className="inline-flex items-center gap-1">
-                      {m.can_view_notes ? (
-                        <>
-                          <Eye size={10} /> Can view notes
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff size={10} /> No notes access
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {isOwner && m.role !== "owner" && (
-                <div className="flex items-center gap-2">
-                  <select
-                    value={m.role}
-                    onChange={(e) =>
-                      updateMember.mutate({
-                        member_id: m.id,
-                        role: e.target.value as "therapist" | "admin",
-                      })
-                    }
-                    className="text-xs px-2.5 py-1.5 rounded-small border border-border bg-surface text-ink focus:outline-none focus:border-sage focus:ring-[3px] focus:ring-sage/10 transition-all duration-200"
-                  >
-                    <option value="therapist">Therapist</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateMember.mutate({
-                        member_id: m.id,
-                        can_view_notes: !m.can_view_notes,
-                      })
-                    }
-                    title={
-                      m.can_view_notes
-                        ? "Revoke notes access"
-                        : "Grant notes access"
-                    }
-                    className={`p-2 rounded-small transition-all duration-200 ${
-                      m.can_view_notes
-                        ? "text-sage hover:bg-sage-bg"
-                        : "text-ink-tertiary hover:bg-bg"
-                    }`}
-                  >
-                    {m.can_view_notes ? (
-                      <Eye size={14} />
-                    ) : (
-                      <EyeOff size={14} />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        confirm("Remove this member from the practice?")
-                      ) {
-                        removeMember.mutate({ member_id: m.id });
-                      }
-                    }}
-                    className="p-2 rounded-small text-ink-tertiary hover:text-error hover:bg-error-bg transition-all duration-200"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {membersData.length === 0 && (
-          <div className="p-8 text-center">
-            <p className="text-sm text-ink-secondary">No team members yet</p>
+      {/* Members table */}
+      <div className="space-y-2">
+        <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+          Team Members
+        </p>
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+          {/* Table header */}
+          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-3 border-b border-[#E5E0D8] bg-[#F4F1EC]">
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+              Member
+            </span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-24">
+              Role
+            </span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-28">
+              Notes Access
+            </span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-20">
+              Actions
+            </span>
           </div>
-        )}
+
+          {membersData.length === 0 ? (
+            <div className="p-12 flex flex-col items-center justify-center text-center">
+              <UsersRound size={40} className="text-[#C5BFB8] mb-4" strokeWidth={1.5} />
+              <p className="text-base font-medium text-[#5C5856]">No team members yet</p>
+              <p className="text-sm text-[#8A8480] mt-1">
+                Invite colleagues to collaborate on your practice.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-[#E5E0D8]">
+              {membersData.map((m: any) => {
+                const therapistInfo = m.therapists as {
+                  full_name: string;
+                  email: string | null;
+                  avatar_url: string | null;
+                } | null;
+                const RoleIcon =
+                  ROLE_ICONS[m.role as keyof typeof ROLE_ICONS] ?? Shield;
+                const roleInfo =
+                  PRACTICE_ROLES[m.role as keyof typeof PRACTICE_ROLES];
+                const roleColor = ROLE_COLORS[m.role] ?? ROLE_COLORS.therapist;
+                const name = therapistInfo?.full_name ?? "Invited member";
+
+                return (
+                  <div
+                    key={m.id}
+                    className="grid grid-cols-[1fr] md:grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-4 items-center hover:bg-[#F9F8F5] transition-colors duration-150"
+                  >
+                    {/* Member info */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold"
+                        style={{ backgroundColor: roleColor.bg, color: roleColor.text }}
+                      >
+                        {getInitials(name)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-[#1C1C1E] truncate">
+                          {name}
+                        </div>
+                        {therapistInfo?.email && (
+                          <div className="text-xs text-[#8A8480] truncate">
+                            {therapistInfo.email}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Role */}
+                    <div className="w-24">
+                      {isOwner && m.role !== "owner" ? (
+                        <select
+                          value={m.role}
+                          onChange={(e) =>
+                            updateMember.mutate({
+                              member_id: m.id,
+                              role: e.target.value as "therapist" | "admin",
+                            })
+                          }
+                          className="w-full px-2.5 py-1.5 text-xs rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+                        >
+                          <option value="therapist">Therapist</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      ) : (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[999px] text-[11px] font-medium"
+                          style={{ backgroundColor: roleColor.bg, color: roleColor.text }}
+                        >
+                          <RoleIcon size={10} />
+                          {roleInfo?.label ?? m.role}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Notes access */}
+                    <div className="w-28">
+                      {isOwner && m.role !== "owner" ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateMember.mutate({
+                              member_id: m.id,
+                              can_view_notes: !m.can_view_notes,
+                            })
+                          }
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[999px] text-[11px] font-medium transition-all duration-150 ${
+                            m.can_view_notes
+                              ? "bg-[#EAF4F1] text-[#3D8B7A] hover:bg-[#D3EBE5]"
+                              : "bg-[#F0EFED] text-[#6B6460] hover:bg-[#E5E0D8]"
+                          }`}
+                        >
+                          {m.can_view_notes ? (
+                            <Eye size={10} />
+                          ) : (
+                            <EyeOff size={10} />
+                          )}
+                          {m.can_view_notes ? "Can view" : "No access"}
+                        </button>
+                      ) : (
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[999px] text-[11px] font-medium ${
+                          m.can_view_notes ? "bg-[#EAF4F1] text-[#3D8B7A]" : "bg-[#F0EFED] text-[#6B6460]"
+                        }`}>
+                          {m.can_view_notes ? <Eye size={10} /> : <EyeOff size={10} />}
+                          {m.can_view_notes ? "Can view" : "No access"}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="w-20 flex justify-end">
+                      {isOwner && m.role !== "owner" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm("Remove this member from the practice?")) {
+                              removeMember.mutate({ member_id: m.id });
+                            }
+                          }}
+                          className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
+                          title="Remove member"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Past invitations */}
+      {/* Past invitations (collapsible) */}
       {pastInvitations.length > 0 && (
-        <details className="group">
-          <summary className="ui-section-label cursor-pointer list-none flex items-center gap-1.5">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="transition-transform group-open:rotate-90"
-            >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-            Past invitations ({pastInvitations.length})
-          </summary>
-          <div className="mt-2.5 bg-card rounded-card border border-border shadow-card overflow-hidden divide-y divide-border">
-            {pastInvitations.map((inv: any) => (
-              <div
-                key={inv.id}
-                className="px-5 py-3 flex items-center justify-between text-xs"
-              >
-                <span className="text-ink-secondary">
-                  {inv.email || "Open link"}
-                </span>
-                <span
-                  className={`badge ${
-                    inv.status === "accepted"
-                      ? "badge-success"
-                      : inv.status === "revoked"
-                        ? "badge-error"
-                        : "badge-sage"
-                  }`}
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setShowPastInvites(!showPastInvites)}
+            className="flex items-center gap-2 text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] hover:text-[#5C5856] transition-colors"
+          >
+            <ChevronDown
+              size={12}
+              className={`transition-transform duration-150 ${showPastInvites ? "rotate-180" : ""}`}
+            />
+            Past Invitations ({pastInvitations.length})
+          </button>
+          {showPastInvites && (
+            <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#E5E0D8] animate-fade-in">
+              {pastInvitations.map((inv: any) => (
+                <div
+                  key={inv.id}
+                  className="px-5 py-3 flex items-center justify-between"
                 >
-                  {inv.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </details>
+                  <span className="text-sm text-[#5C5856]">
+                    {inv.email || "Open link"}
+                  </span>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-[999px] text-[11px] font-medium ${
+                      inv.status === "accepted"
+                        ? "bg-[#EAF4F1] text-[#3D8B7A]"
+                        : inv.status === "revoked"
+                          ? "bg-[#F9EDED] text-[#A0504A]"
+                          : "bg-[#F0EFED] text-[#6B6460]"
+                    }`}
+                  >
+                    {inv.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Client onboarding links */}
@@ -591,15 +666,18 @@ export default function TeamPage() {
         creating={createOnboardingToken.isPending}
       />
 
-      {/* Info card */}
-      <div className="bg-sage-bg rounded-card p-5 text-xs text-ink-secondary space-y-1.5">
-        <p className="font-medium text-ink text-sm">Role permissions</p>
-        {Object.entries(PRACTICE_ROLES).map(([key, val]) => (
-          <p key={key}>
-            <span className="font-medium capitalize">{val.label}</span> --{" "}
-            {val.description}
-          </p>
-        ))}
+      {/* Role permissions reference */}
+      <div className="bg-[#EBF0EB] rounded-[12px] border border-[#5C7A6B]/10 p-5">
+        <p className="text-sm font-semibold text-[#1C1C1E] mb-3">Role permissions</p>
+        <div className="space-y-1.5">
+          {Object.entries(PRACTICE_ROLES).map(([key, val]) => (
+            <p key={key} className="text-xs text-[#5C5856]">
+              <span className="font-medium capitalize text-[#1C1C1E]">{val.label}</span>
+              {" — "}
+              {val.description}
+            </p>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -641,34 +719,38 @@ function OnboardingSection({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-ink flex items-center gap-2">
-            <LinkIcon size={14} className="text-sage" />
+          <h3 className="text-sm font-semibold text-[#1C1C1E] flex items-center gap-2">
+            <LinkIcon size={14} className="text-[#5C7A6B]" />
             Client onboarding links
           </h3>
-          <p className="text-xs text-ink-secondary mt-0.5">
-            Share these links with clients so they can register themselves.
+          <p className="text-xs text-[#8A8480] mt-0.5">
+            Share these links so clients can register themselves.
           </p>
         </div>
-        <button type="button" onClick={onToggleForm} className="btn-ghost btn-sm">
+        <button
+          type="button"
+          onClick={onToggleForm}
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] text-xs font-medium text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150 border border-transparent hover:border-[#5C7A6B]/20"
+        >
           <Plus size={12} />
           Create link
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-card rounded-card border border-border shadow-card p-5 flex items-center gap-3 animate-slide-up">
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-4 flex items-center gap-3 animate-slide-up">
           <input
             type="text"
             value={label}
             onChange={(e) => onLabelChange(e.target.value)}
             placeholder="Label (e.g. Website, WhatsApp group)"
-            className="ui-input"
+            className="flex-1 px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
           />
           <button
             type="button"
             onClick={onCreate}
             disabled={creating}
-            className="btn-primary btn-sm whitespace-nowrap"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[8px] bg-[#5C7A6B] text-white text-sm font-medium transition-all duration-150 hover:bg-[#496158] disabled:opacity-60 whitespace-nowrap"
           >
             {creating ? "Creating..." : "Create"}
           </button>
@@ -676,19 +758,19 @@ function OnboardingSection({
       )}
 
       {tokens.length > 0 && (
-        <div className="bg-card rounded-card border border-border shadow-card overflow-hidden divide-y divide-border">
+        <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#E5E0D8]">
           {tokens.map((t) => {
             const url = `${typeof window !== "undefined" ? window.location.origin : ""}/onboard/${t.token}`;
             return (
               <div
                 key={t.id}
-                className="px-5 py-3.5 flex items-center justify-between gap-3"
+                className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-[#F9F8F5] transition-colors duration-150"
               >
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-ink truncate">
+                  <div className="text-sm font-medium text-[#1C1C1E] truncate">
                     {t.label || "Onboarding link"}
                   </div>
-                  <div className="text-xs text-ink-secondary">
+                  <div className="text-xs text-[#8A8480]">
                     {t.use_count} registered
                     {t.max_uses && ` / ${t.max_uses} max`}
                   </div>
@@ -697,7 +779,7 @@ function OnboardingSection({
                   <button
                     type="button"
                     onClick={() => onCopy(url)}
-                    className="p-2 rounded-small text-ink-tertiary hover:text-sage hover:bg-sage-bg transition-all duration-200"
+                    className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150"
                     title="Copy link"
                   >
                     <Copy size={14} />
@@ -705,9 +787,11 @@ function OnboardingSection({
                   <button
                     type="button"
                     onClick={() => onToggle(t.id, !t.is_active)}
-                    className={`badge ${
-                      t.is_active ? "badge-success" : "badge-sage"
-                    } cursor-pointer transition-all duration-200`}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-[999px] text-[11px] font-medium transition-all duration-150 cursor-pointer ${
+                      t.is_active
+                        ? "bg-[#EAF4F1] text-[#3D8B7A] hover:bg-[#D3EBE5]"
+                        : "bg-[#F0EFED] text-[#6B6460] hover:bg-[#E5E0D8]"
+                    }`}
                   >
                     {t.is_active ? "Active" : "Inactive"}
                   </button>

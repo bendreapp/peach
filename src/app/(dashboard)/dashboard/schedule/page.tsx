@@ -5,7 +5,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSessionsPending } from "@/lib/api-hooks";
 import { toast } from "sonner";
-import { getMonday, startOfDayIST, endOfDayIST, endOfWeekIST, getMonthGrid } from "@/lib/date-utils";
+import {
+  getMonday,
+  startOfDayIST,
+  endOfDayIST,
+  endOfWeekIST,
+  getMonthGrid,
+} from "@/lib/date-utils";
 import ScheduleHeader from "@/components/schedule/ScheduleHeader";
 import WeekView from "@/components/schedule/WeekView";
 import DayView from "@/components/schedule/DayView";
@@ -23,17 +29,26 @@ function toArray(d: any): any[] {
   return [];
 }
 
-
-
-
 type ViewMode = "calendar" | "list";
 type CalendarView = "week" | "day" | "month";
 
 interface BreakModalData {
   start: string;
   end: string;
-  existing?: { id: string; start_at: string; end_at: string; reason: string | null };
+  existing?: {
+    id: string;
+    start_at: string;
+    end_at: string;
+    reason: string | null;
+  };
 }
+
+// Color legend items per DESIGN.md
+const COLOR_LEGEND = [
+  { color: "#5C7A6B", label: "In-person" },
+  { color: "#7BAF9E", label: "Online" },
+  { color: "#D4956A", label: "Group" },
+];
 
 export default function SchedulePage() {
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
@@ -53,13 +68,22 @@ export default function SchedulePage() {
   // Compute date range based on current view
   const { from, to } = useMemo(() => {
     if (calendarView === "day" && selectedDay) {
-      return { from: startOfDayIST(selectedDay), to: endOfDayIST(selectedDay) };
+      return {
+        from: startOfDayIST(selectedDay),
+        to: endOfDayIST(selectedDay),
+      };
     }
     if (calendarView === "month") {
       const grid = getMonthGrid(monthDate);
-      return { from: startOfDayIST(grid[0]!), to: endOfDayIST(grid[41]!) };
+      return {
+        from: startOfDayIST(grid[0]!),
+        to: endOfDayIST(grid[41]!),
+      };
     }
-    return { from: startOfDayIST(weekStart), to: endOfWeekIST(weekStart) };
+    return {
+      from: startOfDayIST(weekStart),
+      to: endOfWeekIST(weekStart),
+    };
   }, [calendarView, weekStart, selectedDay, monthDate]);
 
   // Data queries
@@ -78,7 +102,6 @@ export default function SchedulePage() {
     qc.invalidateQueries({ queryKey: ["blocked-slots"] });
   }
 
-  // Helper to optimistically update a session's status in the cache
   function optimisticStatusUpdate(sessionId: string, newStatus: string) {
     const queryKey = ["sessions", "range", from, to];
     const previousSessions = qc.getQueryData(queryKey);
@@ -91,8 +114,11 @@ export default function SchedulePage() {
       );
     });
 
-    // Remove from pending list for approve/reject actions
-    if (newStatus === "scheduled" || newStatus === "rejected" || newStatus === "cancelled") {
+    if (
+      newStatus === "scheduled" ||
+      newStatus === "rejected" ||
+      newStatus === "cancelled"
+    ) {
       qc.setQueryData(["sessions", "pending"], (old: any) => {
         if (!old) return old;
         return old.filter((s: any) => s.id !== sessionId);
@@ -102,7 +128,15 @@ export default function SchedulePage() {
     return { previousSessions, previousPending, queryKey };
   }
 
-  function rollbackOptimistic(context: { previousSessions?: unknown; previousPending?: unknown; queryKey: unknown } | undefined) {
+  function rollbackOptimistic(
+    context:
+      | {
+          previousSessions?: unknown;
+          previousPending?: unknown;
+          queryKey: unknown;
+        }
+      | undefined
+  ) {
     if (context?.previousSessions !== undefined) {
       qc.setQueryData(context.queryKey as any, context.previousSessions);
     }
@@ -128,6 +162,7 @@ export default function SchedulePage() {
     },
     onSettled: () => invalidateAll(),
   });
+
   const reject = useMutation({
     mutationFn: (id: string) => api.session.reject(id),
     onMutate: async (id) => {
@@ -144,6 +179,7 @@ export default function SchedulePage() {
     },
     onSettled: () => invalidateAll(),
   });
+
   const complete = useMutation({
     mutationFn: (id: string) => api.session.complete(id),
     onMutate: async (id) => {
@@ -157,9 +193,12 @@ export default function SchedulePage() {
     },
     onSettled: () => invalidateAll(),
   });
+
   const cancel = useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
-      api.session.cancel(id, data),
+    mutationFn: ({
+      id,
+      ...data
+    }: { id: string } & Record<string, unknown>) => api.session.cancel(id, data),
     onMutate: async ({ id }) => {
       await Promise.all([
         qc.cancelQueries({ queryKey: ["sessions", "range", from, to] }),
@@ -174,6 +213,7 @@ export default function SchedulePage() {
     },
     onSettled: () => invalidateAll(),
   });
+
   const markNoShow = useMutation({
     mutationFn: (id: string) => api.session.markNoShow(id),
     onMutate: async (id) => {
@@ -187,8 +227,12 @@ export default function SchedulePage() {
     },
     onSettled: () => invalidateAll(),
   });
+
   const reschedule = useMutation({
-    mutationFn: ({ session_id, ...data }: { session_id: string } & Record<string, unknown>) =>
+    mutationFn: ({
+      session_id,
+      ...data
+    }: { session_id: string } & Record<string, unknown>) =>
       api.session.reschedule(session_id, data),
     onSuccess: () => {
       invalidateAll();
@@ -197,6 +241,7 @@ export default function SchedulePage() {
     },
     onError: (err: any) => toast.error(err.message),
   });
+
   const deleteSession = useMutation({
     mutationFn: (id: string) => api.session.delete(id),
     onMutate: async (id) => {
@@ -232,8 +277,12 @@ export default function SchedulePage() {
     },
     onError: (err: any) => toast.error(err.message),
   });
+
   const updateBlock = useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
+    mutationFn: ({
+      id,
+      ...data
+    }: { id: string } & Record<string, unknown>) =>
       api.blockedSlot.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["blocked-slots"] });
@@ -242,6 +291,7 @@ export default function SchedulePage() {
     },
     onError: (err: any) => toast.error(err.message),
   });
+
   const deleteBlock = useMutation({
     mutationFn: (id: string) => api.blockedSlot.delete(id),
     onSuccess: () => {
@@ -253,9 +303,15 @@ export default function SchedulePage() {
   });
 
   const isActing =
-    approve.isPending || reject.isPending || complete.isPending ||
-    cancel.isPending || markNoShow.isPending || reschedule.isPending ||
-    deleteSession.isPending || createBlock.isPending || updateBlock.isPending ||
+    approve.isPending ||
+    reject.isPending ||
+    complete.isPending ||
+    cancel.isPending ||
+    markNoShow.isPending ||
+    reschedule.isPending ||
+    deleteSession.isPending ||
+    createBlock.isPending ||
+    updateBlock.isPending ||
     deleteBlock.isPending;
 
   // Navigation
@@ -299,7 +355,9 @@ export default function SchedulePage() {
   }
 
   function onDayClick(day: Date) {
-    setPreviousCalendarView(calendarView === "day" ? previousCalendarView : calendarView as "week" | "month");
+    setPreviousCalendarView(
+      calendarView === "day" ? previousCalendarView : (calendarView as "week" | "month")
+    );
     setSelectedDay(day);
     setCalendarView("day");
   }
@@ -309,7 +367,12 @@ export default function SchedulePage() {
     setSelectedDay(null);
   }
 
-  function onBlockedSlotClick(block: { id: string; start_at: string; end_at: string; reason: string | null }) {
+  function onBlockedSlotClick(block: {
+    id: string;
+    start_at: string;
+    end_at: string;
+    reason: string | null;
+  }) {
     setBreakModal({
       start: block.start_at,
       end: block.end_at,
@@ -317,7 +380,6 @@ export default function SchedulePage() {
     });
   }
 
-  // Find the selected session for the popover
   const selectedSession = useMemo(() => {
     if (!selectedSessionId || !sessions.data) return null;
     return toArray(sessions.data).find((s) => s.id === selectedSessionId) ?? null;
@@ -327,46 +389,108 @@ export default function SchedulePage() {
   const allSessions = toArray(sessions.data);
 
   return (
-    <div className="space-y-5 relative">
-      {/* Loading overlay */}
+    <div className="space-y-4 relative">
+      {/* Action overlay spinner */}
       {isActing && (
-        <div className="fixed inset-0 z-40 bg-surface/60 backdrop-blur-sm flex items-center justify-center pointer-events-auto">
-          <div className="bg-card rounded-card border border-border shadow-card-hover px-6 py-4 flex items-center gap-3 animate-fade-in">
-            <div className="w-5 h-5 border-2 border-sage border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-ink-secondary font-medium">Processing...</span>
+        <div className="fixed inset-0 z-30 pointer-events-none flex items-end justify-center pb-8">
+          <div
+            className="flex items-center gap-2.5 px-4 py-2.5 rounded-small border animate-fade-in"
+            style={{
+              background: "var(--color-surface)",
+              borderColor: "var(--color-border)",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            }}
+          >
+            <div
+              className="w-4 h-4 border-2 rounded-full animate-spin"
+              style={{
+                borderColor: "var(--color-primary)",
+                borderTopColor: "transparent",
+              }}
+            />
+            <span
+              className="text-xs font-medium"
+              style={{ color: "var(--color-ink-secondary)" }}
+            >
+              Processing…
+            </span>
           </div>
         </div>
       )}
 
-      <ScheduleHeader
-        viewMode={viewMode}
-        calendarView={calendarView}
-        weekStart={weekStart}
-        monthDate={monthDate}
-        selectedDay={selectedDay}
-        onViewModeChange={setViewMode}
-        onCalendarViewChange={handleCalendarViewChange}
-        onPrevWeek={goToPrevWeek}
-        onNextWeek={goToNextWeek}
-        onPrevMonth={goToPrevMonth}
-        onNextMonth={goToNextMonth}
-        onToday={goToToday}
-        onBackToParent={backToParent}
-        onAddSession={() => setCreateSessionOpen(true)}
-        pendingCount={pendingCount}
-      />
+      {/* Page header: nav controls + view toggle + new session */}
+      <div
+        className="flex items-center justify-between gap-4 flex-wrap pb-1"
+      >
+        {/* Page title — left side */}
+        <div>
+          <h1
+            className="text-2xl font-bold leading-none"
+            style={{ color: "var(--color-ink)", letterSpacing: "-0.02em" }}
+          >
+            Schedule
+          </h1>
+        </div>
 
-      {/* Pending banner */}
-      {pendingCount > 0 && viewMode === "calendar" && (
-        <div className="bg-warning-bg border border-warning/15 rounded-small px-4 py-3 flex items-center gap-2.5 animate-fade-in">
-          <AlertCircle size={16} className="text-warning flex-shrink-0" />
-          <span className="text-sm text-ink font-medium">
-            {pendingCount} booking request{pendingCount !== 1 ? "s" : ""} awaiting approval
+        {/* Right: nav controls */}
+        <div className="flex-1 flex justify-end">
+          <ScheduleHeader
+            viewMode={viewMode}
+            calendarView={calendarView}
+            weekStart={weekStart}
+            monthDate={monthDate}
+            selectedDay={selectedDay}
+            onViewModeChange={setViewMode}
+            onCalendarViewChange={handleCalendarViewChange}
+            onPrevWeek={goToPrevWeek}
+            onNextWeek={goToNextWeek}
+            onPrevMonth={goToPrevMonth}
+            onNextMonth={goToNextMonth}
+            onToday={goToToday}
+            onBackToParent={backToParent}
+            onAddSession={() => setCreateSessionOpen(true)}
+            pendingCount={pendingCount}
+          />
+        </div>
+      </div>
+
+      {/* Pending approval banner */}
+      {pendingCount > 0 && (
+        <div
+          className="flex items-center gap-2.5 px-4 py-3 rounded-small border animate-fade-in"
+          style={{
+            background: "#FBF0E8",
+            borderColor: "rgba(212,149,106,0.3)",
+          }}
+        >
+          <AlertCircle size={15} style={{ color: "#B5733A", flexShrink: 0 }} />
+          <span className="text-sm font-medium" style={{ color: "#B5733A" }}>
+            {pendingCount} booking request{pendingCount !== 1 ? "s" : ""} awaiting your approval
           </span>
         </div>
       )}
 
-      {/* Views */}
+      {/* Color legend — only for calendar week/day views */}
+      {viewMode === "calendar" && calendarView !== "month" && (
+        <div className="flex items-center gap-4">
+          {COLOR_LEGEND.map(({ color, label }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <span
+                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                style={{ background: color }}
+              />
+              <span
+                className="text-[12px]"
+                style={{ color: "var(--color-ink-tertiary)" }}
+              >
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Calendar views */}
       {viewMode === "list" ? (
         <ListView
           sessions={allSessions as any}
@@ -421,7 +545,7 @@ export default function SchedulePage() {
         />
       )}
 
-      {/* Session detail popover */}
+      {/* Session detail drawer */}
       {selectedSession && (
         <SessionDetailPopover
           session={selectedSession as any}
@@ -452,7 +576,7 @@ export default function SchedulePage() {
         />
       )}
 
-      {/* Break modal (create or edit) */}
+      {/* Break modal */}
       {breakModal && (
         <AddBreakModal
           defaultStart={breakModal.start}
@@ -462,7 +586,9 @@ export default function SchedulePage() {
           onSave={(data) => createBlock.mutate(data)}
           onUpdate={(data) => updateBlock.mutate(data)}
           onDelete={(id) => deleteBlock.mutate(id)}
-          isSaving={createBlock.isPending || updateBlock.isPending || deleteBlock.isPending}
+          isSaving={
+            createBlock.isPending || updateBlock.isPending || deleteBlock.isPending
+          }
         />
       )}
 
