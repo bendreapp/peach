@@ -72,7 +72,7 @@ export default function OnboardingPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Welcome to Bendre! 🌿");
+          toast.success("Welcome to Bendre");
           router.push("/dashboard");
         },
         onError: (err) => {

@@ -315,7 +315,7 @@ export default function DashboardLayout({
       </a>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#FDFCFA] border-b border-[#E8E4DC] h-14 flex items-center px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#FDFCFA] border-b border-[#E8E4DC] h-14 flex items-center justify-between px-4">
         <button
           onClick={() => setSidebarOpen(true)}
           className="text-[#5C5856] hover:text-[#1C1C1E] transition-colors p-1"
@@ -323,7 +323,7 @@ export default function DashboardLayout({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <Link href="/dashboard" className="flex items-center ml-2 gap-1.5">
+        <Link href="/dashboard" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
           <Image src="/logo.png" alt="Bendre" width={28} height={28} />
           <span
             className="font-bold text-[#1C1C1E]"
@@ -332,7 +332,7 @@ export default function DashboardLayout({
             Bendre
           </span>
         </Link>
-        <div className="ml-auto">
+        <div>
           {avatarUrl ? (
             <img
               src={avatarUrl}
