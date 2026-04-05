@@ -837,7 +837,7 @@ export default function ClientsPage() {
       ) : (
         /* ── Populated table ─────────────────────────────────────────────── */
         <div
-          className="rounded-card overflow-hidden"
+          className="rounded-card"
           style={{
             background: "#FFFFFF",
             border: "1px solid #E5E0D8",
@@ -993,7 +993,7 @@ export default function ClientsPage() {
                 <div className="flex items-center justify-end gap-2">
                   <Link
                     href={`/dashboard/clients/${client.id}`}
-                    className="text-xs font-medium px-3 py-1.5 rounded-small border transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 opacity-0 group-hover:opacity-100"
+                    className="text-xs font-medium px-3 py-1.5 rounded-small border transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 opacity-0 group-hover:opacity-100 whitespace-nowrap"
                     style={{
                       color: "#5C7A6B",
                       borderColor: "#E5E0D8",

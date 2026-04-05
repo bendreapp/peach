@@ -501,6 +501,30 @@ export const api = {
       }),
   },
 
+  // ── Client Session Types ─────────────────────────────────────────
+  clientSessionTypes: {
+    list: (clientId: string) =>
+      apiFetch(`/api/v1/clients/${clientId}/session-types`),
+    create: (clientId: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/clients/${clientId}/session-types`, {
+        method: "POST",
+        body: data,
+      }),
+    update: (clientId: string, id: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/clients/${clientId}/session-types/${id}`, {
+        method: "PUT",
+        body: data,
+      }),
+    delete: (clientId: string, id: string) =>
+      apiFetch(`/api/v1/clients/${clientId}/session-types/${id}`, {
+        method: "DELETE",
+      }),
+    setDefault: (clientId: string, id: string) =>
+      apiFetch(`/api/v1/clients/${clientId}/session-types/${id}/set-default`, {
+        method: "POST",
+      }),
+  },
+
   // ── Client Invitations ────────────────────────────────────────────
   clientInvitations: {
     create: (data: Record<string, unknown>) =>

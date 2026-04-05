@@ -603,6 +603,71 @@ export function useLeadIntakeSubmissions(leadId: string | null | undefined) {
   });
 }
 
+// ── Client Session Types ─────────────────────────────────────────────────────
+
+export function useClientSessionTypes(clientId: string) {
+  return useQuery({
+    queryKey: ["clients", clientId, "session-types"],
+    queryFn: () => api.clientSessionTypes.list(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useCreateClientSessionType() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      clientId,
+      ...data
+    }: { clientId: string } & Record<string, unknown>) =>
+      api.clientSessionTypes.create(clientId, data),
+    onSuccess: (_data, vars) => {
+      posthog.capture("client_session_type_created");
+      qc.invalidateQueries({ queryKey: ["clients", vars.clientId, "session-types"] });
+    },
+  });
+}
+
+export function useUpdateClientSessionType() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      clientId,
+      id,
+      ...data
+    }: { clientId: string; id: string } & Record<string, unknown>) =>
+      api.clientSessionTypes.update(clientId, id, data),
+    onSuccess: (_data, vars) => {
+      posthog.capture("client_session_type_updated");
+      qc.invalidateQueries({ queryKey: ["clients", vars.clientId, "session-types"] });
+    },
+  });
+}
+
+export function useDeleteClientSessionType() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ clientId, id }: { clientId: string; id: string }) =>
+      api.clientSessionTypes.delete(clientId, id),
+    onSuccess: (_data, vars) => {
+      posthog.capture("client_session_type_deleted");
+      qc.invalidateQueries({ queryKey: ["clients", vars.clientId, "session-types"] });
+    },
+  });
+}
+
+export function useSetDefaultClientSessionType() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ clientId, id }: { clientId: string; id: string }) =>
+      api.clientSessionTypes.setDefault(clientId, id),
+    onSuccess: (_data, vars) => {
+      posthog.capture("client_session_type_default_set");
+      qc.invalidateQueries({ queryKey: ["clients", vars.clientId, "session-types"] });
+    },
+  });
+}
+
 // ── Client Invitations ──────────────────────────────────────────────────────
 
 export function useCreateClientInvitation() {

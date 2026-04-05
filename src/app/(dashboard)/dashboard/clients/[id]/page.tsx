@@ -1,8 +1,17 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useClientDetail, useSendPortalInvite } from "@/lib/api-hooks";
+import { useRouter } from "next/navigation";
+import {
+  useClientDetail,
+  useSendPortalInvite,
+  useUpdateClientStatus,
+  useUpdateClient,
+  useClientSessionTypes,
+  useSetDefaultClientSessionType,
+  useUpdateClientSessionType,
+} from "@/lib/api-hooks";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -17,6 +26,14 @@ import {
   Repeat,
   Send,
   MoreHorizontal,
+  Pause,
+  Play,
+  X,
+  Layers,
+  Star,
+  ToggleRight,
+  ToggleLeft,
+  AlertTriangle,
 } from "lucide-react";
 import {
   ClientHeader,
@@ -25,9 +42,12 @@ import {
   TreatmentTab,
   ResourcesTab,
   IntakeTab,
+  ClientSessionTypes,
 } from "@/components/client-detail";
 
-type Tab = "sessions" | "notes" | "treatment" | "resources" | "intake";
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type Tab = "sessions" | "notes" | "treatment" | "resources" | "intake" | "session-types";
 
 const TABS: { key: Tab; label: string; icon: typeof CalendarDays }[] = [
   { key: "sessions", label: "Sessions", icon: CalendarDays },
@@ -35,7 +55,10 @@ const TABS: { key: Tab; label: string; icon: typeof CalendarDays }[] = [
   { key: "treatment", label: "Treatment", icon: ClipboardList },
   { key: "intake", label: "Intake", icon: ClipboardList },
   { key: "resources", label: "Resources", icon: FolderOpen },
+  { key: "session-types", label: "Session Types", icon: Layers },
 ];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getStatusBadge(status: string) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
@@ -56,6 +79,449 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
+const MODE_LABELS: Record<string, string> = {
+  in_person: "In-person",
+  online: "Online",
+  group: "Group",
+};
+
+const MODE_STYLES: Record<string, { bg: string; text: string }> = {
+  in_person: { bg: "#EAF4F1", text: "#3D8B7A" },
+  online: { bg: "#EBF0EB", text: "#5C7A6B" },
+  group: { bg: "#FBF0E8", text: "#B5733A" },
+};
+
+// ─── More Actions Menu ────────────────────────────────────────────────────────
+
+function MoreActionsMenu({
+  clientId,
+  isActive,
+  clientName,
+}: {
+  clientId: string;
+  isActive: boolean;
+  clientName: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const updateStatus = useUpdateClientStatus();
+
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open]);
+
+  function handleToggleStatus() {
+    const newStatus = isActive ? "inactive" : "active";
+    updateStatus.mutate(
+      { id: clientId, status: newStatus },
+      {
+        onSuccess: () => {
+          toast.success(isActive ? `${clientName} archived` : `${clientName} reactivated`);
+          setOpen(false);
+          if (isActive) router.push("/dashboard/clients");
+        },
+        onError: (err: Error) => toast.error(err.message),
+      }
+    );
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-white border border-[#E5E0D8] text-[#1C1C1E] text-sm font-medium transition-all duration-150 hover:bg-[#F4F1EC] cursor-pointer"
+      >
+        <MoreHorizontal size={13} />
+        More actions
+      </button>
+
+      {open && (
+        <div
+          className="absolute left-0 right-0 bottom-full mb-1 rounded-[8px] py-1 z-50"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #E5E0D8",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+          }}
+        >
+          <button
+            onClick={handleToggleStatus}
+            disabled={updateStatus.isPending}
+            className="w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-100 hover:bg-[#F4F1EC] disabled:opacity-50 cursor-pointer"
+            style={{ color: "#1C1C1E" }}
+          >
+            {isActive ? <Pause size={14} style={{ color: "#8A8480" }} /> : <Play size={14} style={{ color: "#8A8480" }} />}
+            {isActive ? "Archive client" : "Reactivate client"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Client Labels ────────────────────────────────────────────────────────────
+
+function ClientLabels({
+  clientId,
+  initialLabels,
+}: {
+  clientId: string;
+  initialLabels: string[];
+}) {
+  const [labels, setLabels] = useState<string[]>(initialLabels);
+  const [input, setInput] = useState("");
+  const updateClient = useUpdateClient();
+
+  // Sync when parent data changes (e.g., after refetch)
+  useEffect(() => {
+    setLabels(initialLabels);
+  }, [JSON.stringify(initialLabels)]);
+
+  function saveLabels(next: string[]) {
+    setLabels(next);
+    updateClient.mutate(
+      { id: clientId, labels: next },
+      {
+        onError: (err: Error) => {
+          toast.error(err.message || "Failed to save labels");
+          setLabels(labels); // revert
+        },
+      }
+    );
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const val = input.trim().replace(/,$/, "");
+      if (!val) return;
+      if (labels.includes(val)) {
+        setInput("");
+        return;
+      }
+      saveLabels([...labels, val]);
+      setInput("");
+    } else if (e.key === "Backspace" && !input && labels.length > 0) {
+      saveLabels(labels.slice(0, -1));
+    }
+  }
+
+  function removeLabel(label: string) {
+    saveLabels(labels.filter((l) => l !== label));
+  }
+
+  return (
+    <div className="mt-4 pt-4 border-t border-[#E5E0D8]">
+      <p className="text-[10px] font-medium tracking-[0.06em] uppercase text-[#8A8480] mb-2">
+        Labels
+      </p>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {labels.map((label) => (
+          <span
+            key={label}
+            className="inline-flex items-center gap-1"
+            style={{
+              background: "#EBF0EB",
+              color: "#5C7A6B",
+              border: "1px solid #D4E0D4",
+              borderRadius: 6,
+              padding: "4px 10px",
+              fontSize: 12,
+            }}
+          >
+            {label}
+            <button
+              onClick={() => removeLabel(label)}
+              className="ml-0.5 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              <X size={10} />
+            </button>
+          </span>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Add label, press Enter"
+        className="w-full h-8 px-2.5 rounded-[6px] text-xs text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none focus:border-[#8FAF8A] transition-colors placeholder:text-[#C8C4BE]"
+        style={{ fontFamily: "Satoshi" }}
+      />
+    </div>
+  );
+}
+
+// ─── Portal Invite Modal ──────────────────────────────────────────────────────
+
+function PortalInviteModal({
+  clientId,
+  clientName,
+  clientEmail,
+  onClose,
+}: {
+  clientId: string;
+  clientName: string;
+  clientEmail: string | null;
+  onClose: () => void;
+}) {
+  const sessionTypesQuery = useClientSessionTypes(clientId);
+  const sendPortalInvite = useSendPortalInvite();
+  const setDefaultMutation = useSetDefaultClientSessionType();
+  const updateMutation = useUpdateClientSessionType();
+
+  const sessionTypes: any[] = (sessionTypesQuery.data as any) ?? [];
+  const activeTypes = sessionTypes.filter((t: any) => t.is_active);
+  const canSend = activeTypes.length > 0 && !!clientEmail;
+
+  function handleSend() {
+    sendPortalInvite.mutate(clientId, {
+      onSuccess: () => {
+        toast.success(`Portal invite sent to ${clientEmail}`);
+        onClose();
+      },
+      onError: (err: Error) =>
+        toast.error(err.message || "Failed to send invite — try again"),
+    });
+  }
+
+  function handleToggleActive(item: any) {
+    updateMutation.mutate(
+      { clientId, id: item.id, is_active: !item.is_active },
+      {
+        onError: (err: Error) => toast.error(err.message),
+      }
+    );
+  }
+
+  function handleSetDefault(item: any) {
+    setDefaultMutation.mutate(
+      { clientId, id: item.id },
+      {
+        onError: (err: Error) => toast.error(err.message),
+      }
+    );
+  }
+
+  // Close on Escape
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.35)" }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-md rounded-[14px] overflow-hidden"
+        style={{
+          background: "#FFFFFF",
+          border: "1px solid #E5E0D8",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between p-5 border-b border-[#E5E0D8]">
+          <div>
+            <h2 className="text-base font-bold text-[#1C1C1E]">
+              Invite {clientName} to Portal
+            </h2>
+            <p className="text-xs text-[#8A8480] mt-0.5">
+              Send a portal access link to this client
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-[6px] text-[#8A8480] hover:bg-[#F4F1EC] hover:text-[#1C1C1E] transition-colors cursor-pointer mt-0.5"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-5 space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-[11px] font-medium text-[#8A8480] mb-1.5">
+              Invite email
+            </label>
+            <div
+              className="h-10 px-3 flex items-center rounded-[8px] text-sm text-[#5C5856] border border-[#E5E0D8]"
+              style={{ background: "#F9F7F4" }}
+            >
+              {clientEmail ? (
+                <>
+                  <Mail size={13} className="mr-2 text-[#8A8480]" />
+                  {clientEmail}
+                </>
+              ) : (
+                <span className="text-[#C0705A] text-xs">
+                  No email on file — add one before sending the invite
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Session types */}
+          <div>
+            <label className="block text-[11px] font-medium text-[#8A8480] mb-1.5">
+              Session types
+            </label>
+
+            {sessionTypesQuery.isLoading ? (
+              <div className="space-y-2">
+                {[1, 2].map((i) => (
+                  <div key={i} className="h-12 rounded-[8px] bg-[#F4F1EC] animate-pulse" />
+                ))}
+              </div>
+            ) : sessionTypes.length === 0 ? (
+              <div
+                className="flex items-start gap-2.5 p-3 rounded-[8px]"
+                style={{ background: "#FBF0E8", border: "1px solid #E8C9A0" }}
+              >
+                <AlertTriangle size={14} style={{ color: "#B5733A", flexShrink: 0, marginTop: 1 }} />
+                <p className="text-xs text-[#B5733A] leading-relaxed">
+                  No session types configured for this client. Add at least one
+                  session type before sending the invite.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {sessionTypes.map((item: any) => {
+                  const modeStyle = item.mode ? MODE_STYLES[item.mode] : null;
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] border"
+                      style={{
+                        background: item.is_active ? "#FFFFFF" : "#F9F7F4",
+                        borderColor: item.is_default ? "#8FAF8A" : "#E5E0D8",
+                        opacity: item.is_active ? 1 : 0.65,
+                      }}
+                    >
+                      {/* Default radio */}
+                      <button
+                        onClick={() => !item.is_default && handleSetDefault(item)}
+                        disabled={item.is_default || setDefaultMutation.isPending}
+                        title={item.is_default ? "Default" : "Make default"}
+                        className="flex-shrink-0 transition-opacity disabled:opacity-100 cursor-pointer"
+                      >
+                        <Star
+                          size={13}
+                          fill={item.is_default ? "#5C7A6B" : "none"}
+                          style={{
+                            color: item.is_default ? "#5C7A6B" : "#C8C4BE",
+                          }}
+                        />
+                      </button>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-xs font-semibold text-[#1C1C1E] truncate">
+                            {item.name}
+                          </span>
+                          {item.is_default && (
+                            <span className="text-[10px] font-medium text-[#5C7A6B] bg-[#EBF0EB] px-1.5 py-0.5 rounded-[999px]">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[11px] text-[#5C5856]">
+                            {item.duration_mins} min
+                          </span>
+                          <span className="text-[#D4D0CB] text-[10px]">·</span>
+                          <span className="text-[11px] font-medium text-[#1C1C1E]">
+                            ₹{item.rate_inr.toLocaleString("en-IN")}
+                          </span>
+                          {item.mode && modeStyle && (
+                            <>
+                              <span className="text-[#D4D0CB] text-[10px]">·</span>
+                              <span
+                                className="text-[10px] font-medium px-1.5 py-0.5 rounded-[999px]"
+                                style={{
+                                  background: modeStyle.bg,
+                                  color: modeStyle.text,
+                                }}
+                              >
+                                {MODE_LABELS[item.mode]}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Toggle active */}
+                      <button
+                        onClick={() => handleToggleActive(item)}
+                        disabled={updateMutation.isPending}
+                        title={item.is_active ? "Deactivate" : "Activate"}
+                        className="flex-shrink-0 transition-opacity disabled:opacity-50 cursor-pointer"
+                      >
+                        {item.is_active ? (
+                          <ToggleRight size={16} style={{ color: "#5C7A6B" }} />
+                        ) : (
+                          <ToggleLeft size={16} style={{ color: "#8A8480" }} />
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-[#E5E0D8] bg-[#F9F7F4]">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-[8px] text-sm font-medium text-[#5C5856] bg-white border border-[#E5E0D8] hover:bg-[#F4F1EC] transition-all duration-150 cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSend}
+            disabled={!canSend || sendPortalInvite.isPending}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[8px] text-sm font-semibold text-white bg-[#5C7A6B] hover:bg-[#496158] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <Send size={13} />
+            {sendPortalInvite.isPending ? "Sending…" : "Send Invite"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function ClientDetailPage({
   params,
 }: {
@@ -63,24 +529,9 @@ export default function ClientDetailPage({
 }) {
   const { id } = use(params);
   const [activeTab, setActiveTab] = useState<Tab>("sessions");
+  const [showPortalModal, setShowPortalModal] = useState(false);
 
   const client = useClientDetail(id);
-  const sendPortalInvite = useSendPortalInvite();
-
-  const handleSendInvite = useCallback(() => {
-    const c = client.data as any;
-    if (!c?.email) {
-      toast.error("This client has no email address — add one first");
-      return;
-    }
-    sendPortalInvite.mutate(id, {
-      onSuccess: () => {
-        toast.success(`Portal invite sent to ${c.email}`);
-      },
-      onError: (err: Error) =>
-        toast.error(err.message || "Failed to send invite — try again"),
-    });
-  }, [client.data, id, sendPortalInvite]);
 
   // Skeleton loading state
   if (client.isLoading) {
@@ -134,9 +585,20 @@ export default function ClientDetailPage({
   const c = client.data as any;
   const statusBadge = getStatusBadge(c.status);
   const initials = getInitials(c.full_name);
+  const clientLabels: string[] = Array.isArray(c.labels) ? c.labels : [];
 
   return (
     <div className="space-y-5">
+      {/* Portal invite modal */}
+      {showPortalModal && (
+        <PortalInviteModal
+          clientId={c.id}
+          clientName={c.full_name}
+          clientEmail={c.email}
+          onClose={() => setShowPortalModal(false)}
+        />
+      )}
+
       {/* Back navigation */}
       <Link
         href="/dashboard/clients"
@@ -261,18 +723,20 @@ export default function ClientDetailPage({
                 </div>
               </div>
             )}
+
+            {/* Labels */}
+            <ClientLabels clientId={c.id} initialLabels={clientLabels} />
           </div>
 
           {/* Quick actions card */}
           <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-4 space-y-2">
             {!c.user_id && (
               <button
-                onClick={handleSendInvite}
-                disabled={sendPortalInvite.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-[#EBF0EB] text-[#5C7A6B] text-sm font-medium transition-all duration-150 hover:bg-[#D6E7E2] disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={() => setShowPortalModal(true)}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-[#EBF0EB] text-[#5C7A6B] text-sm font-medium transition-all duration-150 hover:bg-[#D6E7E2] cursor-pointer"
               >
                 <Send size={13} />
-                {sendPortalInvite.isPending ? "Sending…" : "Invite to Portal"}
+                Invite to Portal
               </button>
             )}
             {c.user_id && (
@@ -281,10 +745,11 @@ export default function ClientDetailPage({
                 Portal access active
               </div>
             )}
-            <button className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-white border border-[#E5E0D8] text-[#1C1C1E] text-sm font-medium transition-all duration-150 hover:bg-[#F4F1EC]">
-              <MoreHorizontal size={13} />
-              More actions
-            </button>
+            <MoreActionsMenu
+              clientId={c.id}
+              isActive={c.status === "active"}
+              clientName={c.full_name}
+            />
           </div>
         </div>
 
@@ -295,7 +760,7 @@ export default function ClientDetailPage({
 
           {/* Tabs */}
           <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
-            <div className="flex border-b border-[#E5E0D8] px-2 pt-2">
+            <div className="flex border-b border-[#E5E0D8] px-2 pt-2 overflow-x-auto">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.key;
@@ -303,7 +768,7 @@ export default function ClientDetailPage({
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-[8px] transition-all duration-150 relative -mb-px ${
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-[8px] transition-all duration-150 relative -mb-px whitespace-nowrap ${
                       isActive
                         ? "text-[#5C7A6B] border-b-2 border-[#5C7A6B] bg-[#EBF0EB]/50"
                         : "text-[#8A8480] hover:text-[#5C5856] hover:bg-[#F4F1EC] border-b-2 border-transparent"
@@ -325,6 +790,9 @@ export default function ClientDetailPage({
                 <ResourcesTab clientId={id} clientName={c.full_name} />
               )}
               {activeTab === "intake" && <IntakeTab clientId={id} />}
+              {activeTab === "session-types" && (
+                <ClientSessionTypes clientId={id} />
+              )}
             </div>
           </div>
         </div>

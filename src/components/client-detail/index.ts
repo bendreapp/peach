@@ -4,3 +4,4 @@ export { default as NotesTab } from "./NotesTab";
 export { default as TreatmentTab } from "./TreatmentTab";
 export { default as ResourcesTab } from "./ResourcesTab";
 export { default as IntakeTab } from "./IntakeTab";
+export { default as ClientSessionTypes } from "./ClientSessionTypes";

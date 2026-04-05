@@ -169,7 +169,7 @@ export default function ClientHeader({ clientId, client: c }: ClientHeaderProps)
           <label className="block text-[10px] font-medium text-ink-tertiary mb-1">Type</label>
           <select
             value={c.client_type}
-            onChange={(e) => updateClientWithCallbacks.mutate({ id: clientId, data: { client_type: e.target.value as "regular" | "irregular" } })}
+            onChange={(e) => updateClientWithCallbacks.mutate({ id: clientId, client_type: e.target.value as "regular" | "irregular" })}
             className="px-2.5 py-1.5 rounded-lg border border-border bg-surface text-xs focus:outline-none focus:ring-[3px] focus:ring-sage/10"
           >
             <option value="irregular">Irregular</option>
@@ -180,7 +180,7 @@ export default function ClientHeader({ clientId, client: c }: ClientHeaderProps)
           <label className="block text-[10px] font-medium text-ink-tertiary mb-1">Category</label>
           <select
             value={c.category}
-            onChange={(e) => updateClientWithCallbacks.mutate({ id: clientId, data: { category: e.target.value as "indian" | "nri" | "couple" | "other" } })}
+            onChange={(e) => updateClientWithCallbacks.mutate({ id: clientId, category: e.target.value as "indian" | "nri" | "couple" | "other" })}
             className="px-2.5 py-1.5 rounded-lg border border-border bg-surface text-xs focus:outline-none focus:ring-[3px] focus:ring-sage/10"
           >
             {Object.entries(CLIENT_CATEGORIES).map(([key, val]) => (

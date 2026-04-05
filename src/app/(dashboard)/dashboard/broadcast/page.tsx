@@ -84,7 +84,7 @@ export default function BroadcastPage() {
     }
     send.mutate({
       subject: subject || undefined,
-      message,
+      body: message,
       channel,
       client_ids: selectedIds,
     });
