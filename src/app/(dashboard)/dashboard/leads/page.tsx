@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useLeadsList, useUpdateLead, useConvertLeadToClient } from "@/lib/api-hooks";
+import {
+  useLeadsList,
+  useUpdateLead,
+  useConvertLeadToClient,
+  useSendIntakeForm,
+  useLeadIntakeSubmissions,
+} from "@/lib/api-hooks";
 import { toast } from "sonner";
 import {
   UserPlus,
@@ -19,6 +25,10 @@ import {
   ChevronRight,
   UserCheck,
   UserX,
+  ClipboardList,
+  Send,
+  CheckCircle2,
+  RefreshCw,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -333,14 +343,36 @@ function LeadCard({ lead, onDragStart, onOpen, onMenuAction }: LeadCardProps) {
 
 // ── Right Drawer ───────────────────────────────────────────────────────────
 
+// ── Lead Intake Submission type ────────────────────────────────────────────
+
+interface IntakeQuestionAnswer {
+  question_id: string;
+  question_text: string;
+  field_type: string;
+  answer: string | string[] | null;
+}
+
+interface LeadIntakeSubmission {
+  id: string;
+  lead_id: string;
+  therapist_id: string;
+  access_token: string;
+  responses: IntakeQuestionAnswer[] | null;
+  sent_at: string;
+  submitted_at: string | null;
+  created_at: string;
+}
+
 interface DrawerProps {
   lead: Lead | null;
   onClose: () => void;
   onUpdateStatus: (id: string, status: ApiStatus) => void;
   onConvertToClient: (id: string) => void;
   onSaveNotes: (id: string, notes: string) => void;
+  onSendIntakeForm: (id: string) => void;
   isSaving: boolean;
   isConverting: boolean;
+  isSendingIntake: boolean;
 }
 
 function LeadDrawer({
@@ -349,11 +381,18 @@ function LeadDrawer({
   onUpdateStatus,
   onConvertToClient,
   onSaveNotes,
+  onSendIntakeForm,
   isSaving,
   isConverting,
+  isSendingIntake,
 }: DrawerProps) {
   const [notesText, setNotesText] = useState("");
   const [editingNotes, setEditingNotes] = useState(false);
+
+  const intakeSubmissions = useLeadIntakeSubmissions(lead?.id ?? null);
+  const submissions: LeadIntakeSubmission[] = Array.isArray(intakeSubmissions.data)
+    ? (intakeSubmissions.data as LeadIntakeSubmission[])
+    : [];
 
   if (!lead) return null;
 
@@ -587,6 +626,161 @@ function LeadDrawer({
                 No notes yet.
               </p>
             )}
+          </div>
+
+          {/* Status timeline */}
+          <div>
+            <p
+              className="text-[11px] font-semibold uppercase tracking-wider mb-3"
+              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+            >
+              Timeline
+            </p>
+            <div className="space-y-2 px-1">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#C5BFB8" }} />
+                <span className="text-xs" style={{ color: "#8A8480" }}>
+                  Created {formatFullDate(lead.created_at)}
+                </span>
+              </div>
+              {lead.updated_at && lead.updated_at !== lead.created_at && (
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#C5BFB8" }} />
+                  <span className="text-xs" style={{ color: "#8A8480" }}>
+                    Last updated {formatFullDate(lead.updated_at)}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ background: colMeta.color }}
+                />
+                <span className="text-xs font-medium" style={{ color: colMeta.color }}>
+                  {colMeta.label}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Intake Form section */}
+          <div>
+            <p
+              className="text-[11px] font-semibold uppercase tracking-wider mb-3"
+              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+            >
+              Intake Form
+            </p>
+
+            {intakeSubmissions.isLoading ? (
+              <div className="h-10 rounded-lg animate-pulse" style={{ background: "#F4F1EC" }} />
+            ) : submissions.length === 0 ? (
+              // No submission yet
+              <div>
+                <p className="text-xs mb-3" style={{ color: "#8A8480" }}>
+                  No intake form sent yet.
+                </p>
+                {lead.email ? (
+                  <button
+                    onClick={() => onSendIntakeForm(lead.id)}
+                    disabled={isSendingIntake}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60"
+                    style={{
+                      background: "#EBF0EB",
+                      color: "#5C7A6B",
+                      border: "1.5px solid #D4E4D4",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSendingIntake)
+                        (e.currentTarget as HTMLButtonElement).style.background = "#D4E4D4";
+                    }}
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLButtonElement).style.background = "#EBF0EB")
+                    }
+                  >
+                    <Send size={13} />
+                    {isSendingIntake ? "Sending…" : "Send Intake Form"}
+                  </button>
+                ) : (
+                  <p className="text-xs" style={{ color: "#C0705A" }}>
+                    Add an email address to send the intake form.
+                  </p>
+                )}
+              </div>
+            ) : (() => {
+              const latest = submissions[0];
+              const isSubmitted = !!latest.submitted_at;
+
+              return (
+                <div className="space-y-3">
+                  {isSubmitted ? (
+                    // Submitted — show responses
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 size={14} style={{ color: "#5C7A6B" }} />
+                        <span className="text-xs font-medium" style={{ color: "#5C7A6B" }}>
+                          Submitted {formatFullDate(latest.submitted_at!)}
+                        </span>
+                      </div>
+                      {latest.responses && latest.responses.length > 0 ? (
+                        <div className="space-y-2.5">
+                          {latest.responses.map((r, i) => (
+                            <div
+                              key={r.question_id ?? i}
+                              className="rounded-lg px-3 py-2.5"
+                              style={{ background: "#F4F1EC" }}
+                            >
+                              <p className="text-xs font-medium mb-0.5" style={{ color: "#5C5856" }}>
+                                {r.question_text}
+                              </p>
+                              <p className="text-sm" style={{ color: "#1C1C1E" }}>
+                                {Array.isArray(r.answer)
+                                  ? r.answer.join(", ")
+                                  : r.answer ?? <span style={{ color: "#8A8480" }}>No answer</span>}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs" style={{ color: "#8A8480" }}>No responses recorded.</p>
+                      )}
+                    </div>
+                  ) : (
+                    // Sent but not submitted
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <ClipboardList size={14} style={{ color: "#D4956A" }} />
+                        <span className="text-xs" style={{ color: "#8A8480" }}>
+                          Sent {formatFullDate(latest.sent_at)} — awaiting response
+                        </span>
+                      </div>
+                      {lead.email && (
+                        <button
+                          onClick={() => onSendIntakeForm(lead.id)}
+                          disabled={isSendingIntake}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-60"
+                          style={{
+                            background: "#F4F1EC",
+                            color: "#8A8480",
+                            border: "1.5px solid #E5E0D8",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSendingIntake)
+                              (e.currentTarget as HTMLButtonElement).style.background = "#E5E0D8";
+                          }}
+                          onMouseLeave={(e) =>
+                            ((e.currentTarget as HTMLButtonElement).style.background = "#F4F1EC")
+                          }
+                        >
+                          <RefreshCw size={12} />
+                          {isSendingIntake ? "Sending…" : "Resend"}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Stage selector */}
@@ -967,6 +1161,7 @@ export default function LeadsPage() {
   const leads = useLeadsList({ limit: "100", offset: "0" });
   const updateLead = useUpdateLead();
   const convertLead = useConvertLeadToClient();
+  const sendIntake = useSendIntakeForm();
 
   const leadsArray: Lead[] = Array.isArray(leads.data)
     ? (leads.data as Lead[])
@@ -1028,6 +1223,17 @@ export default function LeadsPage() {
       },
       onError: (err: Error) =>
         toast.error(err.message || "Conversion failed — try again"),
+    });
+  }
+
+  function handleSendIntakeForm(leadId: string) {
+    const lead = leadsArray.find((l) => l.id === leadId);
+    sendIntake.mutate(leadId, {
+      onSuccess: () => {
+        toast.success(`Intake form sent to ${lead?.email ?? "lead"}`);
+      },
+      onError: (err: Error) =>
+        toast.error(err.message || "Failed to send intake form — try again"),
     });
   }
 
@@ -1218,8 +1424,10 @@ export default function LeadsPage() {
           onUpdateStatus={handleUpdateStatus}
           onConvertToClient={handleConvertToClient}
           onSaveNotes={handleSaveNotes}
+          onSendIntakeForm={handleSendIntakeForm}
           isSaving={updateLead.isPending}
           isConverting={convertLead.isPending}
+          isSendingIntake={sendIntake.isPending}
         />
       )}
     </>

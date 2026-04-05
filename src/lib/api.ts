@@ -483,6 +483,22 @@ export const api = {
       apiFetch(`/api/v1/leads/${id}`, { method: "PUT", body: data }),
     convertToClient: (id: string) =>
       apiFetch(`/api/v1/leads/${id}/convert-to-client`, { method: "POST" }),
+    sendIntakeForm: (id: string) =>
+      apiFetch(`/api/v1/leads/${id}/send-intake-form`, { method: "POST" }),
+    getIntakeSubmissions: (id: string) =>
+      apiFetch(`/api/v1/leads/${id}/intake-submissions`),
+  },
+
+  // ── Lead Intake (public) ────────────────────────────────────────────
+  leadIntake: {
+    getPublicForm: (token: string) =>
+      apiFetch(`/api/v1/lead-intake/${token}`, { auth: false }),
+    submitPublicForm: (token: string, responses: unknown) =>
+      apiFetch(`/api/v1/lead-intake/${token}/submit`, {
+        method: "POST",
+        body: { responses },
+        auth: false,
+      }),
   },
 
   // ── Client Invitations ────────────────────────────────────────────

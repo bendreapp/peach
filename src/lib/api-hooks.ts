@@ -572,6 +572,26 @@ export function useConvertLeadToClient() {
   });
 }
 
+export function useSendIntakeForm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.leads.sendIntakeForm(id),
+    onSuccess: (_data, id) => {
+      posthog.capture("lead_intake_form_sent");
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      qc.invalidateQueries({ queryKey: ["lead-intake-submissions", id] });
+    },
+  });
+}
+
+export function useLeadIntakeSubmissions(leadId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["lead-intake-submissions", leadId],
+    queryFn: () => api.leads.getIntakeSubmissions(leadId!),
+    enabled: !!leadId,
+  });
+}
+
 // ── Client Invitations ──────────────────────────────────────────────────────
 
 export function useCreateClientInvitation() {
