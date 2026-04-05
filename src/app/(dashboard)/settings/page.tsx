@@ -221,10 +221,7 @@ export default function SettingsPage() {
               )}
 
               {activeTab === "session-types" && (
-                <SessionTypesEditor
-                  sessionTypes={t.session_types ?? []}
-                  bufferMins={t.buffer_mins}
-                />
+                <SessionTypesEditor />
               )}
 
               {activeTab === "intake-forms" && (

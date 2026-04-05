@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Select } from "@/components/ui/Select";
 import {
   useLeadsList,
   useUpdateLead,
+  useCreateLead,
   useConvertLeadToClient,
   useSendIntakeForm,
   useLeadIntakeSubmissions,
@@ -1158,8 +1160,11 @@ export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [draggingLead, setDraggingLead] = useState<Lead | null>(null);
 
+  const [createOpen, setCreateOpen] = useState(false);
+
   const leads = useLeadsList({ limit: "100", offset: "0" });
   const updateLead = useUpdateLead();
+  const createLead = useCreateLead();
   const convertLead = useConvertLeadToClient();
   const sendIntake = useSendIntakeForm();
 
@@ -1380,6 +1385,16 @@ export default function LeadsPage() {
                 Table
               </button>
             </div>
+
+            {/* Add Lead */}
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white transition-all cursor-pointer hover:opacity-90"
+              style={{ background: "#5C7A6B" }}
+            >
+              <UserPlus size={13} />
+              Add Lead
+            </button>
           </div>
         </div>
 
@@ -1397,10 +1412,7 @@ export default function LeadsPage() {
                 onOpenLead={setSelectedLead}
                 onMenuAction={handleMenuAction}
                 isFirst={idx === 0}
-                onAddLead={() => {
-                  /* Future: open add lead modal */
-                  toast.info("Use your booking page to collect leads.");
-                }}
+                onAddLead={() => setCreateOpen(true)}
               />
             ))}
           </div>
@@ -1430,6 +1442,196 @@ export default function LeadsPage() {
           isSendingIntake={sendIntake.isPending}
         />
       )}
+
+      {/* Create Lead Modal */}
+      {createOpen && (
+        <CreateLeadModal
+          onClose={() => setCreateOpen(false)}
+          onCreate={async (data) => {
+            try {
+              await createLead.mutateAsync(data);
+              toast.success("Lead created");
+              setCreateOpen(false);
+            } catch (err: any) {
+              toast.error(err?.message || "Failed to create lead");
+            }
+          }}
+          isCreating={createLead.isPending}
+        />
+      )}
     </>
+  );
+}
+
+// ── Create Lead Modal ──────────────────────────────────────────────────────
+
+interface CreateLeadModalProps {
+  onClose: () => void;
+  onCreate: (data: Record<string, unknown>) => Promise<void>;
+  isCreating: boolean;
+}
+
+function CreateLeadModal({ onClose, onCreate, isCreating }: CreateLeadModalProps) {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [source, setSource] = useState("manual");
+  const [message, setMessage] = useState("");
+
+  // Close on Escape
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!fullName.trim()) return;
+    await onCreate({
+      full_name: fullName.trim(),
+      email: email.trim() || null,
+      phone: phone.trim() || null,
+      source,
+      message: message.trim() || null,
+      status: "new",
+    });
+  }
+
+  const inputStyle: React.CSSProperties = {
+    border: "1.5px solid #E5E0D8",
+    background: "#FFFFFF",
+    color: "#1C1C1E",
+  };
+  const inputCls = "w-full px-3.5 py-2.5 rounded-lg text-sm outline-none transition-colors";
+  const labelCls = "block text-[13px] font-medium mb-1.5";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(28,28,30,0.4)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-[480px] rounded-2xl overflow-hidden"
+        style={{
+          background: "#FFFFFF",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 py-4"
+          style={{ borderBottom: "1px solid #E5E0D8", background: "#FAFAF8" }}
+        >
+          <h2 className="text-[16px] font-bold" style={{ color: "#1C1C1E" }}>
+            Add Lead
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-md transition-colors hover:bg-[#F4F1EC]"
+            style={{ color: "#8A8480" }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className={labelCls} style={{ color: "#5C5856" }}>
+              Full name <span style={{ color: "#C0705A" }}>*</span>
+            </label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              placeholder="Priya Sharma"
+              className={inputCls}
+              style={inputStyle}
+              autoFocus
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls} style={{ color: "#5C5856" }}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="priya@example.com"
+                className={inputCls}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label className={labelCls} style={{ color: "#5C5856" }}>Phone</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className={inputCls}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={labelCls} style={{ color: "#5C5856" }}>Source</label>
+            <Select
+              value={source}
+              onChange={setSource}
+              options={[
+                { value: "manual", label: "Manual entry" },
+                { value: "referral", label: "Referral" },
+                { value: "phone", label: "Phone inquiry" },
+                { value: "walk_in", label: "Walk-in" },
+                { value: "social", label: "Social media" },
+                { value: "other", label: "Other" },
+              ]}
+            />
+          </div>
+
+          <div>
+            <label className={labelCls} style={{ color: "#5C5856" }}>Notes (optional)</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={3}
+              placeholder="What do they need help with?"
+              className={`${inputCls} resize-none`}
+              style={inputStyle}
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer hover:bg-[#F4F1EC]"
+              style={{ color: "#5C5856", border: "1.5px solid #E5E0D8" }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isCreating || !fullName.trim()}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all cursor-pointer hover:opacity-90 disabled:opacity-50"
+              style={{ background: "#5C7A6B" }}
+            >
+              {isCreating ? "Creating..." : "Create Lead"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

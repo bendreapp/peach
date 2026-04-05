@@ -548,6 +548,17 @@ export function useLeadsList(params?: Record<string, string>) {
   });
 }
 
+export function useCreateLead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.leads.create(data),
+    onSuccess: () => {
+      posthog.capture("lead_created_manually");
+      qc.invalidateQueries({ queryKey: ["leads"] });
+    },
+  });
+}
+
 export function useUpdateLead() {
   const qc = useQueryClient();
   return useMutation({

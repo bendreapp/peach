@@ -51,6 +51,11 @@
     --color-accent: #8FAF8A;
     --color-accent-hover: #6E906A;
 
+    /* Legacy alias (maps old --color-sage to new primary) */
+    --color-sage: #5C7A6B;
+    --color-sage-light: #8FAF8A;
+    --color-sage-dark: #496158;
+
     /* Danger — Terracotta */
     --color-danger: #C0705A;
     --color-danger-hover: #A85A46;
@@ -103,6 +108,11 @@
     /* Accent — Sage from logo */
     --color-accent: #A3C49E;
     --color-accent-hover: #8FAF8A;
+
+    /* Legacy alias */
+    --color-sage: #7B9E8B;
+    --color-sage-light: #A3C49E;
+    --color-sage-dark: #5C7A6B;
 
     /* Danger — Terracotta */
     --color-danger: #D4806A;

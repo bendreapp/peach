@@ -1,6 +1,13 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useRef, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Calendar, Copy, Loader2 } from "lucide-react";
+import { Select } from "@/components/ui/Select";
 import { api } from "@/lib/api";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface AvailabilityRule {
   day_of_week: number;
@@ -13,209 +20,451 @@ interface AvailabilityEditorProps {
   availability: AvailabilityRule[];
 }
 
-const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const DAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// ─── Constants ───────────────────────────────────────────────────────────────
 
-// Generate time options in 30-min intervals from 06:00 to 22:00
-const TIME_OPTIONS: string[] = [];
+// Mon-first order: [1,2,3,4,5,6,0]
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const DAY_LABELS: Record<number, string> = {
+  0: "Sunday",
+  1: "Monday",
+  2: "Tuesday",
+  3: "Wednesday",
+  4: "Thursday",
+  5: "Friday",
+  6: "Saturday",
+};
+
+// 30-min intervals 06:00 – 22:00
+const TIME_OPTIONS: { value: string; label: string }[] = [];
 for (let h = 6; h <= 22; h++) {
   for (const m of ["00", "30"]) {
     if (h === 22 && m === "30") continue;
-    TIME_OPTIONS.push(`${String(h).padStart(2, "0")}:${m}`);
+    const value = `${String(h).padStart(2, "0")}:${m}`;
+    const label = formatTimeLabel(value);
+    TIME_OPTIONS.push({ value, label });
   }
 }
 
 function formatTimeLabel(t: string): string {
-  const parts = t.split(":").map(Number);
-  const h = parts[0] as number;
-  const m = parts[1] as number;
+  const [hStr, mStr] = t.split(":");
+  const h = parseInt(hStr ?? "0", 10);
+  const m = mStr ?? "00";
   const ampm = h >= 12 ? "PM" : "AM";
   const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
+  return `${hour}:${m} ${ampm}`;
 }
 
+// ─── Toggle Switch ────────────────────────────────────────────────────────────
+
+function ToggleSwitch({
+  checked,
+  onChange,
+  disabled,
+  label,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={onChange}
+      disabled={disabled}
+      className="relative flex-shrink-0 w-10 h-[22px] rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+      style={{
+        background: checked ? "#5C7A6B" : "#E5E0D8",
+        boxShadow: checked
+          ? "0 0 0 0px rgba(92,122,107,0)"
+          : "0 0 0 0px transparent",
+      }}
+    >
+      <span
+        className="absolute top-[3px] left-[3px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200"
+        style={{
+          transform: checked ? "translateX(18px)" : "translateX(0px)",
+        }}
+      />
+    </button>
+  );
+}
+
+// ─── Day Row ─────────────────────────────────────────────────────────────────
+
+interface DayState {
+  day_of_week: number;
+  is_active: boolean;
+  start_time: string;
+  end_time: string;
+}
+
+interface DayRowProps {
+  day: DayState;
+  isSaving: boolean;
+  onToggle: () => void;
+  onStartChange: (value: string) => void;
+  onEndChange: (value: string) => void;
+}
+
+function DayRow({ day, isSaving, onToggle, onStartChange, onEndChange }: DayRowProps) {
+  const label = DAY_LABELS[day.day_of_week] ?? "";
+
+  // Validate: end must be after start
+  const endOptions = TIME_OPTIONS.filter((opt) => opt.value > day.start_time);
+  const startOptions = TIME_OPTIONS.filter((opt) => opt.value < day.end_time);
+  const hasError =
+    day.is_active && day.end_time <= day.start_time;
+
+  return (
+    <div
+      className="group transition-all duration-150"
+      style={{
+        borderBottom: "1px solid #F0EDE8",
+      }}
+    >
+      <div
+        className="flex items-center gap-4 px-4 py-3.5 transition-colors duration-100"
+        style={{
+          background: day.is_active ? "#FDFCFA" : "transparent",
+        }}
+      >
+        {/* Day name */}
+        <div className="w-[108px] flex-shrink-0">
+          <span
+            className="text-sm font-semibold tracking-tight transition-colors duration-150"
+            style={{
+              color: day.is_active ? "#1C1C1E" : "#C5BFB8",
+              fontFamily: "Satoshi",
+            }}
+          >
+            {label}
+          </span>
+        </div>
+
+        {/* Unavailable label or time selectors */}
+        <div className="flex-1 min-w-0">
+          {day.is_active ? (
+            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+              {/* Start time */}
+              <div className="w-[118px] flex-shrink-0">
+                <Select
+                  value={day.start_time}
+                  onChange={onStartChange}
+                  options={startOptions.length > 0 ? startOptions : TIME_OPTIONS.slice(0, -1)}
+                  ariaLabel={`${label} start time`}
+                  disabled={isSaving}
+                />
+              </div>
+
+              <span
+                className="text-xs flex-shrink-0"
+                style={{ color: "#A8A29E" }}
+              >
+                to
+              </span>
+
+              {/* End time */}
+              <div className="w-[118px] flex-shrink-0">
+                <Select
+                  value={day.end_time}
+                  onChange={onEndChange}
+                  options={endOptions.length > 0 ? endOptions : TIME_OPTIONS.slice(1)}
+                  ariaLabel={`${label} end time`}
+                  disabled={isSaving}
+                  error={hasError}
+                />
+              </div>
+
+              {/* Saving spinner */}
+              {isSaving && (
+                <Loader2
+                  size={14}
+                  strokeWidth={2}
+                  className="animate-spin flex-shrink-0"
+                  style={{ color: "#8FAF8A" }}
+                />
+              )}
+
+              {/* Validation error */}
+              {hasError && !isSaving && (
+                <span
+                  className="text-xs flex-shrink-0"
+                  style={{ color: "#C0705A", fontFamily: "Satoshi" }}
+                >
+                  End must be after start
+                </span>
+              )}
+            </div>
+          ) : (
+            <span
+              className="text-sm"
+              style={{ color: "#C5BFB8", fontFamily: "Satoshi" }}
+            >
+              Unavailable
+            </span>
+          )}
+        </div>
+
+        {/* Toggle */}
+        <div className="flex-shrink-0">
+          <ToggleSwitch
+            checked={day.is_active}
+            onChange={onToggle}
+            disabled={isSaving}
+            label={`Toggle ${label}`}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function AvailabilityEditor({ availability }: AvailabilityEditorProps) {
-  // Build initial state: 7 days, merge with existing rules
-  const initialDays = Array.from({ length: 7 }, (_, i) => {
+  // Build per-day state (0=Sun ... 6=Sat)
+  const initialDays: DayState[] = Array.from({ length: 7 }, (_, i) => {
     const existing = availability.find((a) => a.day_of_week === i);
     return {
       day_of_week: i,
       is_active: existing?.is_active ?? false,
-      start_time: existing?.start_time?.slice(0, 5) ?? "10:00",
+      start_time: existing?.start_time?.slice(0, 5) ?? "09:00",
       end_time: existing?.end_time?.slice(0, 5) ?? "18:00",
     };
   });
 
-  const [days, setDays] = useState(initialDays);
-  const [savingDay, setSavingDay] = useState<number | null>(null);
+  const [days, setDays] = useState<DayState[]>(initialDays);
+  const [savingDays, setSavingDays] = useState<Set<number>>(new Set());
 
   const qc = useQueryClient();
-  const setAvailability = useMutation({
+
+  // Debounce map: dayIndex → timer ref
+  const debounceTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+
+  const saveAvailability = useMutation({
     mutationFn: (data: Record<string, unknown>) => api.therapist.setAvailability(data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ["therapist", "availability"] });
-      setSavingDay(null);
+      const dayIdx = variables["day_of_week"] as number;
+      setSavingDays((prev) => {
+        const next = new Set(prev);
+        next.delete(dayIdx);
+        return next;
+      });
+      toast.success("Availability updated");
     },
-    onError: () => {
-      setSavingDay(null);
+    onError: (err, variables) => {
+      const dayIdx = variables["day_of_week"] as number;
+      setSavingDays((prev) => {
+        const next = new Set(prev);
+        next.delete(dayIdx);
+        return next;
+      });
+      toast.error(err instanceof Error ? err.message : "Failed to save availability");
     },
   });
 
-  function saveDay(day: (typeof days)[0]) {
-    setSavingDay(day.day_of_week);
-    setAvailability.mutate({
-      day_of_week: day.day_of_week,
-      start_time: day.start_time,
-      end_time: day.end_time,
-      is_active: day.is_active,
+  const scheduleSave = useCallback(
+    (day: DayState) => {
+      // Only save if end > start (or day is being deactivated)
+      if (day.is_active && day.end_time <= day.start_time) return;
+
+      const idx = day.day_of_week;
+
+      // Clear any existing timer
+      const existing = debounceTimers.current.get(idx);
+      if (existing) clearTimeout(existing);
+
+      // Mark as saving optimistically after a very short delay
+      const timer = setTimeout(() => {
+        setSavingDays((prev) => new Set(prev).add(idx));
+        saveAvailability.mutate({
+          day_of_week: idx,
+          start_time: day.start_time,
+          end_time: day.end_time,
+          is_active: day.is_active,
+        });
+      }, 600);
+
+      debounceTimers.current.set(idx, timer);
+    },
+    [saveAvailability]
+  );
+
+  function handleToggle(dayIndex: number) {
+    setDays((prev) => {
+      const updated = prev.map((d) =>
+        d.day_of_week === dayIndex ? { ...d, is_active: !d.is_active } : d
+      );
+      const day = updated.find((d) => d.day_of_week === dayIndex);
+      if (day) scheduleSave(day);
+      return updated;
     });
   }
 
-  function handleToggle(dayIndex: number) {
-    const updated = days.map((d) =>
-      d.day_of_week === dayIndex ? { ...d, is_active: !d.is_active } : d
-    );
-    setDays(updated);
-    const day = updated.find((d) => d.day_of_week === dayIndex);
-    if (day) saveDay(day);
+  function handleStartChange(dayIndex: number, value: string) {
+    setDays((prev) => {
+      const updated = prev.map((d) =>
+        d.day_of_week === dayIndex ? { ...d, start_time: value } : d
+      );
+      const day = updated.find((d) => d.day_of_week === dayIndex);
+      if (day) scheduleSave(day);
+      return updated;
+    });
   }
 
-  function handleTimeChange(dayIndex: number, field: "start_time" | "end_time", value: string) {
-    const updated = days.map((d) =>
-      d.day_of_week === dayIndex ? { ...d, [field]: value } : d
-    );
-    setDays(updated);
-    const day = updated.find((d) => d.day_of_week === dayIndex);
-    if (day?.is_active) {
-      saveDay(day);
-    }
+  function handleEndChange(dayIndex: number, value: string) {
+    setDays((prev) => {
+      const updated = prev.map((d) =>
+        d.day_of_week === dayIndex ? { ...d, end_time: value } : d
+      );
+      const day = updated.find((d) => d.day_of_week === dayIndex);
+      if (day) scheduleSave(day);
+      return updated;
+    });
   }
+
+  function handleCopyMondayToWeekdays() {
+    const monday = days.find((d) => d.day_of_week === 1);
+    if (!monday) return;
+
+    // Weekdays: Mon–Fri (1–5), skip Monday itself
+    const weekdays = [2, 3, 4, 5];
+    setDays((prev) => {
+      const updated = prev.map((d) =>
+        weekdays.includes(d.day_of_week)
+          ? {
+              ...d,
+              is_active: monday.is_active,
+              start_time: monday.start_time,
+              end_time: monday.end_time,
+            }
+          : d
+      );
+      // Schedule saves for each updated weekday
+      weekdays.forEach((idx) => {
+        const day = updated.find((d) => d.day_of_week === idx);
+        if (day) scheduleSave(day);
+      });
+      return updated;
+    });
+
+    toast.success("Monday's hours copied to Tue–Fri");
+  }
+
+  const monday = days.find((d) => d.day_of_week === 1);
+  const canCopyMonday = monday?.is_active && monday.end_time > monday.start_time;
 
   return (
-    <section className="bg-surface rounded-card border border-border shadow-sm p-6 space-y-5">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sage">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-          <h2 className="text-lg font-sans font-semibold text-ink">Availability</h2>
+    <section
+      className="bg-white rounded-xl border overflow-hidden"
+      style={{
+        borderColor: "#E5E0D8",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="px-5 py-4 flex items-start justify-between gap-4 border-b"
+        style={{ borderColor: "#E5E0D8", background: "#FAFAF8" }}
+      >
+        <div className="flex items-start gap-2.5 min-w-0">
+          <Calendar
+            size={18}
+            strokeWidth={1.5}
+            className="flex-shrink-0 mt-0.5"
+            style={{ color: "#5C7A6B" }}
+          />
+          <div className="min-w-0">
+            <h2
+              className="text-[15px] font-semibold tracking-tight leading-snug"
+              style={{ color: "#1C1C1E", fontFamily: "Satoshi" }}
+            >
+              Weekly Availability
+            </h2>
+            <p
+              className="text-[13px] mt-0.5"
+              style={{ color: "#8A8480", fontFamily: "Satoshi" }}
+            >
+              Set when clients can book sessions. Changes save automatically.
+            </p>
+          </div>
         </div>
-        <p className="text-sm text-ink-tertiary">
-          Set your weekly schedule. Changes save automatically.
-        </p>
+
+        {/* Copy Monday button */}
+        {canCopyMonday && (
+          <button
+            type="button"
+            onClick={handleCopyMondayToWeekdays}
+            className="flex items-center gap-1.5 flex-shrink-0 text-[12px] font-medium px-3 py-1.5 rounded-lg border transition-all duration-150 hover:bg-[#F4F1EC] active:scale-[0.97]"
+            style={{
+              color: "#5C7A6B",
+              borderColor: "#C5D9C5",
+              fontFamily: "Satoshi",
+            }}
+          >
+            <Copy size={12} strokeWidth={2} />
+            Copy Mon to weekdays
+          </button>
+        )}
       </div>
 
-      <div className="space-y-2">
-        {/* Header row - desktop */}
-        <div className="hidden sm:grid sm:grid-cols-[120px_48px_1fr_1fr_32px] gap-3 px-2 text-[11px] font-semibold text-ink-tertiary uppercase tracking-wider">
-          <div>Day</div>
-          <div></div>
-          <div>Start</div>
-          <div>End</div>
-          <div></div>
-        </div>
-
-        {days.map((day) => (
-          <div
-            key={day.day_of_week}
-            className={`flex flex-col sm:grid sm:grid-cols-[120px_48px_1fr_1fr_32px] gap-2 sm:gap-3 items-start sm:items-center p-3 rounded-small transition-colors ${
-              day.is_active ? "bg-sage-50/40" : "bg-bg"
-            }`}
+      {/* Column headers */}
+      <div
+        className="hidden sm:flex items-center gap-4 px-4 pt-3 pb-1.5"
+        style={{ borderBottom: "1px solid #F0EDE8" }}
+      >
+        <div className="w-[108px] flex-shrink-0">
+          <span
+            className="text-[10px] font-semibold uppercase tracking-widest"
+            style={{ color: "#C5BFB8", fontFamily: "Satoshi", letterSpacing: "0.08em" }}
           >
-            {/* Day name */}
-            <div className="flex items-center justify-between w-full sm:w-auto">
-              <span
-                className={`text-sm font-medium ${
-                  day.is_active ? "text-ink" : "text-ink-tertiary"
-                }`}
-              >
-                <span className="hidden sm:inline">{DAY_LABELS[day.day_of_week]}</span>
-                <span className="sm:hidden">{DAY_SHORT[day.day_of_week]}</span>
-              </span>
-              {/* Toggle - shown inline on mobile */}
-              <button
-                type="button"
-                onClick={() => handleToggle(day.day_of_week)}
-                className={`sm:hidden relative w-10 h-6 rounded-full transition-colors ${
-                  day.is_active ? "bg-sage" : "bg-bg"
-                }`}
-              >
-                <span
-                  className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-surface transition-transform shadow-sm ${
-                    day.is_active ? "translate-x-4" : ""
-                  }`}
-                />
-              </button>
-            </div>
+            Day
+          </span>
+        </div>
+        <div className="flex-1">
+          <span
+            className="text-[10px] font-semibold uppercase tracking-widest"
+            style={{ color: "#C5BFB8", fontFamily: "Satoshi", letterSpacing: "0.08em" }}
+          >
+            Hours
+          </span>
+        </div>
+        <div className="flex-shrink-0 w-10 text-center">
+          <span
+            className="text-[10px] font-semibold uppercase tracking-widest"
+            style={{ color: "#C5BFB8", fontFamily: "Satoshi", letterSpacing: "0.08em" }}
+          >
+            On
+          </span>
+        </div>
+      </div>
 
-            {/* Toggle - desktop */}
-            <button
-              type="button"
-              onClick={() => handleToggle(day.day_of_week)}
-              className={`hidden sm:block relative w-10 h-6 rounded-full transition-colors ${
-                day.is_active ? "bg-sage" : "bg-bg"
-              }`}
+      {/* Day rows */}
+      <div>
+        {DAY_ORDER.map((dayIndex, i) => {
+          const day = days.find((d) => d.day_of_week === dayIndex);
+          if (!day) return null;
+          const isLast = i === DAY_ORDER.length - 1;
+          return (
+            <div
+              key={dayIndex}
+              style={isLast ? { borderBottom: "none" } : undefined}
             >
-              <span
-                className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-surface transition-transform shadow-sm ${
-                  day.is_active ? "translate-x-4" : ""
-                }`}
+              <DayRow
+                day={day}
+                isSaving={savingDays.has(dayIndex)}
+                onToggle={() => handleToggle(dayIndex)}
+                onStartChange={(val) => handleStartChange(dayIndex, val)}
+                onEndChange={(val) => handleEndChange(dayIndex, val)}
               />
-            </button>
-
-            {/* Time selects */}
-            {day.is_active ? (
-              <div className="flex items-center gap-2 w-full sm:contents">
-                <select
-                  value={day.start_time}
-                  onChange={(e) =>
-                    handleTimeChange(day.day_of_week, "start_time", e.target.value)
-                  }
-                  className="flex-1 sm:w-auto px-2.5 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage appearance-none"
-                >
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t} value={t}>
-                      {formatTimeLabel(t)}
-                    </option>
-                  ))}
-                </select>
-
-                <span className="text-ink-tertiary text-xs">to</span>
-
-                <select
-                  value={day.end_time}
-                  onChange={(e) =>
-                    handleTimeChange(day.day_of_week, "end_time", e.target.value)
-                  }
-                  className="flex-1 sm:w-auto px-2.5 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage appearance-none"
-                >
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t} value={t}>
-                      {formatTimeLabel(t)}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Saving indicator */}
-                <div className="w-6 flex justify-center">
-                  {savingDay === day.day_of_week && (
-                    <svg className="animate-spin h-4 w-4 text-sage" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="text-sm text-ink-tertiary italic sm:col-span-3">
-                Unavailable
-              </div>
-            )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
