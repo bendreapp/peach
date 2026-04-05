@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useLeadsList, useUpdateLead } from "@/lib/api-hooks";
+import { useLeadsList, useUpdateLead, useConvertLeadToClient } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import {
   UserPlus,
@@ -337,16 +337,20 @@ interface DrawerProps {
   lead: Lead | null;
   onClose: () => void;
   onUpdateStatus: (id: string, status: ApiStatus) => void;
+  onConvertToClient: (id: string) => void;
   onSaveNotes: (id: string, notes: string) => void;
   isSaving: boolean;
+  isConverting: boolean;
 }
 
 function LeadDrawer({
   lead,
   onClose,
   onUpdateStatus,
+  onConvertToClient,
   onSaveNotes,
   isSaving,
+  isConverting,
 }: DrawerProps) {
   const [notesText, setNotesText] = useState("");
   const [editingNotes, setEditingNotes] = useState(false);
@@ -641,20 +645,21 @@ function LeadDrawer({
           style={{ borderColor: "#E5E0D8" }}
         >
           <button
-            onClick={() => onUpdateStatus(lead.id, "converted")}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white transition-all"
+            onClick={() => onConvertToClient(lead.id)}
+            disabled={isConverting || lead.status === "converted"}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: "#5C7A6B" }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background =
-                "#496158")
-            }
+            onMouseEnter={(e) => {
+              if (!isConverting && lead.status !== "converted")
+                (e.currentTarget as HTMLButtonElement).style.background = "#496158";
+            }}
             onMouseLeave={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.background =
                 "#5C7A6B")
             }
           >
             <UserCheck size={15} />
-            Convert to Client
+            {isConverting ? "Converting…" : lead.status === "converted" ? "Already Converted" : "Convert to Client"}
           </button>
           <button
             onClick={() => onUpdateStatus(lead.id, "lost")}
@@ -961,6 +966,7 @@ export default function LeadsPage() {
 
   const leads = useLeadsList({ limit: "100", offset: "0" });
   const updateLead = useUpdateLead();
+  const convertLead = useConvertLeadToClient();
 
   const leadsArray: Lead[] = Array.isArray(leads.data)
     ? (leads.data as Lead[])
@@ -1014,12 +1020,23 @@ export default function LeadsPage() {
     );
   }
 
+  function handleConvertToClient(leadId: string) {
+    convertLead.mutate(leadId, {
+      onSuccess: () => {
+        toast.success("Converted to client — send them a portal invite next");
+        setSelectedLead(null);
+      },
+      onError: (err: Error) =>
+        toast.error(err.message || "Conversion failed — try again"),
+    });
+  }
+
   function handleMenuAction(
     lead: Lead,
     action: "convert" | "not_a_fit" | "notes"
   ) {
     if (action === "convert") {
-      handleUpdateStatus(lead.id, "converted");
+      handleConvertToClient(lead.id);
     } else if (action === "not_a_fit") {
       handleUpdateStatus(lead.id, "lost");
     } else if (action === "notes") {
@@ -1199,8 +1216,10 @@ export default function LeadsPage() {
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
           onUpdateStatus={handleUpdateStatus}
+          onConvertToClient={handleConvertToClient}
           onSaveNotes={handleSaveNotes}
           isSaving={updateLead.isPending}
+          isConverting={convertLead.isPending}
         />
       )}
     </>

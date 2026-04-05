@@ -1,8 +1,9 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useCallback } from "react";
 import Link from "next/link";
-import { useClientDetail } from "@/lib/api-hooks";
+import { useClientDetail, useSendPortalInvite } from "@/lib/api-hooks";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   CalendarDays,
@@ -64,6 +65,22 @@ export default function ClientDetailPage({
   const [activeTab, setActiveTab] = useState<Tab>("sessions");
 
   const client = useClientDetail(id);
+  const sendPortalInvite = useSendPortalInvite();
+
+  const handleSendInvite = useCallback(() => {
+    const c = client.data as any;
+    if (!c?.email) {
+      toast.error("This client has no email address — add one first");
+      return;
+    }
+    sendPortalInvite.mutate(id, {
+      onSuccess: () => {
+        toast.success(`Portal invite sent to ${c.email}`);
+      },
+      onError: (err: Error) =>
+        toast.error(err.message || "Failed to send invite — try again"),
+    });
+  }, [client.data, id, sendPortalInvite]);
 
   // Skeleton loading state
   if (client.isLoading) {
@@ -250,11 +267,19 @@ export default function ClientDetailPage({
           <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-4 space-y-2">
             {!c.user_id && (
               <button
-                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-[#EBF0EB] text-[#5C7A6B] text-sm font-medium transition-all duration-150 hover:bg-[#D6E3F3]"
+                onClick={handleSendInvite}
+                disabled={sendPortalInvite.isPending}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-[#EBF0EB] text-[#5C7A6B] text-sm font-medium transition-all duration-150 hover:bg-[#D6E7E2] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Send size={13} />
-                Invite to Portal
+                {sendPortalInvite.isPending ? "Sending…" : "Invite to Portal"}
               </button>
+            )}
+            {c.user_id && (
+              <div className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-[8px] bg-[#F4F1EC] text-[#8A8480] text-xs font-medium">
+                <Send size={11} />
+                Portal access active
+              </div>
             )}
             <button className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-[8px] bg-white border border-[#E5E0D8] text-[#1C1C1E] text-sm font-medium transition-all duration-150 hover:bg-[#F4F1EC]">
               <MoreHorizontal size={13} />

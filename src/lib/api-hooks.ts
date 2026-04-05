@@ -486,6 +486,59 @@ export function useSubmitIntakeForm() {
   });
 }
 
+// ── Intake Form Questions (custom builder) ────────────────────────────────────
+
+export function useIntakeFormQuestions() {
+  return useQuery({
+    queryKey: ["intake", "questions"],
+    queryFn: () => api.intakeForm.listQuestions(),
+  });
+}
+
+export function useCreateIntakeQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) =>
+      api.intakeForm.createQuestion(data),
+    onSuccess: () => {
+      posthog.capture("intake_question_created");
+      qc.invalidateQueries({ queryKey: ["intake", "questions"] });
+    },
+  });
+}
+
+export function useUpdateIntakeQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
+      api.intakeForm.updateQuestion(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["intake", "questions"] });
+    },
+  });
+}
+
+export function useDeleteIntakeQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.intakeForm.deleteQuestion(id),
+    onSuccess: () => {
+      posthog.capture("intake_question_deleted");
+      qc.invalidateQueries({ queryKey: ["intake", "questions"] });
+    },
+  });
+}
+
+export function useReorderIntakeQuestions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => api.intakeForm.reorderQuestions(ids),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["intake", "questions"] });
+    },
+  });
+}
+
 // ── Leads ───────────────────────────────────────────────────────────────────
 
 export function useLeadsList(params?: Record<string, string>) {
@@ -507,6 +560,18 @@ export function useUpdateLead() {
   });
 }
 
+export function useConvertLeadToClient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.leads.convertToClient(id),
+    onSuccess: () => {
+      posthog.capture("lead_converted_to_client");
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+}
+
 // ── Client Invitations ──────────────────────────────────────────────────────
 
 export function useCreateClientInvitation() {
@@ -517,6 +582,46 @@ export function useCreateClientInvitation() {
     onSuccess: () => {
       posthog.capture("client_invitation_created");
       qc.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+}
+
+export function useSendPortalInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (client_id: string) =>
+      api.clientInvitations.sendInvite({ client_id }),
+    onSuccess: () => {
+      posthog.capture("portal_invite_sent");
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+}
+
+// ── Message Templates ────────────────────────────────────────────────────────
+
+export function useMessageTemplates() {
+  return useQuery({
+    queryKey: ["message-templates"],
+    queryFn: () => api.messageTemplates.list(),
+  });
+}
+
+export function useUpdateMessageTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      key,
+      subject,
+      body,
+    }: {
+      key: string;
+      subject: string;
+      body: string;
+    }) => api.messageTemplates.update(key, { subject, body }),
+    onSuccess: () => {
+      posthog.capture("message_template_updated");
+      qc.invalidateQueries({ queryKey: ["message-templates"] });
     },
   });
 }

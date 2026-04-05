@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useClientsList, useCreateClient } from "@/lib/api-hooks";
+import { useClientsList, useCreateClient, useSendPortalInvite } from "@/lib/api-hooks";
 import { api } from "@/lib/api";
 import { CLIENT_STATUSES, CLIENT_CATEGORIES } from "@bendre/shared";
 import {
@@ -17,6 +17,7 @@ import {
   ChevronUp,
   ChevronDown,
   X,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,6 +34,7 @@ interface Client {
   status: string;
   email?: string | null;
   phone?: string | null;
+  user_id?: string | null;
   category?: string;
   client_type?: string;
   session_count?: number;
@@ -165,10 +167,12 @@ function RowMenu({
   client,
   onArchive,
   onDelete,
+  onSendInvite,
 }: {
   client: Client;
   onArchive: () => void;
   onDelete: () => void;
+  onSendInvite: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -235,6 +239,25 @@ function RowMenu({
             <ExternalLink size={14} style={{ color: "#8A8480" }} />
             View Profile
           </Link>
+          {!client.user_id && (
+            <button
+              className="w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-100"
+              style={{ color: "#5C7A6B" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#EBF0EB")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "")
+              }
+              onClick={() => {
+                setOpen(false);
+                onSendInvite();
+              }}
+            >
+              <Send size={14} />
+              Send Portal Invite
+            </button>
+          )}
           <button
             className="w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-100"
             style={{ color: "#1C1C1E" }}
@@ -584,6 +607,7 @@ export default function ClientsPage() {
   );
 
   const createClient = useCreateClient();
+  const sendPortalInvite = useSendPortalInvite();
 
   const deactivate = useMutation({
     mutationFn: (id: string) => api.clients.deactivate(id),
@@ -640,6 +664,20 @@ export default function ClientsPage() {
       setSortKey(key);
       setSortDir("asc");
     }
+  }
+
+  function handleSendInvite(client: Client) {
+    if (!client.email) {
+      toast.error("This client has no email address — add one first");
+      return;
+    }
+    sendPortalInvite.mutate(client.id, {
+      onSuccess: () => {
+        toast.success(`Portal invite sent to ${client.email}`);
+      },
+      onError: (err: Error) =>
+        toast.error(err.message || "Failed to send invite — try again"),
+    });
   }
 
   function handleCreate(data: {
@@ -980,6 +1018,7 @@ export default function ClientsPage() {
                     onDelete={() =>
                       setConfirmModal({ type: "delete", client })
                     }
+                    onSendInvite={() => handleSendInvite(client)}
                   />
                 </div>
               </div>

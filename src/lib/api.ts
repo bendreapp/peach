@@ -447,6 +447,23 @@ export const api = {
     listResponses: (clientId: string) =>
       apiFetch(`/api/v1/clients/${clientId}/intake-responses`),
     getResponse: (id: string) => apiFetch(`/api/v1/intake-responses/${id}`),
+
+    // ── Custom question builder ──────────────────────────────────────
+    listQuestions: () => apiFetch("/api/v1/intake-forms/questions"),
+    createQuestion: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/intake-forms/questions", { method: "POST", body: data }),
+    updateQuestion: (id: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/intake-forms/questions/${id}`, {
+        method: "PUT",
+        body: data,
+      }),
+    deleteQuestion: (id: string) =>
+      apiFetch(`/api/v1/intake-forms/questions/${id}`, { method: "DELETE" }),
+    reorderQuestions: (ids: string[]) =>
+      apiFetch("/api/v1/intake-forms/questions/reorder", {
+        method: "PATCH",
+        body: { ids },
+      }),
   },
 
   // ── Broadcast ────────────────────────────────────────────────────────
@@ -464,12 +481,16 @@ export const api = {
       apiFetch("/api/v1/leads", { method: "POST", body: data }),
     update: (id: string, data: Record<string, unknown>) =>
       apiFetch(`/api/v1/leads/${id}`, { method: "PUT", body: data }),
+    convertToClient: (id: string) =>
+      apiFetch(`/api/v1/leads/${id}/convert-to-client`, { method: "POST" }),
   },
 
   // ── Client Invitations ────────────────────────────────────────────
   clientInvitations: {
     create: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/client-invitations", { method: "POST", body: data }),
+    sendInvite: (data: { client_id: string }) =>
+      apiFetch("/api/v1/client-invitations/send", { method: "POST", body: data }),
     getByToken: (token: string) =>
       apiFetch(`/api/v1/client-invitations/by-token/${token}`, { auth: false }),
     claim: (token: string) =>
@@ -489,6 +510,16 @@ export const api = {
       apiFetch("/api/v1/analytics/top-clients", { params }),
     clientCategoryBreakdown: () =>
       apiFetch("/api/v1/analytics/client-categories"),
+  },
+
+  // ── Message Templates ────────────────────────────────────────────────
+  messageTemplates: {
+    list: () => apiFetch("/api/v1/message-templates"),
+    update: (key: string, data: { subject: string; body: string }) =>
+      apiFetch(`/api/v1/message-templates/${key}`, {
+        method: "PUT",
+        body: data,
+      }),
   },
 
   // ── Client Portal ────────────────────────────────────────────────────

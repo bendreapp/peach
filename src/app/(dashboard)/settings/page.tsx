@@ -15,6 +15,7 @@ import BookingPageSection from "@/components/settings/BookingPageSection";
 import PoliciesForm from "@/components/settings/PoliciesForm";
 import TagManager from "@/components/settings/TagManager";
 import IntakeFormEditor from "@/components/settings/IntakeFormEditor";
+import CommsTemplates from "@/components/settings/CommsTemplates";
 import {
   User,
   Clock,
@@ -24,6 +25,7 @@ import {
   ShieldCheck,
   Globe,
   Tags,
+  MessageCircle,
 } from "lucide-react";
 
 const TABS = [
@@ -35,6 +37,7 @@ const TABS = [
   { key: "policies", label: "Policies", icon: ShieldCheck },
   { key: "booking", label: "Booking Page", icon: Globe },
   { key: "tags", label: "Tags", icon: Tags },
+  { key: "comms", label: "Comms", icon: MessageCircle },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -66,7 +69,7 @@ export default function SettingsPage() {
             className="flex-shrink-0 bg-surface rounded-card border border-border shadow-card p-3 space-y-1"
             style={{ width: 180 }}
           >
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
               <div
                 key={i}
                 className="h-9 rounded-small animate-pulse"
@@ -225,7 +228,7 @@ export default function SettingsPage() {
               )}
 
               {activeTab === "intake-forms" && (
-                <IntakeFormEditor sessionTypes={t.session_types ?? []} />
+                <IntakeFormEditor />
               )}
 
               {activeTab === "availability" && (
@@ -264,6 +267,8 @@ export default function SettingsPage() {
                   }
                 />
               )}
+
+              {activeTab === "comms" && <CommsTemplates />}
             </div>
           </div>
         </div>
