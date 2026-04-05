@@ -1,9 +1,6 @@
 import LeadIntakeFormView from "@/components/intake/LeadIntakeFormView";
 import Image from "next/image";
 
-const LOGO_URL =
-  "https://bjodimpnpwuuoogwufso.supabase.co/storage/v1/object/public/assets/logo.webp?v=2";
-
 export default async function LeadIntakeSubmitPage({
   params,
 }: {
@@ -17,13 +14,12 @@ export default async function LeadIntakeSubmitPage({
       <header className="py-4 px-6 flex items-center justify-center">
         <div className="flex items-center gap-2">
           <Image
-            src={LOGO_URL}
+            src="/logo.png"
             alt="Bendre"
-            width={24}
-            height={24}
-            className="rounded-full"
+            width={28}
+            height={28}
           />
-          <span className="text-lg font-sans font-bold text-sage">Bendre</span>
+          <span className="text-[16px] font-bold" style={{ color: "#1C1C1E", letterSpacing: "-0.01em" }}>Bendre</span>
         </div>
       </header>
 
