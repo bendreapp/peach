@@ -5,6 +5,25 @@ import { Send, ClipboardList, UserPlus, UserX, Pencil, X, Check } from "lucide-r
 import { toast } from "sonner";
 import { useMessageTemplates, useUpdateMessageTemplate } from "@/lib/api-hooks";
 
+// ─── Sample preview values ───────────────────────────────────────────────────
+
+const PREVIEW_VARS: Record<string, string> = {
+  "{client_name}": "Priya",
+  "{therapist_name}": "Dr. Sharma",
+  "{practice_name}": "Mindful Care",
+  "{intake_link}": "https://bendre.app/intake/submit/abc123",
+  "{portal_link}": "https://bendre.app/portal/claim/xyz789",
+  "{booking_url}": "https://bendre.app/booking/your-slug",
+  "{therapist_email}": "dr.sharma@example.com",
+};
+
+function substituteVars(text: string): string {
+  return Object.entries(PREVIEW_VARS).reduce(
+    (acc, [key, val]) => acc.replaceAll(key, val),
+    text
+  );
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface MessageTemplate {
@@ -82,9 +101,14 @@ interface TemplateCardProps {
 
 function TemplateCard({ template, meta }: TemplateCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [subject, setSubject] = useState(template.subject);
   const [body, setBody] = useState(template.body);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sample values for preview
+  const previewSubject = substituteVars(subject);
+  const previewBody = substituteVars(body);
 
   const update = useUpdateMessageTemplate();
 
@@ -216,6 +240,127 @@ function TemplateCard({ template, meta }: TemplateCardProps) {
       {/* Inline editor (expanded) */}
       {isEditing && (
         <div className="px-5 pt-4 pb-5 space-y-4">
+          {/* Edit / Preview toggle */}
+          <div
+            className="inline-flex items-center p-0.5 rounded-[8px]"
+            style={{ background: "#F4F1EC" }}
+          >
+            <button
+              type="button"
+              onClick={() => setMode("edit")}
+              className="px-3 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all cursor-pointer"
+              style={{
+                background: mode === "edit" ? "#FFFFFF" : "transparent",
+                color: mode === "edit" ? "#1C1C1E" : "#8A8480",
+                boxShadow: mode === "edit" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("preview")}
+              className="px-3 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all cursor-pointer"
+              style={{
+                background: mode === "preview" ? "#FFFFFF" : "transparent",
+                color: mode === "preview" ? "#1C1C1E" : "#8A8480",
+                boxShadow: mode === "preview" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+              }}
+            >
+              Preview
+            </button>
+          </div>
+
+          {/* Preview mode */}
+          {mode === "preview" && (
+            <div
+              className="rounded-[10px] overflow-hidden"
+              style={{ background: "#F4F1EC", padding: "20px", border: "1px solid #E5E0D8" }}
+            >
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                }}
+              >
+                {/* Email header */}
+                <div
+                  style={{
+                    padding: "20px 28px 14px",
+                    borderBottom: "1px solid #E5E0D8",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "#1C1C1E",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Bendre
+                  </div>
+                </div>
+                {/* Subject row */}
+                <div
+                  style={{
+                    padding: "12px 28px",
+                    background: "#FAFAF8",
+                    borderBottom: "1px solid #E5E0D8",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 500,
+                      color: "#8A8480",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      marginBottom: 4,
+                    }}
+                  >
+                    Subject
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: 600, color: "#1C1C1E" }}>
+                    {previewSubject || "(empty)"}
+                  </div>
+                </div>
+                {/* Body */}
+                <div style={{ padding: "24px 28px", background: "#FFFFFF" }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      lineHeight: 1.6,
+                      color: "#1C1C1E",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {previewBody || <span style={{ color: "#C8C4BE" }}>(empty)</span>}
+                  </div>
+                </div>
+                {/* Footer */}
+                <div
+                  style={{
+                    padding: "14px 28px",
+                    background: "#FAFAF8",
+                    borderTop: "1px solid #E5E0D8",
+                  }}
+                >
+                  <div style={{ fontSize: "11px", color: "#8A8480" }}>
+                    Sent via Bendre — practice management for therapists.
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-ink-tertiary mt-3 text-center">
+                Preview uses sample values — real emails fill in actual client data.
+              </p>
+            </div>
+          )}
+
+          {/* Edit mode */}
+          {mode === "edit" && (<>
           {/* Subject */}
           <div>
             <label className="block text-[12px] font-medium text-ink-secondary mb-1.5">
@@ -299,6 +444,7 @@ function TemplateCard({ template, meta }: TemplateCardProps) {
               ))}
             </div>
           </div>
+          </>)}
 
           {/* Actions */}
           <div className="flex items-center gap-2.5 pt-1">
