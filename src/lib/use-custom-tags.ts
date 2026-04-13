@@ -1,20 +1,39 @@
 "use client";
 
 import { useTherapistMe } from "@/lib/api-hooks";
-import { THERAPY_MODALITIES, COMMON_TECHNIQUES, RISK_FLAGS } from "@bendre/shared";
-import type { CustomTags } from "@bendre/shared";
 
-export interface ModalityTag {
-  key: string;
-  name: string;
-  fullName: string;
-}
+// Default techniques list (inline — no @bendre/shared dependency)
+export const DEFAULT_TECHNIQUES: string[] = [
+  "CBT",
+  "DBT",
+  "ACT",
+  "EMDR",
+  "Mindfulness",
+  "Exposure therapy",
+  "Motivational interviewing",
+  "Psychoeducation",
+  "Somatic techniques",
+  "Narrative therapy",
+  "Solution-focused therapy",
+  "Thought records",
+  "Behavioral activation",
+  "Relaxation training",
+  "Cognitive restructuring",
+];
 
-export const DEFAULT_MODALITIES: ModalityTag[] = Object.entries(THERAPY_MODALITIES).map(
-  ([key, val]) => ({ key, name: (val as any).name, fullName: (val as any).fullName })
-);
-
-export const DEFAULT_TECHNIQUES: string[] = [...COMMON_TECHNIQUES];
+// Default risk flags list (inline — no @bendre/shared dependency)
+export const DEFAULT_RISK_FLAGS: string[] = [
+  "Suicidal ideation",
+  "Self-harm",
+  "Homicidal ideation",
+  "Substance abuse",
+  "Child safety concern",
+  "Domestic violence",
+  "Psychosis",
+  "Eating disorder",
+  "Non-compliance",
+  "Crisis episode",
+];
 
 export const DEFAULT_CATEGORIES = [
   "Homework",
@@ -28,16 +47,13 @@ export const DEFAULT_CATEGORIES = [
   "Mindfulness",
 ];
 
-export const DEFAULT_RISK_FLAGS: string[] = [...RISK_FLAGS];
-
 export function useCustomTags() {
   const { data } = useTherapistMe();
-  const ct = data?.custom_tags as CustomTags | undefined;
+  const ct = (data as any)?.custom_tags;
 
   return {
-    modalities: ct?.modalities ?? DEFAULT_MODALITIES,
-    techniques: ct?.techniques ?? DEFAULT_TECHNIQUES,
-    categories: ct?.categories ?? DEFAULT_CATEGORIES,
-    riskFlags: ct?.risk_flags ?? DEFAULT_RISK_FLAGS,
+    techniques: (ct?.techniques as string[]) ?? DEFAULT_TECHNIQUES,
+    categories: (ct?.categories as string[]) ?? DEFAULT_CATEGORIES,
+    riskFlags: (ct?.risk_flags as string[]) ?? DEFAULT_RISK_FLAGS,
   };
 }

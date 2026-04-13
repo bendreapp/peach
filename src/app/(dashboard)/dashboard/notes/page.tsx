@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useNotesList, useClientsList } from "@/lib/api-hooks";
-import { NOTE_TEMPLATES } from "@bendre/shared";
 import {
   FileText,
   Clock,
@@ -14,14 +13,36 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+// ── Inline constants (no @bendre/shared) ──────────────────────────────────────
+const NOTE_TEMPLATES = {
+  soap: {
+    label: "SOAP Note",
+    name: "SOAP Note",
+    description: "Subjective, Objective, Assessment, Plan",
+    fields: ["subjective", "objective", "assessment", "plan"],
+  },
+  dap: {
+    label: "DAP Note",
+    name: "DAP Note",
+    description: "Data, Assessment, Plan",
+    fields: ["subjective", "objective", "assessment"],
+  },
+  freeform: {
+    label: "Free Form",
+    name: "Free Form",
+    description: "Open-ended clinical notes",
+    fields: ["freeform_content"],
+  },
+} as const;
+
+type NoteTemplate = keyof typeof NOTE_TEMPLATES;
+
 // Unwrap API response: handles both flat arrays and { data: [...] }
 function toArray(d: any): any[] {
   if (Array.isArray(d)) return d;
   if (d && Array.isArray(d.data)) return d.data;
   return [];
 }
-
-type NoteTemplate = keyof typeof NOTE_TEMPLATES;
 
 // Derive a display status from note fields (no DB status column exists)
 function getNoteStatus(note: any): "Draft" | "Final" {

@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { FileText, Clock, AlertTriangle } from "lucide-react";
-import { NOTE_TEMPLATES, type NoteTemplate } from "@bendre/shared";
+
+// Inline — no @bendre/shared dependency
+const NOTE_TYPE_LABELS: Record<string, string> = {
+  soap: "SOAP Note",
+  dap: "DAP Note",
+  freeform: "Free Form",
+};
 
 interface NoteCardProps {
   note: {
@@ -19,7 +25,7 @@ interface NoteCardProps {
 }
 
 export default function NoteCard({ note }: NoteCardProps) {
-  const template = NOTE_TEMPLATES[note.note_type as NoteTemplate];
+  const noteTypeLabel = NOTE_TYPE_LABELS[note.note_type] ?? note.note_type;
   const clientName = note.sessions?.clients?.full_name ?? "Unknown";
   const preview = note.freeform_content || note.subjective || "";
   const hasRiskFlags = note.risk_flags && note.risk_flags.length > 0;
@@ -41,7 +47,7 @@ export default function NoteCard({ note }: NoteCardProps) {
               <span className="text-sm font-medium text-ink">{clientName}</span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-medium bg-bg text-ink-tertiary">
                 <FileText size={10} />
-                {template?.name ?? note.note_type}
+                {noteTypeLabel}
               </span>
               {hasRiskFlags && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-pill text-[10px] font-medium bg-red-50 text-red-600">
