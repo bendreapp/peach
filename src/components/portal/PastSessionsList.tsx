@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Calendar } from "lucide-react";
 
 interface Session {
   id: string;
@@ -9,7 +9,7 @@ interface Session {
   duration_mins: number;
   status: string;
   session_type_name: string | null;
-  amount_inr: number;
+  amount_inr: number | null;
   therapist_name: string;
 }
 
@@ -29,70 +29,118 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function PastSessionsList({ sessions, hasMore, loading, onLoadMore }: PastSessionsListProps) {
-  const [expanded, setExpanded] = useState(false);
+const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
+  completed: { bg: "#EAF4F1", text: "#3D8B7A", label: "Completed" },
+  cancelled: { bg: "#F9EDED", text: "#A0504A", label: "Cancelled" },
+  no_show: { bg: "#F0EFED", text: "#6B6460", label: "No show" },
+};
 
-  if (sessions.length === 0 && !loading) return null;
+export default function PastSessionsList({
+  sessions,
+  hasMore,
+  loading,
+  onLoadMore,
+}: PastSessionsListProps) {
+  if (loading && sessions.length === 0) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-[#E5E0D8] px-4 py-3 flex items-center justify-between gap-4 animate-pulse"
+            style={{ background: "white" }}
+          >
+            <div className="space-y-1.5 flex-1">
+              <div className="h-3.5 bg-[#E5E0D8] rounded w-1/3" />
+              <div className="h-3 bg-[#E5E0D8] rounded w-1/2" />
+            </div>
+            <div className="h-5 bg-[#E5E0D8] rounded-full w-20" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <div
+        className="rounded-xl border border-[#E5E0D8] p-8 text-center"
+        style={{
+          background: "white",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
+          style={{ background: "#F4F1EC" }}
+        >
+          <Calendar size={20} strokeWidth={1.5} style={{ color: "#C5BFB8" }} />
+        </div>
+        <p className="text-sm font-medium" style={{ color: "#5C5856" }}>
+          No past sessions
+        </p>
+        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+          Your completed sessions will appear here.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-sm font-medium text-ink-tertiary hover:text-ink transition-colors"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={`transition-transform ${expanded ? "rotate-90" : ""}`}
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-        Past sessions ({sessions.length}{hasMore ? "+" : ""})
-      </button>
+    <div className="space-y-2">
+      {sessions.map((session) => {
+        const badge = STATUS_BADGE[session.status] ?? {
+          bg: "#F0EFED",
+          text: "#6B6460",
+          label: session.status.replace(/_/g, " "),
+        };
 
-      {expanded && (
-        <div className="space-y-2">
-          {sessions.map((session) => (
-            <div
-              key={session.id}
-              className="bg-surface rounded-small border border-border px-4 py-3 flex items-center justify-between gap-4"
-            >
-              <div className="flex items-center gap-2 text-sm min-w-0">
-                <span className="text-ink-tertiary">{formatDate(session.starts_at)}</span>
-                <span className="text-ink font-medium truncate">
+        return (
+          <div
+            key={session.id}
+            className="rounded-xl border border-[#E5E0D8] px-4 py-3 flex items-center justify-between gap-4"
+            style={{
+              background: "white",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            }}
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-sm">
+                <span style={{ color: "#8A8480" }}>
+                  {formatDate(session.starts_at)}
+                </span>
+                <span className="font-medium truncate" style={{ color: "#1C1C1E" }}>
                   {session.session_type_name ?? "Session"}
                 </span>
-                <span className="text-xs text-ink-tertiary">with {session.therapist_name}</span>
               </div>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-pill whitespace-nowrap ${
-                session.status === "completed"
-                  ? "bg-sage-50 text-sage"
-                  : session.status === "cancelled"
-                    ? "bg-red-50 text-red-600"
-                    : "bg-bg text-ink-tertiary"
-              }`}>
-                {session.status}
-              </span>
+              <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+                with {session.therapist_name}
+                {session.duration_mins && ` · ${session.duration_mins} min`}
+                {session.amount_inr != null && session.amount_inr > 0 && (
+                  <> · ₹{(session.amount_inr / 100).toLocaleString("en-IN")}</>
+                )}
+              </p>
             </div>
-          ))}
-          {hasMore && (
-            <button
-              type="button"
-              onClick={onLoadMore}
-              disabled={loading}
-              className="w-full text-center py-2 text-sm text-sage font-medium hover:text-sage-600 transition-colors disabled:opacity-50"
+            <span
+              className="text-[11px] font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0"
+              style={{ background: badge.bg, color: badge.text }}
             >
-              {loading ? "Loading..." : "Load more"}
-            </button>
-          )}
-        </div>
+              {badge.label}
+            </span>
+          </div>
+        );
+      })}
+
+      {hasMore && (
+        <button
+          type="button"
+          onClick={onLoadMore}
+          disabled={loading}
+          className="w-full text-center py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+          style={{ color: "#5C7A6B" }}
+        >
+          {loading ? "Loading..." : "Load more"}
+        </button>
       )}
     </div>
   );

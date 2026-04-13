@@ -731,16 +731,17 @@ export function usePortalMe() {
   });
 }
 
-export function usePortalUpcomingSessions() {
+export function usePortalUpcomingSessions(clientId: string) {
   return useQuery({
-    queryKey: ["portal", "sessions", "upcoming"],
-    queryFn: () => api.clientPortal.upcomingSessions(),
+    queryKey: ["portal", "sessions", "upcoming", clientId],
+    queryFn: () => api.clientPortal.upcomingSessions(clientId),
+    enabled: !!clientId,
   });
 }
 
 export function usePortalPastSessions(clientId: string, params?: {
-  offset?: number;
-  limit?: number;
+  page?: number;
+  per_page?: number;
 }) {
   return useQuery({
     queryKey: ["portal", "sessions", "past", clientId, params],
@@ -749,10 +750,11 @@ export function usePortalPastSessions(clientId: string, params?: {
   });
 }
 
-export function usePortalPendingIntakeForms() {
+export function usePortalResources(clientId: string) {
   return useQuery({
-    queryKey: ["portal", "intake-forms", "pending"],
-    queryFn: () => api.clientPortal.pendingIntakeForms(),
+    queryKey: ["portal", "resources", clientId],
+    queryFn: () => api.clientPortal.resources(clientId),
+    enabled: !!clientId,
   });
 }
 
@@ -761,5 +763,23 @@ export function usePortalCancelSession() {
   return useMutation({
     mutationFn: (id: string) => api.clientPortal.cancelSession(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portal"] }),
+  });
+}
+
+// ── Client Invitation (portal claim) ─────────────────────────────────────────
+
+export function useClientInvitationDetail(token: string) {
+  return useQuery({
+    queryKey: ["client-invitations", "detail", token],
+    queryFn: () => api.clientInvitations.getDetail(token),
+    enabled: !!token,
+    retry: false,
+  });
+}
+
+export function useClaimClientInvitation() {
+  return useMutation({
+    mutationFn: ({ token, userId }: { token: string; userId?: string }) =>
+      api.clientInvitations.claim(token, userId),
   });
 }

@@ -525,21 +525,6 @@ export const api = {
       }),
   },
 
-  // ── Client Invitations ────────────────────────────────────────────
-  clientInvitations: {
-    create: (data: Record<string, unknown>) =>
-      apiFetch("/api/v1/client-invitations", { method: "POST", body: data }),
-    sendInvite: (data: { client_id: string }) =>
-      apiFetch("/api/v1/client-invitations/send", { method: "POST", body: data }),
-    getByToken: (token: string) =>
-      apiFetch(`/api/v1/client-invitations/by-token/${token}`, { auth: false }),
-    claim: (token: string) =>
-      apiFetch(`/api/v1/client-invitations/by-token/${token}/claim`, {
-        method: "POST",
-        auth: false,
-      }),
-  },
-
   // ── Analytics ────────────────────────────────────────────────────────
   analytics: {
     overview: () => apiFetch("/api/v1/analytics/overview"),
@@ -564,18 +549,31 @@ export const api = {
 
   // ── Client Portal ────────────────────────────────────────────────────
   clientPortal: {
-    me: () => apiFetch("/api/v1/portal/profiles"),
-    getUserRole: () => apiFetch("/api/v1/portal/profiles"),
-    upcomingSessions: (clientId?: string) =>
-      clientId
-        ? apiFetch(`/api/v1/portal/profiles/${clientId}/sessions/upcoming`)
-        : apiFetch("/api/v1/portal/profiles"),
-    pastSessions: (clientId: string, params?: { offset?: number; limit?: number }) =>
+    /// Returns array of ClientPortalProfile objects for the authenticated client user.
+    me: () => apiFetch<Array<{ id: string; therapist_id: string; full_name: string; email: string | null; phone: string | null; intake_completed: boolean; status: string }>>("/api/v1/portal/profiles"),
+    upcomingSessions: (clientId: string) =>
+      apiFetch(`/api/v1/portal/profiles/${clientId}/sessions/upcoming`),
+    pastSessions: (clientId: string, params?: { page?: number; per_page?: number }) =>
       apiFetch(`/api/v1/portal/profiles/${clientId}/sessions/past`, { params }),
-    pendingIntakeForms: () => apiFetch("/api/v1/portal/profiles"),
     cancelSession: (id: string) =>
       apiFetch(`/api/v1/sessions/${id}/cancel`, { method: "POST" }),
-    getForTherapist: (slug: string) =>
-      apiFetch(`/api/v1/therapists/by-slug/${slug}`, { auth: false }),
+    resources: (clientId: string) =>
+      apiFetch(`/api/v1/portal/profiles/${clientId}/resources`),
+  },
+
+  // ── Client Invitations (portal claim) ────────────────────────────────
+  clientInvitations: {
+    create: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/client-invitations", { method: "POST", body: data }),
+    sendInvite: (data: { client_id: string }) =>
+      apiFetch("/api/v1/client-invitations/send", { method: "POST", body: data }),
+    getDetail: (token: string) =>
+      apiFetch(`/api/v1/client-invitations/by-token/${token}/detail`, { auth: false }),
+    claim: (token: string, userId?: string) =>
+      apiFetch(`/api/v1/client-invitations/by-token/${token}/claim`, {
+        method: "POST",
+        auth: false,
+        body: userId ? { user_id: userId } : null,
+      }),
   },
 };

@@ -75,6 +75,10 @@ export const config = {
     "/signup/:path*",
     "/auth/:path*",
     "/booking/:path*",
+    // Public onboard pages (portal claim + legacy onboarding tokens)
+    // Listed here so Supabase session cookies are refreshed, but NOT protected.
+    "/onboard/:path*",
+    "/intake/:path*",
     "/",
   ],
 };

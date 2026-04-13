@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSessionsPending } from "@/lib/api-hooks";
@@ -51,6 +52,7 @@ const COLOR_LEGEND = [
 ];
 
 export default function SchedulePage() {
+  const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [calendarView, setCalendarView] = useState<CalendarView>("week");
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()));
@@ -62,6 +64,13 @@ export default function SchedulePage() {
   const [breakModal, setBreakModal] = useState<BreakModalData | null>(null);
   const [createSessionOpen, setCreateSessionOpen] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+  // Auto-open create modal when ?new=true is in the URL
+  useEffect(() => {
+    if (searchParams.get("new") === "true") {
+      setCreateSessionOpen(true);
+    }
+  }, [searchParams]);
 
   const qc = useQueryClient();
 

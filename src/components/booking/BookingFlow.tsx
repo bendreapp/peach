@@ -63,10 +63,10 @@ export default function BookingFlow({ slug }: { slug: string }) {
     });
   }, []);
 
-  // Auto-fill from client portal if logged in
+  // Auto-fill from client portal if logged in (fetch therapist public profile)
   const clientData = useQuery({
     queryKey: ["portal", "for-therapist", slug],
-    queryFn: () => api.clientPortal.getForTherapist(slug),
+    queryFn: () => api.therapist.getBySlug(slug),
     enabled: !!authEmail,
     retry: false,
   });

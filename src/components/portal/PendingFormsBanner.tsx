@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { FileText } from "lucide-react";
 
 interface PendingForm {
   id: string;
@@ -17,28 +18,46 @@ export default function PendingFormsBanner({ forms }: PendingFormsBannerProps) {
   if (forms.length === 0) return null;
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-card p-4 space-y-3">
+    <div
+      className="rounded-xl border p-4 space-y-3"
+      style={{
+        background: "#FBF0E8",
+        borderColor: "#E8C9A8",
+      }}
+    >
       <div className="flex items-center gap-2">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="16" y1="13" x2="8" y2="13" />
-          <line x1="16" y1="17" x2="8" y2="17" />
-        </svg>
-        <h3 className="text-sm font-semibold text-amber-800">
-          {forms.length === 1 ? "1 form to complete" : `${forms.length} forms to complete`}
+        <FileText size={18} strokeWidth={1.5} style={{ color: "#B5733A" }} />
+        <h3 className="text-sm font-semibold" style={{ color: "#8A5520" }}>
+          {forms.length === 1
+            ? "1 intake form to complete"
+            : `${forms.length} intake forms to complete`}
         </h3>
       </div>
       <div className="space-y-2">
-        {forms.map((form) => (
-          <Link
-            key={form.id}
-            href={`/intake/${form.access_token}`}
-            className="block bg-surface border border-amber-200 rounded-small px-4 py-3 text-sm font-medium text-amber-700 hover:bg-amber-50 transition-colors"
-          >
-            Fill intake form &rarr;
-          </Link>
-        ))}
+        {forms.map((form) =>
+          form.access_token ? (
+            <Link
+              key={form.id}
+              href={`/intake/${form.access_token}`}
+              className="block rounded-lg px-4 py-3 text-sm font-medium transition-colors"
+              style={{
+                background: "white",
+                border: "1px solid #E8C9A8",
+                color: "#B5733A",
+              }}
+            >
+              Fill intake form &rarr;
+            </Link>
+          ) : (
+            <p
+              key={form.id}
+              className="text-sm px-4 py-2"
+              style={{ color: "#B5733A" }}
+            >
+              Your therapist will share an intake form link with you.
+            </p>
+          )
+        )}
       </div>
     </div>
   );

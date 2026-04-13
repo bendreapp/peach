@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePortalCancelSession } from "@/lib/api-hooks";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { X, Calendar } from "lucide-react";
 
 interface Session {
   id: string;
@@ -13,7 +13,7 @@ interface Session {
   duration_mins: number;
   status: string;
   session_type_name: string | null;
-  amount_inr: number;
+  amount_inr: number | null;
   therapist_name: string;
 }
 
@@ -39,13 +39,16 @@ function formatDateTime(iso: string): { date: string; time: string } {
   return { date, time };
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  scheduled: "bg-sage-50 text-sage",
-  pending_approval: "bg-amber-50 text-amber-600",
-  completed: "bg-bg text-ink-tertiary",
+const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
+  scheduled: { bg: "#EAF4F1", text: "#3D8B7A", label: "Confirmed" },
+  pending_approval: { bg: "#FBF0E8", text: "#B5733A", label: "Pending approval" },
+  completed: { bg: "#F0EFED", text: "#6B6460", label: "Completed" },
 };
 
-export default function UpcomingSessionsList({ sessions, loading }: UpcomingSessionsListProps) {
+export default function UpcomingSessionsList({
+  sessions,
+  loading,
+}: UpcomingSessionsListProps) {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const qc = useQueryClient();
 
@@ -54,10 +57,14 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
   if (loading) {
     return (
       <div className="space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-surface rounded-small border border-border p-4 animate-pulse">
-            <div className="h-4 bg-border rounded w-1/3 mb-2" />
-            <div className="h-3 bg-border rounded w-1/2" />
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-[#E5E0D8] p-4 animate-pulse"
+            style={{ background: "white" }}
+          >
+            <div className="h-4 bg-[#E5E0D8] rounded w-1/3 mb-2" />
+            <div className="h-3 bg-[#E5E0D8] rounded w-1/2" />
           </div>
         ))}
       </div>
@@ -66,8 +73,25 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
 
   if (sessions.length === 0) {
     return (
-      <div className="bg-surface rounded-small border border-border p-6 text-center">
-        <p className="text-sm text-ink-tertiary">No upcoming sessions</p>
+      <div
+        className="rounded-xl border border-[#E5E0D8] p-8 text-center"
+        style={{
+          background: "white",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
+          style={{ background: "#F4F1EC" }}
+        >
+          <Calendar size={20} strokeWidth={1.5} style={{ color: "#C5BFB8" }} />
+        </div>
+        <p className="text-sm font-medium" style={{ color: "#5C5856" }}>
+          No upcoming sessions
+        </p>
+        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+          Use the booking link shared by your therapist to schedule a session.
+        </p>
       </div>
     );
   }
@@ -77,22 +101,38 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
       <div className="space-y-3">
         {sessions.map((session) => {
           const { date, time } = formatDateTime(session.starts_at);
-          const statusStyle = STATUS_STYLES[session.status] ?? "bg-bg text-ink-tertiary";
+          const badge =
+            STATUS_BADGE[session.status] ?? {
+              bg: "#F0EFED",
+              text: "#6B6460",
+              label: session.status.replace(/_/g, " "),
+            };
 
           return (
             <div
               key={session.id}
-              className="bg-surface rounded-small border border-border p-4 flex items-center justify-between gap-4"
+              className="rounded-xl border border-[#E5E0D8] p-4 flex items-center justify-between gap-4"
+              style={{
+                background: "white",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+              }}
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-medium text-ink">{date}</span>
-                  <span className="text-xs text-ink-tertiary">{time}</span>
-                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-pill ${statusStyle}`}>
-                    {session.status.replace(/_/g, " ")}
+                  <span className="text-sm font-semibold" style={{ color: "#1C1C1E" }}>
+                    {date}
+                  </span>
+                  <span className="text-xs" style={{ color: "#8A8480" }}>
+                    {time}
+                  </span>
+                  <span
+                    className="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                    style={{ background: badge.bg, color: badge.text }}
+                  >
+                    {badge.label}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-ink-tertiary">
+                <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: "#8A8480" }}>
                   <span>with {session.therapist_name}</span>
                   {session.session_type_name && (
                     <>
@@ -102,18 +142,26 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
                   )}
                   <span>&middot;</span>
                   <span>{session.duration_mins} min</span>
+                  {session.amount_inr != null && session.amount_inr > 0 && (
+                    <>
+                      <span>&middot;</span>
+                      <span>₹{(session.amount_inr / 100).toLocaleString("en-IN")}</span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                {session.amount_inr > 0 && (
-                  <span className="text-xs font-medium text-ink-tertiary whitespace-nowrap">
-                    ₹{(session.amount_inr / 100).toLocaleString("en-IN")}
-                  </span>
-                )}
                 <button
                   type="button"
                   onClick={() => setCancellingId(session.id)}
-                  className="text-xs font-medium text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded hover:bg-red-50"
+                  className="text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
+                  style={{ color: "#C0705A", background: "transparent" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "#F9EDED";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  }}
                 >
                   Cancel
                 </button>
@@ -123,28 +171,42 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
         })}
       </div>
 
-      {/* Cancel confirmation dialog */}
+      {/* Cancel confirmation modal */}
       {cancellingId && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface rounded-card max-w-sm w-full p-6 space-y-4 shadow-xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(28,28,30,0.4)", backdropFilter: "blur(4px)" }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setCancellingId(null);
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 w-full max-w-sm space-y-4"
+            style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.12)" }}
+          >
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-sans font-semibold text-ink">Cancel session?</h3>
+              <h3 className="text-lg font-bold" style={{ color: "#1C1C1E" }}>
+                Cancel session?
+              </h3>
               <button
                 type="button"
                 onClick={() => setCancellingId(null)}
-                className="text-ink-tertiary hover:text-ink transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+                style={{ color: "#8A8480" }}
               >
-                <X className="w-5 h-5" />
+                <X size={18} strokeWidth={1.5} />
               </button>
             </div>
-            <p className="text-sm text-ink-tertiary">
-              Are you sure you want to cancel this session? Late cancellations may be charged per your therapist&apos;s cancellation policy.
+            <p className="text-sm" style={{ color: "#5C5856", lineHeight: "1.6" }}>
+              Are you sure? Late cancellations may be charged per your
+              therapist&apos;s cancellation policy.
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end pt-2">
               <button
                 type="button"
                 onClick={() => setCancellingId(null)}
-                className="px-4 py-2 text-sm font-medium text-ink-tertiary hover:text-ink transition-colors rounded-lg hover:bg-bg"
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={{ color: "#5C5856", border: "1px solid #E5E0D8" }}
               >
                 Keep session
               </button>
@@ -153,14 +215,20 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
                 disabled={cancelMutation.isPending}
                 onClick={() =>
                   cancelMutation.mutate(cancellingId, {
-                    onSuccess: (data) => {
+                    onSuccess: (data: any) => {
                       setCancellingId(null);
-                      qc.invalidateQueries({ queryKey: ["portal", "sessions", "upcoming"] });
-                      qc.invalidateQueries({ queryKey: ["portal", "sessions", "past"] });
-                      if (data.lateCancellation) {
-                        toast.info("Session cancelled. This is a late cancellation and may be charged per your therapist's policy.");
+                      qc.invalidateQueries({
+                        queryKey: ["portal", "sessions", "upcoming"],
+                      });
+                      qc.invalidateQueries({
+                        queryKey: ["portal", "sessions", "past"],
+                      });
+                      if (data?.lateCancellation) {
+                        toast.info(
+                          "Session cancelled. This is a late cancellation and may be charged per your therapist's policy."
+                        );
                       } else {
-                        toast.success("Session cancelled successfully.");
+                        toast.success("Session cancelled.");
                       }
                     },
                     onError: (err: Error) => {
@@ -168,7 +236,8 @@ export default function UpcomingSessionsList({ sessions, loading }: UpcomingSess
                     },
                   })
                 }
-                className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors rounded-lg disabled:opacity-50"
+                className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all disabled:opacity-50 active:scale-[0.97]"
+                style={{ background: "#C0705A" }}
               >
                 {cancelMutation.isPending ? "Cancelling..." : "Yes, cancel"}
               </button>

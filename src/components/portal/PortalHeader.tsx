@@ -2,19 +2,22 @@
 
 interface PortalHeaderProps {
   name: string;
-  email: string | undefined;
+  email?: string;
 }
 
 export default function PortalHeader({ name, email }: PortalHeaderProps) {
-  const firstName = name.split(" ")[0] || name;
-
   return (
     <div className="space-y-1">
-      <h1 className="text-2xl font-sans font-bold text-ink">
-        Welcome, {firstName}
+      <h1
+        className="text-2xl font-bold"
+        style={{ color: "#1C1C1E", letterSpacing: "-0.02em" }}
+      >
+        Hi, {name}
       </h1>
       {email && (
-        <p className="text-sm text-ink-tertiary">{email}</p>
+        <p className="text-sm" style={{ color: "#8A8480" }}>
+          {email}
+        </p>
       )}
     </div>
   );
