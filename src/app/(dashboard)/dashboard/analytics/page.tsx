@@ -366,7 +366,7 @@ export default function AnalyticsPage() {
             value={String(totalSessions)}
             subtitle="completed sessions"
             icon={<Activity size={16} />}
-            iconBg="rgba(74,111,165,0.08)"
+            iconBg="rgba(92,122,107,0.08)"
             iconColor="#5C7A6B"
           />
           <StatCard
@@ -541,7 +541,7 @@ export default function AnalyticsPage() {
                   <Bar
                     dataKey="newClients"
                     name="New Clients"
-                    fill="rgba(74,111,165,0.20)"
+                    fill="rgba(92,122,107,0.20)"
                     radius={[3, 3, 0, 0]}
                   />
                   <Line
