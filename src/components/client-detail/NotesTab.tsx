@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useNotesList } from "@/lib/api-hooks";
-import { NOTE_TEMPLATES } from "@bendre/shared";
+const NOTE_TEMPLATES: Record<string, { name: string; fields: string[] }> = {
+  soap: { name: "SOAP Note", fields: ["subjective", "objective", "assessment", "plan"] },
+  dap: { name: "DAP Note", fields: ["subjective", "objective", "assessment"] },
+  freeform: { name: "Free Form", fields: ["freeform_content"] },
+};
 import { formatDate } from "./utils";
 import {
   FileText,

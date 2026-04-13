@@ -2,8 +2,30 @@
 
 import Link from "next/link";
 import { useTreatmentPlansByClient } from "@/lib/api-hooks";
-import { THERAPY_MODALITIES } from "@bendre/shared";
-import type { Goal, TherapyModalityKey } from "@bendre/shared";
+const THERAPY_MODALITIES: Record<string, { name: string; fullName: string }> = {
+  cbt: { name: "CBT", fullName: "Cognitive Behavioral Therapy" },
+  dbt: { name: "DBT", fullName: "Dialectical Behavior Therapy" },
+  act: { name: "ACT", fullName: "Acceptance and Commitment Therapy" },
+  emdr: { name: "EMDR", fullName: "Eye Movement Desensitization and Reprocessing" },
+  psychodynamic: { name: "Psychodynamic", fullName: "Psychodynamic Therapy" },
+  humanistic: { name: "Humanistic", fullName: "Humanistic Therapy" },
+  systemic: { name: "Systemic", fullName: "Systemic / Family Therapy" },
+};
+type TherapyModalityKey = keyof typeof THERAPY_MODALITIES;
+
+interface SubGoal {
+  id: string;
+  title: string;
+  status: "not_started" | "in_progress" | "completed";
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  modality?: string;
+  status: "not_started" | "in_progress" | "completed";
+  sub_goals?: SubGoal[];
+}
 import { formatDate } from "./utils";
 import {
   CalendarDays,

@@ -4,7 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateTreatmentPlan, useUpdateTreatmentPlan } from "@/lib/api-hooks";
-import type { Goal } from "@bendre/shared";
+interface SubGoal {
+  id: string;
+  title: string;
+  status: "not_started" | "in_progress" | "completed";
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  modality?: string;
+  status: "not_started" | "in_progress" | "completed";
+  sub_goals?: SubGoal[];
+}
 import { useCustomTags } from "@/lib/use-custom-tags";
 import GoalList from "./GoalList";
 import { Save, Brain } from "lucide-react";

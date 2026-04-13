@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { useResourcesList, useShareResource } from "@/lib/api-hooks";
-import { THERAPY_MODALITIES, type TherapyModalityKey } from "@bendre/shared";
+const THERAPY_MODALITIES: Record<string, { name: string; fullName: string }> = {
+  cbt: { name: "CBT", fullName: "Cognitive Behavioral Therapy" },
+  dbt: { name: "DBT", fullName: "Dialectical Behavior Therapy" },
+  act: { name: "ACT", fullName: "Acceptance and Commitment Therapy" },
+  emdr: { name: "EMDR", fullName: "Eye Movement Desensitization and Reprocessing" },
+  psychodynamic: { name: "Psychodynamic", fullName: "Psychodynamic Therapy" },
+  humanistic: { name: "Humanistic", fullName: "Humanistic Therapy" },
+  systemic: { name: "Systemic", fullName: "Systemic / Family Therapy" },
+};
+type TherapyModalityKey = keyof typeof THERAPY_MODALITIES;
 import { X, Send, FileText, Link as LinkIcon, Upload } from "lucide-react";
 
 interface ShareResourceModalProps {

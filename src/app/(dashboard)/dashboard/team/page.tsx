@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { usePracticeMe, useOnboardingTokens } from "@/lib/api-hooks";
-import { PRACTICE_ROLES } from "@bendre/shared";
+const PRACTICE_ROLES: Record<string, { label: string; description: string }> = {
+  owner: { label: "Owner", description: "Full access" },
+  admin: { label: "Admin", description: "Manage team and settings" },
+  therapist: { label: "Therapist", description: "Client and session access" },
+  intern: { label: "Intern", description: "Limited access" },
+};
 import { toast } from "sonner";
 import {
   UsersRound,

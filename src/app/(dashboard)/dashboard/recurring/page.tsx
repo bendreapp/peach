@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useRecurringReservations, useClientsList } from "@/lib/api-hooks";
-import { DAYS_OF_WEEK } from "@bendre/shared";
+const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 import { toast } from "sonner";
 import {
   Repeat,

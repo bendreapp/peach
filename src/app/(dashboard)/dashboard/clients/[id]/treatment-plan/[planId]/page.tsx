@@ -5,7 +5,19 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import PlanEditor from "@/components/treatment-plan/PlanEditor";
-import type { Goal } from "@bendre/shared";
+interface SubGoal {
+  id: string;
+  title: string;
+  status: "not_started" | "in_progress" | "completed";
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  modality?: string;
+  status: "not_started" | "in_progress" | "completed";
+  sub_goals?: SubGoal[];
+}
 import { ArrowLeft, ClipboardList } from "lucide-react";
 
 export default function EditTreatmentPlanPage({

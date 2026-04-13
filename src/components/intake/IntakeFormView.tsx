@@ -2,7 +2,21 @@
 
 import { useState } from "react";
 import { usePublicIntakeForm, useSubmitIntakeForm } from "@/lib/api-hooks";
-import type { IntakeField, IntakeFieldResponse } from "@bendre/shared";
+interface IntakeField {
+  id: string;
+  label: string;
+  type: "text" | "textarea" | "select" | "checkbox" | "radio" | "date" | "yes_no" | "heading" | "multi_select" | "consent";
+  required?: boolean;
+  options?: string[];
+  placeholder?: string;
+  agreement_text?: string;
+  sort_order: number;
+}
+
+interface IntakeFieldResponse {
+  field_id: string;
+  value: string | string[] | boolean | null;
+}
 import { ClipboardList, CheckCircle2 } from "lucide-react";
 
 export default function IntakeFormView({ token }: { token: string }) {

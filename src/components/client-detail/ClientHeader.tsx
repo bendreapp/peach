@@ -2,7 +2,21 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateClient, useUpdateClientStatus, useCreateClientInvitation } from "@/lib/api-hooks";
-import { CLIENT_STATUSES, CLIENT_CATEGORIES, DAYS_OF_WEEK } from "@bendre/shared";
+const CLIENT_STATUSES: Record<string, { label: string }> = {
+  active: { label: "Active" },
+  inactive: { label: "Inactive" },
+  terminated: { label: "Terminated" },
+  "on-hold": { label: "On Hold" },
+};
+
+const CLIENT_CATEGORIES: Record<string, { label: string }> = {
+  indian: { label: "Indian" },
+  nri: { label: "NRI" },
+  couple: { label: "Couple" },
+  other: { label: "Other" },
+};
+
+const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 import { toast } from "sonner";
 import { formatDate } from "./utils";
 import {

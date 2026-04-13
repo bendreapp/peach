@@ -1,6 +1,18 @@
 "use client";
 
-import type { Goal, SubGoal } from "@bendre/shared";
+interface SubGoal {
+  id: string;
+  title: string;
+  status: "not_started" | "in_progress" | "completed";
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  modality?: string;
+  status: "not_started" | "in_progress" | "completed";
+  sub_goals?: SubGoal[];
+}
 import { Plus, X, ChevronDown, ChevronRight, Check } from "lucide-react";
 
 interface GoalListProps {

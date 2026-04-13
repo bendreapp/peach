@@ -5,7 +5,19 @@ import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useClientsList, useCreateClient, useSendPortalInvite } from "@/lib/api-hooks";
 import { api } from "@/lib/api";
-import { CLIENT_STATUSES, CLIENT_CATEGORIES } from "@bendre/shared";
+const CLIENT_STATUSES: Record<string, { label: string }> = {
+  active: { label: "Active" },
+  inactive: { label: "Inactive" },
+  terminated: { label: "Terminated" },
+  "on-hold": { label: "On Hold" },
+};
+
+const CLIENT_CATEGORIES: Record<string, { label: string }> = {
+  indian: { label: "Indian" },
+  nri: { label: "NRI" },
+  couple: { label: "Couple" },
+  other: { label: "Other" },
+};
 import {
   Users,
   Search,

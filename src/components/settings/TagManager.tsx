@@ -2,15 +2,38 @@
 
 import { useState } from "react";
 import { useUpdateTherapist } from "@/lib/api-hooks";
-import { COMMON_TECHNIQUES, RISK_FLAGS } from "@bendre/shared";
-import type { CustomTags } from "@bendre/shared";
 import {
-  DEFAULT_MODALITIES,
+  DEFAULT_TECHNIQUES,
+  DEFAULT_RISK_FLAGS,
   DEFAULT_CATEGORIES,
-  type ModalityTag,
 } from "@/lib/use-custom-tags";
 import { Tags, X, Plus, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+
+// Modality type (inline — no @bendre/shared)
+interface ModalityTag {
+  key: string;
+  name: string;
+  fullName: string;
+}
+
+const DEFAULT_MODALITIES: ModalityTag[] = [
+  { key: "cbt", name: "CBT", fullName: "Cognitive Behavioral Therapy" },
+  { key: "dbt", name: "DBT", fullName: "Dialectical Behavior Therapy" },
+  { key: "act", name: "ACT", fullName: "Acceptance and Commitment Therapy" },
+  { key: "emdr", name: "EMDR", fullName: "Eye Movement Desensitization and Reprocessing" },
+  { key: "psychodynamic", name: "Psychodynamic", fullName: "Psychodynamic Therapy" },
+  { key: "humanistic", name: "Humanistic", fullName: "Humanistic Therapy" },
+  { key: "systemic", name: "Systemic", fullName: "Systemic / Family Therapy" },
+];
+
+// CustomTags shape (inline — no @bendre/shared)
+interface CustomTags {
+  modalities?: ModalityTag[];
+  techniques?: string[];
+  categories?: string[];
+  risk_flags?: string[];
+}
 
 interface TagManagerProps {
   customTags: CustomTags | undefined;
@@ -28,13 +51,13 @@ export default function TagManager({ customTags }: TagManagerProps) {
     customTags?.modalities ?? DEFAULT_MODALITIES
   );
   const [techniques, setTechniques] = useState<string[]>(
-    customTags?.techniques ?? [...COMMON_TECHNIQUES]
+    customTags?.techniques ?? [...DEFAULT_TECHNIQUES]
   );
   const [categories, setCategories] = useState<string[]>(
     customTags?.categories ?? DEFAULT_CATEGORIES
   );
   const [riskFlags, setRiskFlags] = useState<string[]>(
-    customTags?.risk_flags ?? [...RISK_FLAGS]
+    customTags?.risk_flags ?? [...DEFAULT_RISK_FLAGS]
   );
 
   const [newModality, setNewModality] = useState("");
@@ -145,13 +168,13 @@ export default function TagManager({ customTags }: TagManagerProps) {
   }
 
   return (
-    <div className="bg-surface rounded-card border border-border shadow-sm p-6 space-y-6">
+    <div className="space-y-6">
       <div>
-        <h3 className="flex items-center gap-2 text-base font-sans font-bold text-ink">
-          <Tags size={18} className="text-sage" />
+        <h3 className="flex items-center gap-2 text-base font-bold" style={{ color: "#1C1C1E" }}>
+          <Tags size={18} style={{ color: "#5C7A6B" }} />
           Customize Tags
         </h3>
-        <p className="text-xs text-ink-tertiary mt-1">
+        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
           Add or remove tags used across resources, notes, and treatment plans
         </p>
       </div>
@@ -176,7 +199,7 @@ export default function TagManager({ customTags }: TagManagerProps) {
         onAdd={() =>
           addStringTag(newTechnique, techniques, setTechniques, setNewTechnique, "techniques")
         }
-        onReset={() => resetStringTags(COMMON_TECHNIQUES, setTechniques, "techniques")}
+        onReset={() => resetStringTags(DEFAULT_TECHNIQUES, setTechniques, "techniques")}
         placeholder="e.g., Sand Tray Therapy"
       />
 
@@ -202,13 +225,13 @@ export default function TagManager({ customTags }: TagManagerProps) {
         onAdd={() =>
           addStringTag(newRiskFlag, riskFlags, setRiskFlags, setNewRiskFlag, "risk_flags")
         }
-        onReset={() => resetStringTags(RISK_FLAGS, setRiskFlags, "risk_flags")}
+        onReset={() => resetStringTags(DEFAULT_RISK_FLAGS, setRiskFlags, "risk_flags")}
         placeholder="e.g., Eating disorder"
         variant="danger"
       />
 
       {update.isPending && (
-        <p className="text-xs text-ink-tertiary animate-pulse">Saving...</p>
+        <p className="text-xs animate-pulse" style={{ color: "#8A8480" }}>Saving...</p>
       )}
     </div>
   );
@@ -237,19 +260,17 @@ function TagGroup({
   placeholder: string;
   variant?: "danger";
 }) {
-  const pillStyle =
-    variant === "danger"
-      ? "bg-red-50 text-red-700 border border-red-200"
-      : "bg-bg text-ink-secondary";
-
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-ink-secondary">{label}</label>
+        <label className="text-xs font-medium" style={{ color: "#5C5856" }}>{label}</label>
         <button
           type="button"
           onClick={onReset}
-          className="flex items-center gap-1 text-[11px] text-ink-tertiary hover:text-sage transition-colors"
+          className="flex items-center gap-1 text-[11px] transition-colors cursor-pointer"
+          style={{ color: "#8A8480" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#5C7A6B"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#8A8480"; }}
         >
           <RotateCcw size={10} /> Reset defaults
         </button>
@@ -258,15 +279,20 @@ function TagGroup({
         {pills.map((pill) => (
           <span
             key={pill.id}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${pillStyle}`}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-xs font-medium"
+            style={{
+              background: variant === "danger" ? "#F9EDED" : "#EBF0EB",
+              color: variant === "danger" ? "#A0504A" : "#5C7A6B",
+              border: `1px solid ${variant === "danger" ? "#E8C0B8" : "#D4E0D4"}`,
+            }}
           >
             {pill.label}
             <button
               type="button"
               onClick={() => onRemove(pill.id)}
-              className="text-ink-tertiary hover:text-red-500 transition-colors"
+              className="opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
             >
-              <X size={12} />
+              <X size={11} />
             </button>
           </span>
         ))}
@@ -283,12 +309,22 @@ function TagGroup({
             }
           }}
           placeholder={placeholder}
-          className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-xs"
+          className="flex-1 px-3 py-1.5 rounded-[8px] text-xs outline-none transition-colors"
+          style={{
+            border: "1.5px solid #E5E0D8",
+            background: "#FFFFFF",
+            color: "#1C1C1E",
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "#8FAF8A"; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = "#E5E0D8"; }}
         />
         <button
           type="button"
           onClick={onAdd}
-          className="px-3 py-1.5 rounded-lg bg-sage-50 text-sage text-xs font-medium hover:bg-sage-100 transition-colors flex items-center gap-1"
+          className="px-3 py-1.5 rounded-[8px] text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+          style={{ background: "#EBF0EB", color: "#5C7A6B" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "#D4E0D4"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "#EBF0EB"; }}
         >
           <Plus size={12} /> Add
         </button>
