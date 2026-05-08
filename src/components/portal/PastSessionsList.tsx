@@ -79,7 +79,7 @@ export default function PastSessionsList({
         <p className="text-sm font-medium" style={{ color: "#5C5856" }}>
           No past sessions
         </p>
-        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-xs mt-1" style={{ color: "#736E6A" }}>
           Your completed sessions will appear here.
         </p>
       </div>
@@ -106,14 +106,14 @@ export default function PastSessionsList({
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-sm">
-                <span style={{ color: "#8A8480" }}>
+                <span style={{ color: "#736E6A" }}>
                   {formatDate(session.starts_at)}
                 </span>
                 <span className="font-medium truncate" style={{ color: "#1C1C1E" }}>
                   {session.session_type_name ?? "Session"}
                 </span>
               </div>
-              <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+              <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
                 with {session.therapist_name}
                 {session.duration_mins && ` · ${session.duration_mins} min`}
                 {session.amount_inr != null && session.amount_inr > 0 && (

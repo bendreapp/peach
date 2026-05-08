@@ -96,7 +96,7 @@ function pct(value: number): string {
 // ── Chart style constants ─────────────────────────────────────────────────────
 
 const CHART_GRID_COLOR = "#E5E0D8";
-const CHART_AXIS_STYLE = { fontSize: 11, fill: "#8A8480" };
+const CHART_AXIS_STYLE = { fontSize: 11, fill: "#736E6A" };
 const CHART_TOOLTIP_STYLE = {
   borderRadius: 10,
   border: "1px solid #E5E0D8",
@@ -165,7 +165,7 @@ function TimeRangeFilter({
                 }
               : {
                   background: "transparent",
-                  color: "#8A8480",
+                  color: "#736E6A",
                 }
           }
         >
@@ -228,7 +228,7 @@ function StatCard({
         </div>
         <span
           className="text-xs font-medium uppercase"
-          style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+          style={{ color: "#736E6A", letterSpacing: "0.06em" }}
         >
           {label}
         </span>
@@ -239,7 +239,7 @@ function StatCard({
       >
         {value}
       </div>
-      <div className="text-xs mt-1" style={{ color: "#8A8480" }}>
+      <div className="text-xs mt-1" style={{ color: "#736E6A" }}>
         {subtitle}
       </div>
     </div>
@@ -252,7 +252,7 @@ function EmptyChart({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center h-full py-8">
       <BarChart3 size={28} style={{ color: "#C5BFB8", marginBottom: 8 }} />
-      <p className="text-sm" style={{ color: "#8A8480" }}>
+      <p className="text-sm" style={{ color: "#736E6A" }}>
         {message}
       </p>
     </div>
@@ -267,13 +267,13 @@ function SessionTypesList({
   categories: { label: string; count: number }[];
 }) {
   const total = categories.reduce((s, c) => s + c.count, 0);
-  const COLORS = ["#5C7A6B", "#7BAF9E", "#D4956A", "#C0705A", "#8A8480"];
+  const COLORS = ["#5C7A6B", "#7BAF9E", "#D4956A", "#C0705A", "#736E6A"];
 
   if (categories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-8">
         <Users size={28} style={{ color: "#C5BFB8", marginBottom: 8 }} />
-        <p className="text-sm" style={{ color: "#8A8480" }}>
+        <p className="text-sm" style={{ color: "#736E6A" }}>
           No session type data yet
         </p>
       </div>
@@ -305,7 +305,7 @@ function SessionTypesList({
             </div>
             <span
               className="text-xs font-medium w-6 text-right"
-              style={{ color: "#8A8480" }}
+              style={{ color: "#736E6A" }}
             >
               {cat.count}
             </span>
@@ -366,7 +366,7 @@ export default function AnalyticsPage() {
               Analytics
             </h1>
           </div>
-          <p className="text-sm mt-0.5" style={{ color: "#8A8480" }}>
+          <p className="text-sm mt-0.5" style={{ color: "#736E6A" }}>
             Practice performance at a glance
           </p>
         </div>
@@ -436,7 +436,7 @@ export default function AnalyticsPage() {
             >
               Revenue
             </h2>
-            <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+            <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
               Monthly billed revenue
             </p>
           </div>
@@ -522,7 +522,7 @@ export default function AnalyticsPage() {
             >
               Client Growth
             </h2>
-            <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+            <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
               New and cumulative clients over time
             </p>
           </div>
@@ -559,7 +559,7 @@ export default function AnalyticsPage() {
                     cursor={{ stroke: "#E5E0D8", strokeWidth: 1 }}
                   />
                   <Legend
-                    wrapperStyle={{ fontSize: 12, color: "#8A8480" }}
+                    wrapperStyle={{ fontSize: 12, color: "#736E6A" }}
                   />
                   <Bar
                     dataKey="newClients"
@@ -599,7 +599,7 @@ export default function AnalyticsPage() {
             >
               Session Types
             </h2>
-            <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+            <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
               Distribution by category
             </p>
           </div>
@@ -630,7 +630,7 @@ export default function AnalyticsPage() {
           >
             Sessions by Month
           </h2>
-          <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+          <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
             Completed, cancelled, and no-show breakdown
           </p>
         </div>
@@ -667,7 +667,7 @@ export default function AnalyticsPage() {
                   cursor={{ fill: "rgba(229,224,216,0.30)" }}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: 12, color: "#8A8480" }}
+                  wrapperStyle={{ fontSize: 12, color: "#736E6A" }}
                 />
                 <Bar
                   dataKey="completed"

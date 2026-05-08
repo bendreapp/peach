@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Select } from "@/components/ui/Select";
 import { CheckCircle2, ClipboardList, AlertCircle } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -163,17 +164,15 @@ function FieldRenderer({
             {question.question_text}
             {question.is_required && <span className="text-red-400 ml-0.5">*</span>}
           </label>
-          <select
+          <Select
             value={(value as string) ?? ""}
-            onChange={(e) => onChange(e.target.value)}
-            className={inputCls}
-            style={{ color: "#1C1C1E" }}
-          >
-            <option value="">Select an option…</option>
-            {opts.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
+            onChange={onChange}
+            placeholder="Select an option…"
+            options={[
+              { value: "", label: "Select an option…" },
+              ...opts.map((opt) => ({ value: opt, label: opt })),
+            ]}
+          />
           {error && <p className="text-xs mt-1" style={{ color: "#C0705A" }}>{error}</p>}
         </div>
       );
@@ -328,7 +327,7 @@ export default function LeadIntakeFormView({ token }: { token: string }) {
         <h2 className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
           Already Submitted
         </h2>
-        <p className="text-sm" style={{ color: "#8A8480" }}>
+        <p className="text-sm" style={{ color: "#736E6A" }}>
           This form has already been submitted. Thank you!
         </p>
       </div>
@@ -343,12 +342,12 @@ export default function LeadIntakeFormView({ token }: { token: string }) {
           className="w-14 h-14 rounded-full mx-auto flex items-center justify-center"
           style={{ background: "#F4F1EC" }}
         >
-          <ClipboardList size={24} style={{ color: "#8A8480" }} />
+          <ClipboardList size={24} style={{ color: "#736E6A" }} />
         </div>
         <h2 className="text-lg font-semibold" style={{ color: "#1C1C1E" }}>
           Form Not Found
         </h2>
-        <p className="text-sm" style={{ color: "#8A8480" }}>
+        <p className="text-sm" style={{ color: "#736E6A" }}>
           This intake form link is invalid or has expired.
         </p>
       </div>
@@ -388,7 +387,7 @@ export default function LeadIntakeFormView({ token }: { token: string }) {
         <h2 className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
           Intake Form
         </h2>
-        <p className="text-sm mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-sm mt-1" style={{ color: "#736E6A" }}>
           Please fill out this form before your first session.
         </p>
       </div>

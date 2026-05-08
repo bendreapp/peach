@@ -251,7 +251,7 @@ function TemplateCard({ template, meta }: TemplateCardProps) {
               className="px-3 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all cursor-pointer"
               style={{
                 background: mode === "edit" ? "#FFFFFF" : "transparent",
-                color: mode === "edit" ? "#1C1C1E" : "#8A8480",
+                color: mode === "edit" ? "#1C1C1E" : "#736E6A",
                 boxShadow: mode === "edit" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
               }}
             >
@@ -263,7 +263,7 @@ function TemplateCard({ template, meta }: TemplateCardProps) {
               className="px-3 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all cursor-pointer"
               style={{
                 background: mode === "preview" ? "#FFFFFF" : "transparent",
-                color: mode === "preview" ? "#1C1C1E" : "#8A8480",
+                color: mode === "preview" ? "#1C1C1E" : "#736E6A",
                 boxShadow: mode === "preview" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
               }}
             >
@@ -315,7 +315,7 @@ function TemplateCard({ template, meta }: TemplateCardProps) {
                     style={{
                       fontSize: "11px",
                       fontWeight: 500,
-                      color: "#8A8480",
+                      color: "#736E6A",
                       textTransform: "uppercase",
                       letterSpacing: "0.06em",
                       marginBottom: 4,
@@ -348,7 +348,7 @@ function TemplateCard({ template, meta }: TemplateCardProps) {
                     borderTop: "1px solid #E5E0D8",
                   }}
                 >
-                  <div style={{ fontSize: "11px", color: "#8A8480" }}>
+                  <div style={{ fontSize: "11px", color: "#736E6A" }}>
                     Sent via Bendre — practice management for therapists.
                   </div>
                 </div>

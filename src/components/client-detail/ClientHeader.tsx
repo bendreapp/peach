@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateClient, useUpdateClientStatus, useCreateClientInvitation } from "@/lib/api-hooks";
+import { Select } from "@/components/ui/Select";
 const CLIENT_STATUSES: Record<string, { label: string }> = {
   active: { label: "Active" },
   inactive: { label: "Inactive" },
@@ -169,38 +170,33 @@ export default function ClientHeader({ clientId, client: c }: ClientHeaderProps)
       <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-border">
         <div>
           <label className="block text-[10px] font-medium text-ink-tertiary mb-1">Status</label>
-          <select
+          <Select
             value={c.status}
-            onChange={(e) => updateStatusWithCallbacks.mutate({ id: clientId, status: e.target.value as "active" | "inactive" | "terminated" })}
-            className="px-2.5 py-1.5 rounded-lg border border-border bg-surface text-xs focus:outline-none focus:ring-[3px] focus:ring-sage/10"
-          >
-            {Object.entries(CLIENT_STATUSES).map(([key, val]) => (
-              <option key={key} value={key}>{val.label}</option>
-            ))}
-          </select>
+            onChange={(value) => updateStatusWithCallbacks.mutate({ id: clientId, status: value as "active" | "inactive" | "terminated" })}
+            options={Object.entries(CLIENT_STATUSES).map(([key, val]) => ({ value: key, label: val.label }))}
+            className="w-32"
+          />
         </div>
         <div>
           <label className="block text-[10px] font-medium text-ink-tertiary mb-1">Type</label>
-          <select
+          <Select
             value={c.client_type}
-            onChange={(e) => updateClientWithCallbacks.mutate({ id: clientId, client_type: e.target.value as "regular" | "irregular" })}
-            className="px-2.5 py-1.5 rounded-lg border border-border bg-surface text-xs focus:outline-none focus:ring-[3px] focus:ring-sage/10"
-          >
-            <option value="irregular">Irregular</option>
-            <option value="regular">Regular</option>
-          </select>
+            onChange={(value) => updateClientWithCallbacks.mutate({ id: clientId, client_type: value as "regular" | "irregular" })}
+            options={[
+              { value: "irregular", label: "Irregular" },
+              { value: "regular", label: "Regular" },
+            ]}
+            className="w-32"
+          />
         </div>
         <div>
           <label className="block text-[10px] font-medium text-ink-tertiary mb-1">Category</label>
-          <select
+          <Select
             value={c.category}
-            onChange={(e) => updateClientWithCallbacks.mutate({ id: clientId, category: e.target.value as "indian" | "nri" | "couple" | "other" })}
-            className="px-2.5 py-1.5 rounded-lg border border-border bg-surface text-xs focus:outline-none focus:ring-[3px] focus:ring-sage/10"
-          >
-            {Object.entries(CLIENT_CATEGORIES).map(([key, val]) => (
-              <option key={key} value={key}>{val.label}</option>
-            ))}
-          </select>
+            onChange={(value) => updateClientWithCallbacks.mutate({ id: clientId, category: value as "indian" | "nri" | "couple" | "other" })}
+            options={Object.entries(CLIENT_CATEGORIES).map(([key, val]) => ({ value: key, label: val.label }))}
+            className="w-32"
+          />
         </div>
       </div>
 

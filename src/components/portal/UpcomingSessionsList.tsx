@@ -89,7 +89,7 @@ export default function UpcomingSessionsList({
         <p className="text-sm font-medium" style={{ color: "#5C5856" }}>
           No upcoming sessions
         </p>
-        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-xs mt-1" style={{ color: "#736E6A" }}>
           Use the booking link shared by your therapist to schedule a session.
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function UpcomingSessionsList({
                   <span className="text-sm font-semibold" style={{ color: "#1C1C1E" }}>
                     {date}
                   </span>
-                  <span className="text-xs" style={{ color: "#8A8480" }}>
+                  <span className="text-xs" style={{ color: "#736E6A" }}>
                     {time}
                   </span>
                   <span
@@ -132,7 +132,7 @@ export default function UpcomingSessionsList({
                     {badge.label}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: "#8A8480" }}>
+                <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: "#736E6A" }}>
                   <span>with {session.therapist_name}</span>
                   {session.session_type_name && (
                     <>
@@ -192,7 +192,7 @@ export default function UpcomingSessionsList({
                 type="button"
                 onClick={() => setCancellingId(null)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               >
                 <X size={18} strokeWidth={1.5} />
               </button>

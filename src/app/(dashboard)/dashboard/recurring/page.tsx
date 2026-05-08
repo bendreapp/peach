@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useRecurringReservations, useClientsList } from "@/lib/api-hooks";
+import { Select } from "@/components/ui/Select";
 const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 import { toast } from "sonner";
 import {
@@ -156,35 +157,24 @@ export default function RecurringReservationsPage() {
                 <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
                   Client *
                 </label>
-                <select
+                <Select
                   value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
-                >
-                  <option value="">Select client...</option>
-                  {clientsData.map((c: any) => (
-                    <option key={c.id} value={c.id}>
-                      {c.full_name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setClientId}
+                  placeholder="Select client..."
+                  options={[
+                    ...clientsData.map((c: any) => ({ value: c.id, label: c.full_name })),
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
                   Day of week *
                 </label>
-                <select
-                  value={dayOfWeek}
-                  onChange={(e) => setDayOfWeek(Number(e.target.value))}
-                  className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
-                >
-                  {DAYS_OF_WEEK.map((day, i) => (
-                    <option key={i} value={i}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  value={String(dayOfWeek)}
+                  onChange={(value) => setDayOfWeek(Number(value))}
+                  options={DAYS_OF_WEEK.map((day, i) => ({ value: String(i), label: day }))}
+                />
               </div>
             </div>
 
@@ -222,7 +212,7 @@ export default function RecurringReservationsPage() {
                   value={sessionTypeName}
                   onChange={(e) => setSessionTypeName(e.target.value)}
                   placeholder="e.g. Regular"
-                  className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+                  className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
                 />
               </div>
               <div>
@@ -259,7 +249,7 @@ export default function RecurringReservationsPage() {
           <p className="text-base font-medium text-[#5C5856]">
             No recurring slots yet
           </p>
-          <p className="text-sm text-[#8A8480] mt-1">
+          <p className="text-sm text-[#736E6A] mt-1">
             Reserve a weekly slot and it will be blocked on the booking page automatically.
           </p>
           <button
@@ -274,11 +264,11 @@ export default function RecurringReservationsPage() {
         <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-3 border-b border-[#E5E0D8] bg-[#F4F1EC]">
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">Client</span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-28">Schedule</span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-28">Session Type</span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-20">Status</span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-20">Actions</span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A]">Client</span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-28">Schedule</span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-28">Session Type</span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-20">Status</span>
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-20">Actions</span>
           </div>
 
           {/* Table rows */}
@@ -312,7 +302,7 @@ export default function RecurringReservationsPage() {
                       {clientData?.full_name ?? "Unknown"}
                     </div>
                     {clientData?.email && (
-                      <div className="text-xs text-[#8A8480] truncate">
+                      <div className="text-xs text-[#736E6A] truncate">
                         {clientData.email}
                       </div>
                     )}
@@ -322,11 +312,11 @@ export default function RecurringReservationsPage() {
                 {/* Schedule */}
                 <div className="w-28">
                   <div className="flex items-center gap-1 text-xs font-medium text-[#1C1C1E]">
-                    <CalendarDays size={11} className="text-[#8A8480]" />
+                    <CalendarDays size={11} className="text-[#736E6A]" />
                     {DAYS_OF_WEEK[r.day_of_week]}
                   </div>
                   <div className="flex items-center gap-1 text-xs text-[#5C5856] mt-0.5">
-                    <Clock size={11} className="text-[#8A8480]" />
+                    <Clock size={11} className="text-[#736E6A]" />
                     {r.start_time}–{r.end_time}
                   </div>
                 </div>
@@ -338,7 +328,7 @@ export default function RecurringReservationsPage() {
                       {r.session_type_name}
                     </span>
                   ) : (
-                    <span className="text-xs text-[#8A8480]">—</span>
+                    <span className="text-xs text-[#736E6A]">—</span>
                   )}
                   {r.amount_inr > 0 && (
                     <div className="text-xs text-[#B5733A] font-medium mt-0.5">

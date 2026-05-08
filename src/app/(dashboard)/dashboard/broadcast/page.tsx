@@ -118,7 +118,7 @@ export default function BroadcastPage() {
       <form onSubmit={handleSend} className="space-y-4">
         {/* Channel selector */}
         <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-5">
-          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] mb-3">
+          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] mb-3">
             Channel
           </p>
           <div className="flex gap-2">
@@ -147,8 +147,8 @@ export default function BroadcastPage() {
         {/* Recipients */}
         <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] flex items-center gap-2">
-              <Users size={12} className="text-[#8A8480]" />
+            <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] flex items-center gap-2">
+              <Users size={12} className="text-[#736E6A]" />
               To:
               {selectedIds.length > 0 && (
                 <span className="bg-[#EBF0EB] text-[#5C7A6B] px-2 py-0.5 rounded-[999px] text-[11px] font-medium normal-case tracking-normal">
@@ -196,21 +196,21 @@ export default function BroadcastPage() {
           <div className="relative mb-2">
             <Search
               size={13}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8480] pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#736E6A] pointer-events-none"
             />
             <input
               type="text"
               value={recipientSearch}
               onChange={(e) => setRecipientSearch(e.target.value)}
               placeholder="Search clients..."
-              className="w-full pl-8 pr-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-[#F4F1EC] text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] focus:bg-white transition-all"
+              className="w-full pl-8 pr-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-[#F4F1EC] text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] focus:bg-white transition-all"
             />
           </div>
 
           {/* Client list */}
           <div className="max-h-44 overflow-y-auto -mx-1">
             {filteredClients.length === 0 ? (
-              <p className="text-sm text-[#8A8480] text-center py-4">
+              <p className="text-sm text-[#736E6A] text-center py-4">
                 {clientsData.length === 0 ? "No clients yet" : "No clients match your search"}
               </p>
             ) : (
@@ -230,7 +230,7 @@ export default function BroadcastPage() {
                       {c.full_name}
                     </span>
                     {c.email && (
-                      <span className="text-xs text-[#8A8480] truncate block">
+                      <span className="text-xs text-[#736E6A] truncate block">
                         {c.email}
                       </span>
                     )}
@@ -243,7 +243,7 @@ export default function BroadcastPage() {
 
         {/* Message compose */}
         <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-5 space-y-4">
-          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A]">
             Message
           </p>
 
@@ -251,7 +251,7 @@ export default function BroadcastPage() {
             <div>
               <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
                 Subject{" "}
-                <span className="text-[#8A8480] font-normal">(email only)</span>
+                <span className="text-[#736E6A] font-normal">(email only)</span>
               </label>
               <input
                 type="text"
@@ -259,7 +259,7 @@ export default function BroadcastPage() {
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="e.g. Schedule update"
                 maxLength={200}
-                className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+                className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
               />
             </div>
           )}
@@ -275,9 +275,9 @@ export default function BroadcastPage() {
               rows={5}
               maxLength={5000}
               placeholder="Type your message here..."
-              className="w-full px-3 py-2.5 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] resize-none focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all leading-relaxed"
+              className="w-full px-3 py-2.5 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] resize-none focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all leading-relaxed"
             />
-            <p className="text-[11px] text-[#8A8480] mt-1.5 text-right">
+            <p className="text-[11px] text-[#736E6A] mt-1.5 text-right">
               {message.length} / 5000
             </p>
           </div>

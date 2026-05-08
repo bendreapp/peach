@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePublicIntakeForm, useSubmitIntakeForm } from "@/lib/api-hooks";
+import { Select } from "@/components/ui/Select";
 interface IntakeField {
   id: string;
   label: string;
@@ -226,16 +227,15 @@ function FieldRenderer({
           <label className="block text-sm font-medium text-ink-secondary mb-1.5">
             {field.label} {field.required && <span className="text-red-400">*</span>}
           </label>
-          <select
+          <Select
             value={(value as string) ?? ""}
-            onChange={(e) => onChange(e.target.value)}
-            className={inputCls}
-          >
-            <option value="">Select...</option>
-            {(field.options ?? []).map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
+            onChange={onChange}
+            placeholder="Select..."
+            options={[
+              { value: "", label: "Select..." },
+              ...(field.options ?? []).map((opt) => ({ value: opt, label: opt })),
+            ]}
+          />
           {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
         </div>
       );

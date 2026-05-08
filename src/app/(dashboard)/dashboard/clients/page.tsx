@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useClientsList, useCreateClient, useSendPortalInvite } from "@/lib/api-hooks";
 import { api } from "@/lib/api";
+import { Select } from "@/components/ui/Select";
 const CLIENT_STATUSES: Record<string, { label: string }> = {
   active: { label: "Active" },
   inactive: { label: "Inactive" },
@@ -217,7 +218,7 @@ function RowMenu({
           setOpen((v) => !v);
         }}
         className="w-8 h-8 flex items-center justify-center rounded-small transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
         onMouseEnter={(e) =>
           (e.currentTarget.style.backgroundColor = "#F4F1EC")
         }
@@ -248,7 +249,7 @@ function RowMenu({
             }
             onClick={() => setOpen(false)}
           >
-            <ExternalLink size={14} style={{ color: "#8A8480" }} />
+            <ExternalLink size={14} style={{ color: "#736E6A" }} />
             View Profile
           </Link>
           {!client.user_id && (
@@ -284,7 +285,7 @@ function RowMenu({
               onArchive();
             }}
           >
-            <Archive size={14} style={{ color: "#8A8480" }} />
+            <Archive size={14} style={{ color: "#736E6A" }} />
             Archive
           </button>
           <div style={{ height: "1px", backgroundColor: "#E5E0D8", margin: "4px 0" }} />
@@ -345,6 +346,9 @@ function ConfirmModal({
       onClick={onCancel}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
         className="w-full max-w-[480px] p-8 rounded-modal"
         style={{
           background: "#FFFFFF",
@@ -353,17 +357,18 @@ function ConfirmModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
+          <h2 id="confirm-modal-title" className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
             {title}
           </h2>
           <button
             onClick={onCancel}
             className="w-8 h-8 flex items-center justify-center rounded-small transition-colors"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = "#F4F1EC")
             }
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "")}
+            aria-label="Close"
           >
             <X size={18} />
           </button>
@@ -439,6 +444,9 @@ function AddClientModal({
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-client-modal-title"
         className="w-full max-w-[520px] rounded-modal p-8"
         style={{
           background: "#FFFFFF",
@@ -448,17 +456,18 @@ function AddClientModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
+          <h2 id="add-client-modal-title" className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
             Add Client
           </h2>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-small transition-colors"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = "#F4F1EC")
             }
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "")}
+            aria-label="Close"
           >
             <X size={18} />
           </button>
@@ -507,28 +516,25 @@ function AddClientModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="ui-label">Category</label>
-              <select
+              <Select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="ui-input"
-              >
-                {Object.entries(CLIENT_CATEGORIES).map(([key, val]) => (
-                  <option key={key} value={key}>
-                    {(val as { label: string }).label}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategory}
+                options={Object.entries(CLIENT_CATEGORIES).map(([key, val]) => ({
+                  value: key,
+                  label: (val as { label: string }).label,
+                }))}
+              />
             </div>
             <div>
               <label className="ui-label">Session type</label>
-              <select
+              <Select
                 value={clientType}
-                onChange={(e) => setClientType(e.target.value)}
-                className="ui-input"
-              >
-                <option value="irregular">Irregular</option>
-                <option value="regular">Regular (fixed slot)</option>
-              </select>
+                onChange={setClientType}
+                options={[
+                  { value: "irregular", label: "Irregular" },
+                  { value: "regular", label: "Regular (fixed slot)" },
+                ]}
+              />
             </div>
           </div>
 
@@ -572,12 +578,12 @@ function SortableHeader({
   const active = currentKey === sortKey;
   return (
     <button
-      className="flex items-center gap-1 text-left group focus:outline-none"
+      className="flex items-center gap-1 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(92,122,107,0.3)]"
       onClick={() => onSort(sortKey)}
     >
       <span
         className="text-[11px] font-semibold tracking-[0.08em] uppercase transition-colors"
-        style={{ color: active ? "#5C7A6B" : "#8A8480" }}
+        style={{ color: active ? "#5C7A6B" : "#736E6A" }}
       >
         {label}
       </span>
@@ -735,7 +741,7 @@ export default function ClientsPage() {
             Clients
           </h1>
           {!clientsQuery.isLoading && (
-            <p className="text-sm mt-1" style={{ color: "#8A8480" }}>
+            <p className="text-sm mt-1" style={{ color: "#736E6A" }}>
               {rawClients.length} client{rawClients.length !== 1 ? "s" : ""} in your practice
             </p>
           )}
@@ -769,7 +775,7 @@ export default function ClientsPage() {
                       color: "#1C1C1E",
                       boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
                     }
-                  : { color: "#8A8480" }
+                  : { color: "#736E6A" }
               }
             >
               {tab.label}
@@ -785,20 +791,22 @@ export default function ClientsPage() {
           <Search
             size={15}
             className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
           />
           <input
             type="text"
             placeholder="Search by name or email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search"
             className="ui-input pl-9 pr-3 text-sm"
           />
           {search && (
             <button
               className="absolute right-3 top-1/2 -translate-y-1/2"
               onClick={() => setSearch("")}
-              style={{ color: "#8A8480" }}
+              style={{ color: "#736E6A" }}
+              aria-label="Clear search"
             >
               <X size={14} />
             </button>
@@ -831,7 +839,7 @@ export default function ClientsPage() {
               ? `No ${statusFilter.replace("_", " ")} clients`
               : "No clients yet"}
           </p>
-          <p className="text-sm mt-2 max-w-xs" style={{ color: "#8A8480" }}>
+          <p className="text-sm mt-2 max-w-xs" style={{ color: "#736E6A" }}>
             {search
               ? "Try a different name or email address."
               : "Clients are added automatically when they book, or you can add them manually."}
@@ -875,7 +883,7 @@ export default function ClientsPage() {
             />
             <span
               className="text-[11px] font-semibold tracking-[0.08em] uppercase"
-              style={{ color: "#8A8480" }}
+              style={{ color: "#736E6A" }}
             >
               Status
             </span>
@@ -902,13 +910,13 @@ export default function ClientsPage() {
             />
             <span
               className="text-[11px] font-semibold tracking-[0.08em] uppercase"
-              style={{ color: "#8A8480" }}
+              style={{ color: "#736E6A" }}
             >
               Tags
             </span>
             <span
               className="text-[11px] font-semibold tracking-[0.08em] uppercase text-right"
-              style={{ color: "#8A8480" }}
+              style={{ color: "#736E6A" }}
             >
               Actions
             </span>
@@ -963,7 +971,7 @@ export default function ClientsPage() {
                 </span>
 
                 {/* Last session */}
-                <span className="text-sm" style={{ color: "#8A8480" }}>
+                <span className="text-sm" style={{ color: "#736E6A" }}>
                   {formatDate(client.last_session_at)}
                 </span>
 
@@ -971,7 +979,7 @@ export default function ClientsPage() {
                 <span
                   className="text-sm"
                   style={{
-                    color: client.next_session_at ? "#5C7A6B" : "#8A8480",
+                    color: client.next_session_at ? "#5C7A6B" : "#736E6A",
                   }}
                 >
                   {formatDate(client.next_session_at)}
@@ -997,7 +1005,7 @@ export default function ClientsPage() {
                   )}
                   {(!client.client_type || client.client_type !== "regular") &&
                     (!client.category || client.category === "indian") && (
-                      <span style={{ color: "#8A8480" }}>—</span>
+                      <span style={{ color: "#736E6A" }}>—</span>
                     )}
                 </div>
 

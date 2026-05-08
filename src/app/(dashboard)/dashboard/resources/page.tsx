@@ -98,14 +98,14 @@ export default function ResourcesPage() {
         <div className="relative flex-1">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8480] pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#736E6A] pointer-events-none"
           />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search resources..."
-            className="w-full pl-9 pr-4 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
           />
         </div>
 
@@ -155,7 +155,7 @@ export default function ResourcesPage() {
               ? "No resources match your search"
               : "Your resource library is empty"}
           </p>
-          <p className="text-sm text-[#8A8480] mt-1">
+          <p className="text-sm text-[#736E6A] mt-1">
             {search || filterModality
               ? "Try adjusting your filters"
               : "Add worksheets, links, and files to share with clients"}
@@ -197,7 +197,7 @@ export default function ResourcesPage() {
                   </div>
                   <button
                     onClick={() => deleteResource.mutate({ resource_id: r.id })}
-                    className="p-1.5 rounded-[6px] text-[#8A8480] opacity-0 group-hover:opacity-100 hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
+                    className="p-1.5 rounded-[6px] text-[#736E6A] opacity-0 group-hover:opacity-100 hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
                     title="Delete resource"
                   >
                     <Trash2 size={13} />
@@ -262,7 +262,7 @@ export default function ResourcesPage() {
                 )}
 
                 {/* Date footer */}
-                <div className="text-[10px] text-[#8A8480] mt-3 pt-3 border-t border-[#E5E0D8]">
+                <div className="text-[10px] text-[#736E6A] mt-3 pt-3 border-t border-[#E5E0D8]">
                   Added {formatDate(r.created_at)}
                 </div>
               </div>

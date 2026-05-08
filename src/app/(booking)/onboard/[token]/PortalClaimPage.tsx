@@ -79,7 +79,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
           <h2 className="text-lg font-bold" style={{ color: "#1C1C1E" }}>
             Link unavailable
           </h2>
-          <p className="text-sm" style={{ color: "#8A8480" }}>
+          <p className="text-sm" style={{ color: "#736E6A" }}>
             This portal invite link is no longer active, has expired, or has already been used.
           </p>
           <Link
@@ -114,7 +114,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
           <h2 className="text-lg font-bold" style={{ color: "#1C1C1E" }}>
             Already set up
           </h2>
-          <p className="text-sm" style={{ color: "#8A8480" }}>
+          <p className="text-sm" style={{ color: "#736E6A" }}>
             Your portal account has already been created. Sign in to continue.
           </p>
           <Link
@@ -150,7 +150,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
             <h2 className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
               You&apos;re all set, {invitation.client_full_name?.split(" ")[0]}!
             </h2>
-            <p className="text-sm mt-2" style={{ color: "#8A8480" }}>
+            <p className="text-sm mt-2" style={{ color: "#736E6A" }}>
               Your portal account is ready. You can now view your upcoming sessions, resources, and intake forms.
             </p>
           </div>
@@ -304,7 +304,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
               <h1 className="text-xl font-bold" style={{ color: "#1C1C1E", letterSpacing: "-0.02em" }}>
                 Set up your portal
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8A8480" }}>
+              <p className="text-sm mt-1" style={{ color: "#736E6A" }}>
                 Invited by <strong style={{ color: "#5C5856" }}>{invitation.therapist_name}</strong>
               </p>
             </div>
@@ -316,13 +316,13 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
             style={{ background: "#F4F1EC" }}
           >
             <div className="flex justify-between text-sm">
-              <span style={{ color: "#8A8480" }}>Name</span>
+              <span style={{ color: "#736E6A" }}>Name</span>
               <span className="font-medium" style={{ color: "#1C1C1E" }}>
                 {invitation.client_full_name}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span style={{ color: "#8A8480" }}>Email</span>
+              <span style={{ color: "#736E6A" }}>Email</span>
               <span className="font-medium truncate max-w-[200px]" style={{ color: "#1C1C1E" }}>
                 {invitation.client_email}
               </span>
@@ -375,7 +375,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                   tabIndex={-1}
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                 >
                   {showPassword ? (
                     <EyeOff size={16} strokeWidth={1.5} />
@@ -421,7 +421,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
                   onClick={() => setShowConfirm(!showConfirm)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                   tabIndex={-1}
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                 >
                   {showConfirm ? (
                     <EyeOff size={16} strokeWidth={1.5} />
@@ -448,7 +448,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
           </form>
         </div>
 
-        <p className="text-sm text-center mt-6" style={{ color: "#8A8480" }}>
+        <p className="text-sm text-center mt-6" style={{ color: "#736E6A" }}>
           Already have an account?{" "}
           <Link href="/login/client" className="font-medium" style={{ color: "#5C7A6B" }}>
             Sign in

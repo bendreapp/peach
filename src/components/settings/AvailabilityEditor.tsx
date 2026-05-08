@@ -388,7 +388,7 @@ export default function AvailabilityEditor({ availability }: AvailabilityEditorP
             </h2>
             <p
               className="text-[13px] mt-0.5"
-              style={{ color: "#8A8480", fontFamily: "Satoshi" }}
+              style={{ color: "#736E6A", fontFamily: "Satoshi" }}
             >
               Set when clients can book sessions. Changes save automatically.
             </p>

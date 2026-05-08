@@ -72,7 +72,7 @@ export default function PortalLayout({
               onClick={handleLogout}
               className="flex items-center gap-1.5 text-sm font-medium transition-colors px-3 py-1.5 rounded-lg"
               style={{
-                color: "#8A8480",
+                color: "#736E6A",
                 border: "1px solid #E5E0D8",
                 background: "transparent",
               }}

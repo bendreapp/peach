@@ -110,7 +110,7 @@ function ModePicker({
                 ? { background: s.bg, color: s.text, borderColor: s.text + "40" }
                 : {
                     background: "#FFFFFF",
-                    color: "#8A8480",
+                    color: "#736E6A",
                     borderColor: "#E5E0D8",
                   }
             }
@@ -251,7 +251,7 @@ function SessionTypeForm({
                       <div className="text-xs font-medium text-[#1C1C1E]">
                         {t.name}
                       </div>
-                      <div className="text-[11px] text-[#8A8480]">
+                      <div className="text-[11px] text-[#736E6A]">
                         {t.duration_mins} min &middot; ₹
                         {(t.rate_inr ?? t.rate ?? 0).toLocaleString("en-IN")}
                       </div>
@@ -274,7 +274,7 @@ function SessionTypeForm({
           value={form.name}
           onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           placeholder="e.g. Standard 50min"
-          className="w-full h-10 px-3 rounded-[8px] text-sm text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none transition-all duration-150 placeholder:text-[#8A8480]"
+          className="w-full h-10 px-3 rounded-[8px] text-sm text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none transition-all duration-150 placeholder:text-[#736E6A]"
           style={{ fontFamily: "Satoshi" }}
         />
       </div>
@@ -301,7 +301,7 @@ function SessionTypeForm({
             value={form.rate_inr}
             onChange={(e) => setForm((f) => ({ ...f, rate_inr: e.target.value }))}
             placeholder="e.g. 3500"
-            className="w-full h-11 px-3 rounded-[8px] text-sm text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none transition-all duration-150 placeholder:text-[#8A8480]"
+            className="w-full h-11 px-3 rounded-[8px] text-sm text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none transition-all duration-150 placeholder:text-[#736E6A]"
             style={{ fontFamily: "Satoshi" }}
           />
         </div>
@@ -322,7 +322,7 @@ function SessionTypeForm({
       <div>
         <label className="block text-[11px] font-medium text-[#5C5856] mb-1.5">
           Description{" "}
-          <span className="font-normal text-[#8A8480]">(optional)</span>
+          <span className="font-normal text-[#736E6A]">(optional)</span>
         </label>
         <textarea
           value={form.description}
@@ -331,10 +331,10 @@ function SessionTypeForm({
           }
           placeholder="Brief description…"
           rows={2}
-          className="w-full px-3 py-2 rounded-[8px] text-sm text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none transition-all duration-150 resize-none placeholder:text-[#8A8480]"
+          className="w-full px-3 py-2 rounded-[8px] text-sm text-[#1C1C1E] border border-[#E5E0D8] bg-white focus:outline-none transition-all duration-150 resize-none placeholder:text-[#736E6A]"
           style={{ fontFamily: "Satoshi" }}
         />
-        <div className="text-right text-[10px] text-[#8A8480] mt-0.5">
+        <div className="text-right text-[10px] text-[#736E6A] mt-0.5">
           {form.description.length}/200
         </div>
       </div>
@@ -533,7 +533,7 @@ function SessionTypeCard({
           )}
         </div>
         {item.description && (
-          <p className="text-xs text-[#8A8480] mt-1 leading-relaxed line-clamp-2">
+          <p className="text-xs text-[#736E6A] mt-1 leading-relaxed line-clamp-2">
             {item.description}
           </p>
         )}
@@ -551,14 +551,14 @@ function SessionTypeCard({
           {item.is_active ? (
             <ToggleRight size={16} style={{ color: "#5C7A6B" }} />
           ) : (
-            <ToggleLeft size={16} style={{ color: "#8A8480" }} />
+            <ToggleLeft size={16} style={{ color: "#736E6A" }} />
           )}
         </button>
         {/* Edit */}
         <button
           onClick={onEdit}
           title="Edit"
-          className="p-1.5 rounded-[6px] text-[#8A8480] hover:text-[#1C1C1E] hover:bg-[#F4F1EC] transition-colors cursor-pointer"
+          className="p-1.5 rounded-[6px] text-[#736E6A] hover:text-[#1C1C1E] hover:bg-[#F4F1EC] transition-colors cursor-pointer"
         >
           <Pencil size={13} />
         </button>
@@ -566,7 +566,7 @@ function SessionTypeCard({
         <button
           onClick={onDeleteRequest}
           title="Delete"
-          className="p-1.5 rounded-[6px] text-[#8A8480] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-colors cursor-pointer"
+          className="p-1.5 rounded-[6px] text-[#736E6A] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-colors cursor-pointer"
         >
           <Trash2 size={13} />
         </button>
@@ -670,7 +670,7 @@ export default function ClientSessionTypes({
         {!query.isLoading && sessionTypes.length === 0 && !showForm && (
           <div className="py-8 text-center rounded-[10px] border border-dashed border-[#E5E0D8]">
             <Layers size={18} className="mx-auto mb-2 text-[#C8C4BE]" />
-            <p className="text-sm text-[#8A8480] mb-1">No session types yet</p>
+            <p className="text-sm text-[#736E6A] mb-1">No session types yet</p>
             <button
               onClick={() => setShowForm(true)}
               className="text-xs font-medium text-[#5C7A6B] hover:text-[#496158] transition-colors cursor-pointer"

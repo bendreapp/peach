@@ -132,7 +132,7 @@ function ChipInput({
     <div>
       <label
         className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider mb-2"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
       >
         {icon}
         {label}
@@ -151,7 +151,7 @@ function ChipInput({
                   ? activeStyle
                   : {
                       background: "transparent",
-                      color: "#8A8480",
+                      color: "#736E6A",
                       borderColor: "#E5E0D8",
                     }
               }
@@ -164,7 +164,7 @@ function ChipInput({
               onMouseLeave={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "#8A8480";
+                  e.currentTarget.style.color = "#736E6A";
                 }
               }}
             >
@@ -355,7 +355,7 @@ export default function NoteEditor({
             <div className="text-[14px] font-medium text-ink">
               {sessionInfo.clientName}
             </div>
-            <div className="text-[12px]" style={{ color: "#8A8480" }}>
+            <div className="text-[12px]" style={{ color: "#736E6A" }}>
               {new Date(sessionInfo.startsAt).toLocaleDateString("en-IN", {
                 weekday: "short",
                 day: "numeric",
@@ -377,7 +377,7 @@ export default function NoteEditor({
             {saveState === "saving" && (
               <span
                 className="flex items-center gap-1.5 text-[12px]"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               >
                 <Loader2 size={12} className="animate-spin" />
                 Saving...
@@ -441,7 +441,7 @@ export default function NoteEditor({
       <div>
         <label
           className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider mb-2"
-          style={{ color: "#8A8480" }}
+          style={{ color: "#736E6A" }}
         >
           <BookOpen size={13} strokeWidth={1.5} />
           Homework / Between-Session Tasks
@@ -539,7 +539,7 @@ export default function NoteEditor({
             {saveState === "saving" && (
               <span
                 className="flex items-center gap-1.5 text-[12px]"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               >
                 <Loader2 size={12} className="animate-spin" />
                 Saving...

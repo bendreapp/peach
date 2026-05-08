@@ -5,6 +5,7 @@ import {
   useTherapistMe,
   useTherapistAvailability,
 } from "@/lib/api-hooks";
+import { Select } from "@/components/ui/Select";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ProfileForm from "@/components/settings/ProfileForm";
@@ -130,22 +131,11 @@ export default function SettingsPage() {
       <div className="flex gap-6 items-start">
         {/* ── Mobile: dropdown ── */}
         <div className="md:hidden w-full mb-2">
-          <select
+          <Select
             value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value as TabKey)}
-            className="w-full h-10 px-3 rounded-small border border-border bg-surface text-ink text-[14px] font-medium appearance-none cursor-pointer focus:outline-none transition-colors"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238A8480' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 12px center",
-            }}
-          >
-            {TABS.map((tab) => (
-              <option key={tab.key} value={tab.key}>
-                {tab.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setActiveTab(value as TabKey)}
+            options={TABS.map((tab) => ({ value: tab.key, label: tab.label }))}
+          />
         </div>
 
         {/* ── Desktop: Left sub-nav (180px) ── */}
@@ -161,7 +151,7 @@ export default function SettingsPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-small text-[13px] font-medium text-left w-full transition-colors duration-150"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-small text-[13px] font-medium text-left w-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(92,122,107,0.3)]"
                 style={
                   isActive
                     ? {

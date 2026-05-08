@@ -61,7 +61,7 @@ function NavItem({
       href={href}
       onClick={onClick}
       aria-current={active ? "page" : undefined}
-      className={`group flex items-center gap-[10px] w-full text-[13px] font-medium transition-colors duration-[120ms] ease-out ${
+      className={`group flex items-center gap-[10px] w-full text-[13px] font-medium transition-colors duration-[120ms] ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(92,122,107,0.3)] ${
         active
           ? "text-[#5C7A6B] bg-[#EBF0EB]"
           : "text-[#5C5856] hover:text-[#1C1C1E] hover:bg-[#F4F1EC]"
@@ -77,7 +77,7 @@ function NavItem({
         size={16}
         strokeWidth={1.5}
         className={`flex-shrink-0 transition-colors ${
-          active ? "text-[#5C7A6B]" : "text-[#8A8480] group-hover:text-[#5C5856]"
+          active ? "text-[#5C7A6B]" : "text-[#736E6A] group-hover:text-[#5C5856]"
         }`}
       />
       {label}
@@ -225,7 +225,7 @@ export default function DashboardLayout({
         {/* Manage section */}
         <div className="mt-5 mb-2">
           <p
-            className="px-2 mb-2 font-semibold uppercase text-[#8A8480]"
+            className="px-2 mb-2 font-semibold uppercase text-[#736E6A]"
             style={{
               fontSize: "10px",
               letterSpacing: "0.08em",
@@ -287,7 +287,7 @@ export default function DashboardLayout({
               {displayName || "Loading..."}
             </p>
             <p
-              className="text-[#8A8480] truncate leading-tight mt-0.5"
+              className="text-[#736E6A] truncate leading-tight mt-0.5"
               style={{ fontSize: "11px" }}
             >
               {email}
@@ -295,8 +295,8 @@ export default function DashboardLayout({
           </div>
           <button
             onClick={handleLogout}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-red-50 text-[#8A8480] hover:text-red-600"
-            title="Log out"
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-red-50 text-[#736E6A] hover:text-red-600"
+            aria-label="Log out"
           >
             <LogOut size={14} />
           </button>
@@ -372,7 +372,7 @@ export default function DashboardLayout({
       >
         {/* Mobile close button */}
         <button
-          className="md:hidden absolute top-4 right-4 text-[#8A8480] hover:text-[#1C1C1E] transition-colors p-1 rounded-md hover:bg-[#F4F1EC]"
+          className="md:hidden absolute top-4 right-4 text-[#736E6A] hover:text-[#1C1C1E] transition-colors p-1 rounded-md hover:bg-[#F4F1EC]"
           onClick={() => setSidebarOpen(false)}
           aria-label="Close menu"
         >

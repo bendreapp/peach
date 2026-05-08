@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { Select } from "@/components/ui/Select";
 import {
   IndianRupee,
   FileText,
@@ -15,7 +16,6 @@ import {
   FileX,
   Settings,
   CreditCard,
-  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -205,7 +205,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
           </div>
           <span
             className="text-xs font-medium uppercase tracking-wide"
-            style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+            style={{ color: "#736E6A", letterSpacing: "0.06em" }}
           >
             Total Billed
           </span>
@@ -216,7 +216,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
         >
           {formatINR(totalBilled)}
         </div>
-        <div className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <div className="text-xs mt-1" style={{ color: "#736E6A" }}>
           {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}
         </div>
       </div>
@@ -239,7 +239,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
           </div>
           <span
             className="text-xs font-medium uppercase tracking-wide"
-            style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+            style={{ color: "#736E6A", letterSpacing: "0.06em" }}
           >
             Collected
           </span>
@@ -250,7 +250,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
         >
           {formatINR(collected)}
         </div>
-        <div className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <div className="text-xs mt-1" style={{ color: "#736E6A" }}>
           {invoices.filter((i) => i.status === "paid").length} paid
         </div>
       </div>
@@ -276,12 +276,12 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
           >
             <Clock
               size={16}
-              style={{ color: hasOutstanding ? "#D4956A" : "#8A8480" }}
+              style={{ color: hasOutstanding ? "#D4956A" : "#736E6A" }}
             />
           </div>
           <span
             className="text-xs font-medium uppercase tracking-wide"
-            style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+            style={{ color: "#736E6A", letterSpacing: "0.06em" }}
           >
             Outstanding
           </span>
@@ -295,7 +295,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
         >
           {formatINR(outstanding)}
         </div>
-        <div className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <div className="text-xs mt-1" style={{ color: "#736E6A" }}>
           {
             invoices.filter(
               (i) => i.status === "sent" || i.status === "overdue"
@@ -322,9 +322,10 @@ function InvoiceActionMenu({
     <div className="relative">
       <button
         className="w-8 h-8 rounded-small flex items-center justify-center transition-colors"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
         onClick={() => setOpen((v) => !v)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
+        aria-label="More actions"
       >
         <MoreHorizontal size={16} />
       </button>
@@ -392,6 +393,7 @@ function InvoicesTab({ invoices, isLoading, onMarkPaid }: {
             placeholder="Search by client or invoice #"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search"
             className="w-full pl-3 pr-3 py-2 text-sm rounded-small outline-none transition-all"
             style={{
               background: "#FFFFFF",
@@ -409,27 +411,17 @@ function InvoicesTab({ invoices, isLoading, onMarkPaid }: {
             }}
           />
         </div>
-        <div className="relative">
-          <select
+        <div className="w-40">
+          <Select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none pl-3 pr-8 py-2 text-sm rounded-small outline-none cursor-pointer transition-all"
-            style={{
-              background: "#FFFFFF",
-              border: "1.5px solid #E5E0D8",
-              color: "#1C1C1E",
-            }}
-          >
-            <option value="all">All statuses</option>
-            <option value="paid">Paid</option>
-            <option value="sent">Sent</option>
-            <option value="overdue">Overdue</option>
-            <option value="draft">Draft</option>
-          </select>
-          <ChevronDown
-            size={14}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ color: "#8A8480" }}
+            onChange={setStatusFilter}
+            options={[
+              { value: "all", label: "All statuses" },
+              { value: "paid", label: "Paid" },
+              { value: "sent", label: "Sent" },
+              { value: "overdue", label: "Overdue" },
+              { value: "draft", label: "Draft" },
+            ]}
           />
         </div>
       </div>
@@ -453,7 +445,7 @@ function InvoicesTab({ invoices, isLoading, onMarkPaid }: {
                       key={h}
                       className="text-left px-4 py-3 text-xs font-medium uppercase"
                       style={{
-                        color: "#8A8480",
+                        color: "#736E6A",
                         letterSpacing: "0.06em",
                         background: "#FAFAF8",
                       }}
@@ -487,7 +479,7 @@ function InvoicesTab({ invoices, isLoading, onMarkPaid }: {
                           ? "No invoices match your filters"
                           : "No invoices yet"}
                       </p>
-                      <p className="text-sm" style={{ color: "#8A8480" }}>
+                      <p className="text-sm" style={{ color: "#736E6A" }}>
                         {search || statusFilter !== "all"
                           ? "Try adjusting your search or filter"
                           : "Invoices you create will appear here"}
@@ -581,7 +573,7 @@ function TransactionsTab() {
       <p className="text-base font-medium mb-1" style={{ color: "#5C5856" }}>
         Transaction history coming soon
       </p>
-      <p className="text-sm" style={{ color: "#8A8480" }}>
+      <p className="text-sm" style={{ color: "#736E6A" }}>
         Once Razorpay is connected, payment transactions will appear here
       </p>
     </div>
@@ -606,7 +598,7 @@ function PaymentSettingsTab() {
       >
         Payment Settings
       </h3>
-      <p className="text-sm mb-6" style={{ color: "#8A8480" }}>
+      <p className="text-sm mb-6" style={{ color: "#736E6A" }}>
         Configure your payment gateway and invoice preferences
       </p>
       <div
@@ -621,7 +613,7 @@ function PaymentSettingsTab() {
           <p className="text-sm font-medium" style={{ color: "#B5733A" }}>
             Razorpay integration pending
           </p>
-          <p className="text-xs mt-0.5" style={{ color: "#8A8480" }}>
+          <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
             Online payment collection with auto-invoicing and GST will be available soon.
           </p>
         </div>
@@ -680,7 +672,7 @@ export default function PaymentsPage() {
               Payments
             </h1>
           </div>
-          <p className="text-sm mt-0.5" style={{ color: "#8A8480" }}>
+          <p className="text-sm mt-0.5" style={{ color: "#736E6A" }}>
             Track billing, invoices, and payment activity
           </p>
         </div>
@@ -716,7 +708,7 @@ export default function PaymentsPage() {
                   }
                 : {
                     background: "transparent",
-                    color: "#8A8480",
+                    color: "#736E6A",
                   }
             }
           >

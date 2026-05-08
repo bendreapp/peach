@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   useSessionsToday,
@@ -252,7 +253,7 @@ function StatCard({
         )}
         <div
           className="font-medium mt-1"
-          style={{ fontSize: "13px", color: "#8A8480" }}
+          style={{ fontSize: "13px", color: "#736E6A" }}
         >
           {label}
         </div>
@@ -300,7 +301,7 @@ function SetupChecklist({ items }: { items: ChecklistItem[] }) {
         </h2>
         <span
           className="font-medium"
-          style={{ fontSize: "12px", color: "#8A8480" }}
+          style={{ fontSize: "12px", color: "#736E6A" }}
         >
           {completed} of {total} complete
         </span>
@@ -362,6 +363,8 @@ export default function DashboardPage() {
 
   const approve = useApproveSession();
   const reject = useRejectSession();
+
+  const [declineSessionId, setDeclineSessionId] = useState<string | null>(null);
 
   const todayCount = today.data?.length ?? 0;
   const pendingCount = pending.data?.length ?? 0;
@@ -483,7 +486,7 @@ export default function DashboardPage() {
         </h1>
         <p
           className="mt-1"
-          style={{ fontSize: "14px", color: "#8A8480" }}
+          style={{ fontSize: "14px", color: "#736E6A" }}
         >
           {formatTodayDate()}
           {" · "}
@@ -628,7 +631,7 @@ export default function DashboardPage() {
                       </div>
                       <div
                         className="flex items-center gap-1 mt-0.5"
-                        style={{ fontSize: "12px", color: "#8A8480" }}
+                        style={{ fontSize: "12px", color: "#736E6A" }}
                       >
                         <Clock size={11} strokeWidth={1.5} />
                         {formatTime(session.starts_at)} &ndash;{" "}
@@ -646,11 +649,7 @@ export default function DashboardPage() {
                       Approve
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm("Decline this booking request?")) {
-                          reject.mutate(session.id);
-                        }
-                      }}
+                      onClick={() => setDeclineSessionId(session.id)}
                       disabled={reject.isPending}
                       className="btn-danger btn-sm"
                     >
@@ -728,7 +727,7 @@ export default function DashboardPage() {
                 >
                   No sessions today
                 </p>
-                <p className="mt-1" style={{ fontSize: "14px", color: "#8A8480" }}>
+                <p className="mt-1" style={{ fontSize: "14px", color: "#736E6A" }}>
                   Enjoy your free day!
                 </p>
               </div>
@@ -790,7 +789,7 @@ export default function DashboardPage() {
                         </div>
                         <div
                           className="flex items-center gap-1.5 mt-0.5"
-                          style={{ fontSize: "12px", color: "#8A8480" }}
+                          style={{ fontSize: "12px", color: "#736E6A" }}
                         >
                           <Clock size={11} strokeWidth={1.5} />
                           <span>
@@ -894,6 +893,49 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
+      {/* Decline booking confirmation modal */}
+      {declineSessionId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(28,28,30,0.4)", backdropFilter: "blur(4px)" }}
+          onClick={() => setDeclineSessionId(null)}
+        >
+          <div
+            className="w-full max-w-[420px] p-8 rounded-[16px]"
+            style={{
+              background: "#FFFFFF",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold mb-2" style={{ color: "#1C1C1E" }}>
+              Decline booking request?
+            </h2>
+            <p className="text-sm mb-6" style={{ color: "#5C5856" }}>
+              The client will be notified that their request was declined.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                className="btn-secondary btn-sm"
+                onClick={() => setDeclineSessionId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-danger"
+                disabled={reject.isPending}
+                onClick={() => {
+                  reject.mutate(declineSessionId);
+                  setDeclineSessionId(null);
+                }}
+              >
+                {reject.isPending ? "Declining…" : "Decline"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

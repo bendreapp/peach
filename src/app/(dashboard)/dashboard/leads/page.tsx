@@ -215,6 +215,9 @@ function LeadCard({ lead, onDragStart, onOpen, onMenuAction }: LeadCardProps) {
       draggable
       onDragStart={(e) => onDragStart(e, lead)}
       onClick={() => onOpen(lead)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(lead); } }}
       className="bg-white rounded-xl p-3 mb-2 cursor-pointer group select-none"
       style={{
         boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
@@ -244,7 +247,7 @@ function LeadCard({ lead, onDragStart, onOpen, onMenuAction }: LeadCardProps) {
               setMenuOpen((v) => !v);
             }}
             className="p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
             onMouseEnter={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.background =
                 "#F4F1EC")
@@ -252,6 +255,7 @@ function LeadCard({ lead, onDragStart, onOpen, onMenuAction }: LeadCardProps) {
             onMouseLeave={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.background = "")
             }
+            aria-label="More actions"
           >
             <MoreHorizontal size={14} />
           </button>
@@ -276,7 +280,7 @@ function LeadCard({ lead, onDragStart, onOpen, onMenuAction }: LeadCardProps) {
                   onMenuAction(lead, "notes");
                 }}
               >
-                <MessageSquare size={13} style={{ color: "#8A8480" }} />
+                <MessageSquare size={13} style={{ color: "#736E6A" }} />
                 Add Note
               </button>
               <button
@@ -325,7 +329,7 @@ function LeadCard({ lead, onDragStart, onOpen, onMenuAction }: LeadCardProps) {
       </div>
 
       {/* Date added */}
-      <p className="text-xs mb-2.5" style={{ color: "#8A8480" }}>
+      <p className="text-xs mb-2.5" style={{ color: "#736E6A" }}>
         {formatDate(lead.created_at)}
       </p>
 
@@ -419,6 +423,9 @@ function LeadDrawer({
 
       {/* Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="lead-drawer-title"
         className="fixed right-0 top-0 h-full w-[400px] bg-white z-40 flex flex-col"
         style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.12)" }}
       >
@@ -435,7 +442,7 @@ function LeadDrawer({
               {getInitials(lead.full_name || "?")}
             </div>
             <div>
-              <p className="font-semibold text-[15px]" style={{ color: "#1C1C1E" }}>
+              <p id="lead-drawer-title" className="font-semibold text-[15px]" style={{ color: "#1C1C1E" }}>
                 {lead.full_name || "Unknown"}
               </p>
               <span
@@ -452,7 +459,7 @@ function LeadDrawer({
           <button
             onClick={onClose}
             className="p-2 rounded-lg transition-colors"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
             onMouseEnter={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.background =
                 "#F4F1EC")
@@ -460,6 +467,7 @@ function LeadDrawer({
             onMouseLeave={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.background = "")
             }
+            aria-label="Close"
           >
             <X size={16} />
           </button>
@@ -471,14 +479,14 @@ function LeadDrawer({
           <div>
             <p
               className="text-[11px] font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+              style={{ color: "#736E6A", letterSpacing: "0.06em" }}
             >
               Contact
             </p>
             <div className="space-y-2">
               {lead.email && (
                 <div className="flex items-center gap-3">
-                  <Mail size={14} style={{ color: "#8A8480" }} />
+                  <Mail size={14} style={{ color: "#736E6A" }} />
                   <span className="text-sm" style={{ color: "#5C5856" }}>
                     {lead.email}
                   </span>
@@ -486,21 +494,21 @@ function LeadDrawer({
               )}
               {lead.phone && (
                 <div className="flex items-center gap-3">
-                  <Phone size={14} style={{ color: "#8A8480" }} />
+                  <Phone size={14} style={{ color: "#736E6A" }} />
                   <span className="text-sm" style={{ color: "#5C5856" }}>
                     {lead.phone}
                   </span>
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <Calendar size={14} style={{ color: "#8A8480" }} />
+                <Calendar size={14} style={{ color: "#736E6A" }} />
                 <span className="text-sm" style={{ color: "#5C5856" }}>
                   Added {formatFullDate(lead.created_at)}
                 </span>
               </div>
               {lead.source && (
                 <div className="flex items-center gap-3">
-                  <Tag size={14} style={{ color: "#8A8480" }} />
+                  <Tag size={14} style={{ color: "#736E6A" }} />
                   <span className="text-sm" style={{ color: "#5C5856" }}>
                     {formatSource(lead.source)}
                   </span>
@@ -514,7 +522,7 @@ function LeadDrawer({
             <div>
               <p
                 className="text-[11px] font-semibold uppercase tracking-wider mb-3"
-                style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+                style={{ color: "#736E6A", letterSpacing: "0.06em" }}
               >
                 Preferred Times
               </p>
@@ -538,7 +546,7 @@ function LeadDrawer({
             <div>
               <p
                 className="text-[11px] font-semibold uppercase tracking-wider mb-3"
-                style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+                style={{ color: "#736E6A", letterSpacing: "0.06em" }}
               >
                 Message
               </p>
@@ -556,7 +564,7 @@ function LeadDrawer({
             <div className="flex items-center justify-between mb-3">
               <p
                 className="text-[11px] font-semibold uppercase tracking-wider"
-                style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+                style={{ color: "#736E6A", letterSpacing: "0.06em" }}
               >
                 Notes
               </p>
@@ -624,7 +632,7 @@ function LeadDrawer({
                 {lead.notes}
               </p>
             ) : (
-              <p className="text-sm" style={{ color: "#8A8480" }}>
+              <p className="text-sm" style={{ color: "#736E6A" }}>
                 No notes yet.
               </p>
             )}
@@ -634,21 +642,21 @@ function LeadDrawer({
           <div>
             <p
               className="text-[11px] font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+              style={{ color: "#736E6A", letterSpacing: "0.06em" }}
             >
               Timeline
             </p>
             <div className="space-y-2 px-1">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#C5BFB8" }} />
-                <span className="text-xs" style={{ color: "#8A8480" }}>
+                <span className="text-xs" style={{ color: "#736E6A" }}>
                   Created {formatFullDate(lead.created_at)}
                 </span>
               </div>
               {lead.updated_at && lead.updated_at !== lead.created_at && (
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#C5BFB8" }} />
-                  <span className="text-xs" style={{ color: "#8A8480" }}>
+                  <span className="text-xs" style={{ color: "#736E6A" }}>
                     Last updated {formatFullDate(lead.updated_at)}
                   </span>
                 </div>
@@ -669,7 +677,7 @@ function LeadDrawer({
           <div>
             <p
               className="text-[11px] font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+              style={{ color: "#736E6A", letterSpacing: "0.06em" }}
             >
               Intake Form
             </p>
@@ -679,7 +687,7 @@ function LeadDrawer({
             ) : submissions.length === 0 ? (
               // No submission yet
               <div>
-                <p className="text-xs mb-3" style={{ color: "#8A8480" }}>
+                <p className="text-xs mb-3" style={{ color: "#736E6A" }}>
                   No intake form sent yet.
                 </p>
                 {lead.email ? (
@@ -738,13 +746,13 @@ function LeadDrawer({
                               <p className="text-sm" style={{ color: "#1C1C1E" }}>
                                 {Array.isArray(r.answer)
                                   ? r.answer.join(", ")
-                                  : r.answer ?? <span style={{ color: "#8A8480" }}>No answer</span>}
+                                  : r.answer ?? <span style={{ color: "#736E6A" }}>No answer</span>}
                               </p>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs" style={{ color: "#8A8480" }}>No responses recorded.</p>
+                        <p className="text-xs" style={{ color: "#736E6A" }}>No responses recorded.</p>
                       )}
                     </div>
                   ) : (
@@ -752,7 +760,7 @@ function LeadDrawer({
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <ClipboardList size={14} style={{ color: "#D4956A" }} />
-                        <span className="text-xs" style={{ color: "#8A8480" }}>
+                        <span className="text-xs" style={{ color: "#736E6A" }}>
                           Sent {formatFullDate(latest.sent_at)} — awaiting response
                         </span>
                       </div>
@@ -763,7 +771,7 @@ function LeadDrawer({
                           className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-60"
                           style={{
                             background: "#F4F1EC",
-                            color: "#8A8480",
+                            color: "#736E6A",
                             border: "1.5px solid #E5E0D8",
                           }}
                           onMouseEnter={(e) => {
@@ -789,7 +797,7 @@ function LeadDrawer({
           <div>
             <p
               className="text-[11px] font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+              style={{ color: "#736E6A", letterSpacing: "0.06em" }}
             >
               Move to Stage
             </p>
@@ -959,7 +967,7 @@ function KanbanColumn({
               minHeight: 80,
             }}
           >
-            <p className="text-xs" style={{ color: "#8A8480" }}>
+            <p className="text-xs" style={{ color: "#736E6A" }}>
               No leads here
             </p>
           </div>
@@ -980,13 +988,13 @@ function KanbanColumn({
           <button
             onClick={onAddLead}
             className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium mt-1 transition-colors"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.color = "#5C7A6B";
               (e.currentTarget as HTMLButtonElement).style.background = "#EBF0EB";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = "#8A8480";
+              (e.currentTarget as HTMLButtonElement).style.color = "#736E6A";
               (e.currentTarget as HTMLButtonElement).style.background = "transparent";
             }}
           >
@@ -1021,7 +1029,7 @@ function TableView({ leads, onOpenLead, onUpdateStatus }: TableViewProps) {
         >
           No leads yet
         </p>
-        <p className="text-sm" style={{ color: "#8A8480" }}>
+        <p className="text-sm" style={{ color: "#736E6A" }}>
           Leads will appear here when potential clients reach out.
         </p>
       </div>
@@ -1046,7 +1054,7 @@ function TableView({ leads, onOpenLead, onUpdateStatus }: TableViewProps) {
             <span
               key={h}
               className="text-[11px] font-semibold uppercase tracking-wider"
-              style={{ color: "#8A8480", letterSpacing: "0.06em" }}
+              style={{ color: "#736E6A", letterSpacing: "0.06em" }}
             >
               {h}
             </span>
@@ -1094,7 +1102,7 @@ function TableView({ leads, onOpenLead, onUpdateStatus }: TableViewProps) {
                     {lead.full_name}
                   </p>
                   {lead.email && (
-                    <p className="text-xs truncate" style={{ color: "#8A8480" }}>
+                    <p className="text-xs truncate" style={{ color: "#736E6A" }}>
                       {lead.email}
                     </p>
                   )}
@@ -1114,7 +1122,7 @@ function TableView({ leads, onOpenLead, onUpdateStatus }: TableViewProps) {
               {/* Source */}
               <p className="text-sm" style={{ color: "#5C5856" }}>
                 {formatSource(lead.source) || (
-                  <span style={{ color: "#8A8480" }}>—</span>
+                  <span style={{ color: "#736E6A" }}>—</span>
                 )}
               </p>
 
@@ -1126,7 +1134,7 @@ function TableView({ leads, onOpenLead, onUpdateStatus }: TableViewProps) {
               {/* Last Contact */}
               <p className="text-sm" style={{ color: "#5C5856" }}>
                 {lead.updated_at ? formatDate(lead.updated_at) : (
-                  <span style={{ color: "#8A8480" }}>—</span>
+                  <span style={{ color: "#736E6A" }}>—</span>
                 )}
               </p>
 
@@ -1316,7 +1324,7 @@ export default function LeadsPage() {
             >
               Leads
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: "#8A8480" }}>
+            <p className="text-sm mt-0.5" style={{ color: "#736E6A" }}>
               {totalCount} lead{totalCount !== 1 ? "s" : ""} total
             </p>
           </div>
@@ -1327,13 +1335,14 @@ export default function LeadsPage() {
               <Search
                 size={14}
                 className="absolute left-3 top-1/2 -translate-y-1/2"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               />
               <input
                 type="text"
                 placeholder="Search leads…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search"
                 className="pl-9 pr-4 py-2 rounded-lg text-sm outline-none transition-colors w-52"
                 style={{
                   border: "1.5px solid #E5E0D8",
@@ -1359,7 +1368,7 @@ export default function LeadsPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
                 style={{
                   background: view === "kanban" ? "#FFFFFF" : "transparent",
-                  color: view === "kanban" ? "#1C1C1E" : "#8A8480",
+                  color: view === "kanban" ? "#1C1C1E" : "#736E6A",
                   boxShadow:
                     view === "kanban"
                       ? "0 1px 3px rgba(0,0,0,0.06)"
@@ -1374,7 +1383,7 @@ export default function LeadsPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
                 style={{
                   background: view === "table" ? "#FFFFFF" : "transparent",
-                  color: view === "table" ? "#1C1C1E" : "#8A8480",
+                  color: view === "table" ? "#1C1C1E" : "#736E6A",
                   boxShadow:
                     view === "table"
                       ? "0 1px 3px rgba(0,0,0,0.06)"
@@ -1515,6 +1524,9 @@ function CreateLeadModal({ onClose, onCreate, isCreating }: CreateLeadModalProps
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-lead-modal-title"
         className="w-full max-w-[480px] rounded-2xl overflow-hidden"
         style={{
           background: "#FFFFFF",
@@ -1527,14 +1539,15 @@ function CreateLeadModal({ onClose, onCreate, isCreating }: CreateLeadModalProps
           className="flex items-center justify-between px-6 py-4"
           style={{ borderBottom: "1px solid #E5E0D8", background: "#FAFAF8" }}
         >
-          <h2 className="text-[16px] font-bold" style={{ color: "#1C1C1E" }}>
+          <h2 id="create-lead-modal-title" className="text-[16px] font-bold" style={{ color: "#1C1C1E" }}>
             Add Lead
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="p-1 rounded-md transition-colors hover:bg-[#F4F1EC]"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
+            aria-label="Close"
           >
             <X size={16} />
           </button>

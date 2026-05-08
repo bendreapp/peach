@@ -45,7 +45,7 @@ function NewNoteContent() {
         </p>
         <p
           className="text-[13px] mt-1.5 max-w-xs mx-auto leading-relaxed"
-          style={{ color: "#8A8480" }}
+          style={{ color: "#736E6A" }}
         >
           Notes are linked to sessions. Open a session from the Schedule page
           and click &ldquo;Add Note&rdquo; to start writing.
@@ -136,9 +136,9 @@ export default function NewNotePage() {
       <Link
         href="/dashboard/notes"
         className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors duration-150"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "#5C5856")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#8A8480")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#736E6A")}
       >
         <ArrowLeft size={14} strokeWidth={1.5} />
         Back to notes
@@ -152,7 +152,7 @@ export default function NewNotePage() {
         >
           New Note
         </h1>
-        <p className="text-[14px] mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-[14px] mt-1" style={{ color: "#736E6A" }}>
           Write your clinical notes below. Changes are auto-saved.
         </p>
       </div>

@@ -55,7 +55,7 @@ export default function SharedResourcesCard({
         <p className="text-sm font-medium" style={{ color: "#5C5856" }}>
           No resources shared yet
         </p>
-        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-xs mt-1" style={{ color: "#736E6A" }}>
           Your therapist will share worksheets and resources here.
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function SharedResourcesCard({
               {resource.description && (
                 <p
                   className="text-xs mt-0.5 line-clamp-2"
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                 >
                   {resource.description}
                 </p>

@@ -50,7 +50,7 @@ export default function PortalPage() {
   if (me.isError || !profile) {
     return (
       <div className="bg-white rounded-xl border border-[#E5E0D8] p-8 text-center">
-        <p className="text-[#8A8480] text-sm">
+        <p className="text-[#736E6A] text-sm">
           Unable to load your profile. Please try signing in again.
         </p>
       </div>
@@ -128,10 +128,10 @@ export default function PortalPage() {
           boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
-        <p className="text-sm" style={{ color: "#8A8480" }}>
+        <p className="text-sm" style={{ color: "#736E6A" }}>
           Need to book another session?
         </p>
-        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-xs mt-1" style={{ color: "#736E6A" }}>
           Use the booking link shared by your therapist.
         </p>
       </div>

@@ -114,7 +114,7 @@ export default function LegacyOnboardPage({ token }: LegacyOnboardPageProps) {
           <h2 className="text-lg font-bold" style={{ color: "#1C1C1E" }}>
             Link unavailable
           </h2>
-          <p className="text-sm" style={{ color: "#8A8480" }}>
+          <p className="text-sm" style={{ color: "#736E6A" }}>
             This onboarding link is no longer active or has expired.
           </p>
         </div>
@@ -155,7 +155,7 @@ export default function LegacyOnboardPage({ token }: LegacyOnboardPageProps) {
             <h2 className="text-xl font-bold" style={{ color: "#1C1C1E" }}>
               Welcome, {fullName.split(" ")[0]}!
             </h2>
-            <p className="text-sm mt-2" style={{ color: "#8A8480" }}>
+            <p className="text-sm mt-2" style={{ color: "#736E6A" }}>
               Your account has been created. You can now view your sessions and intake forms.
             </p>
           </div>
@@ -231,11 +231,11 @@ export default function LegacyOnboardPage({ token }: LegacyOnboardPageProps) {
               <h1 className="text-xl font-bold" style={{ color: "#1C1C1E", letterSpacing: "-0.02em" }}>
                 Register with {t.therapist_name}
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8A8480" }}>
+              <p className="text-sm mt-1" style={{ color: "#736E6A" }}>
                 Create your account to get started
               </p>
               {t.label && (
-                <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+                <p className="text-xs mt-1" style={{ color: "#736E6A" }}>
                   {t.label}
                 </p>
               )}
@@ -301,7 +301,7 @@ export default function LegacyOnboardPage({ token }: LegacyOnboardPageProps) {
                 style={{ color: "#5C5856" }}
               >
                 Phone{" "}
-                <span style={{ color: "#8A8480" }}>(optional)</span>
+                <span style={{ color: "#736E6A" }}>(optional)</span>
               </label>
               <input
                 id="phone"
@@ -344,7 +344,7 @@ export default function LegacyOnboardPage({ token }: LegacyOnboardPageProps) {
           </form>
         </div>
 
-        <p className="text-sm text-center mt-6" style={{ color: "#8A8480" }}>
+        <p className="text-sm text-center mt-6" style={{ color: "#736E6A" }}>
           Already have an account?{" "}
           <Link href="/login/client" className="font-medium" style={{ color: "#5C7A6B" }}>
             Sign in

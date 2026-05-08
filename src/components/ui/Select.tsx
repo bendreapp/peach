@@ -138,7 +138,7 @@ export function Select({
           background: disabled ? "#F4F1EC" : "#FFFFFF",
           border: `1px solid ${borderColor}`,
           boxShadow: open ? `0 0 0 3px ${ringColor}` : "none",
-          color: selected ? "#1C1C1E" : "#8A8480",
+          color: selected ? "#1C1C1E" : "#736E6A",
           fontFamily: "Satoshi",
         }}
       >
@@ -150,7 +150,7 @@ export function Select({
           strokeWidth={1.5}
           className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-transform duration-150 pointer-events-none`}
           style={{
-            color: "#8A8480",
+            color: "#736E6A",
             transform: `translateY(-50%) rotate(${open ? 180 : 0}deg)`,
           }}
         />
@@ -173,7 +173,7 @@ export function Select({
             className="max-h-[280px] overflow-y-auto py-1"
           >
             {options.length === 0 && (
-              <li className="px-3 py-2 text-[13px]" style={{ color: "#8A8480" }}>
+              <li className="px-3 py-2 text-[13px]" style={{ color: "#736E6A" }}>
                 No options
               </li>
             )}

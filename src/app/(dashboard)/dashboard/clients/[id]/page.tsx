@@ -167,7 +167,7 @@ function MoreActionsMenu({
             className="w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-100 hover:bg-[#F4F1EC] disabled:opacity-50 cursor-pointer"
             style={{ color: "#1C1C1E" }}
           >
-            {isActive ? <Pause size={14} style={{ color: "#8A8480" }} /> : <Play size={14} style={{ color: "#8A8480" }} />}
+            {isActive ? <Pause size={14} style={{ color: "#736E6A" }} /> : <Play size={14} style={{ color: "#736E6A" }} />}
             {isActive ? "Archive client" : "Reactivate client"}
           </button>
         </div>
@@ -229,7 +229,7 @@ function ClientLabels({
 
   return (
     <div className="mt-4 pt-4 border-t border-[#E5E0D8]">
-      <p className="text-[10px] font-medium tracking-[0.06em] uppercase text-[#8A8480] mb-2">
+      <p className="text-[10px] font-medium tracking-[0.06em] uppercase text-[#736E6A] mb-2">
         Labels
       </p>
       <div className="flex flex-wrap gap-1.5 mb-2">
@@ -351,13 +351,13 @@ function PortalInviteModal({
             <h2 className="text-base font-bold text-[#1C1C1E]">
               Invite {clientName} to Portal
             </h2>
-            <p className="text-xs text-[#8A8480] mt-0.5">
+            <p className="text-xs text-[#736E6A] mt-0.5">
               Send a portal access link to this client
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-[6px] text-[#8A8480] hover:bg-[#F4F1EC] hover:text-[#1C1C1E] transition-colors cursor-pointer mt-0.5"
+            className="p-1.5 rounded-[6px] text-[#736E6A] hover:bg-[#F4F1EC] hover:text-[#1C1C1E] transition-colors cursor-pointer mt-0.5"
           >
             <X size={16} />
           </button>
@@ -367,7 +367,7 @@ function PortalInviteModal({
         <div className="p-5 space-y-5">
           {/* Email */}
           <div>
-            <label className="block text-[11px] font-medium text-[#8A8480] mb-1.5">
+            <label className="block text-[11px] font-medium text-[#736E6A] mb-1.5">
               Invite email
             </label>
             <div
@@ -376,7 +376,7 @@ function PortalInviteModal({
             >
               {clientEmail ? (
                 <>
-                  <Mail size={13} className="mr-2 text-[#8A8480]" />
+                  <Mail size={13} className="mr-2 text-[#736E6A]" />
                   {clientEmail}
                 </>
               ) : (
@@ -389,7 +389,7 @@ function PortalInviteModal({
 
           {/* Session types */}
           <div>
-            <label className="block text-[11px] font-medium text-[#8A8480] mb-1.5">
+            <label className="block text-[11px] font-medium text-[#736E6A] mb-1.5">
               Session types
             </label>
 
@@ -487,7 +487,7 @@ function PortalInviteModal({
                         {item.is_active ? (
                           <ToggleRight size={16} style={{ color: "#5C7A6B" }} />
                         ) : (
-                          <ToggleLeft size={16} style={{ color: "#8A8480" }} />
+                          <ToggleLeft size={16} style={{ color: "#736E6A" }} />
                         )}
                       </button>
                     </div>
@@ -574,7 +574,7 @@ export default function ClientDetailPage({
         </Link>
         <div className="bg-[#F9EDED] border border-[#C0705A]/20 rounded-[12px] p-8 text-center">
           <p className="text-sm font-medium text-[#A0504A]">Client not found</p>
-          <p className="text-xs text-[#8A8480] mt-1">
+          <p className="text-xs text-[#736E6A] mt-1">
             This client may have been removed or does not exist.
           </p>
         </div>
@@ -647,25 +647,25 @@ export default function ClientDetailPage({
             <div className="py-4 space-y-2.5 border-b border-[#E5E0D8]">
               {c.email && (
                 <div className="flex items-center gap-2.5 text-sm text-[#5C5856]">
-                  <Mail size={13} className="text-[#8A8480] flex-shrink-0" />
+                  <Mail size={13} className="text-[#736E6A] flex-shrink-0" />
                   <span className="truncate">{c.email}</span>
                 </div>
               )}
               {c.phone && (
                 <div className="flex items-center gap-2.5 text-sm text-[#5C5856]">
-                  <Phone size={13} className="text-[#8A8480] flex-shrink-0" />
+                  <Phone size={13} className="text-[#736E6A] flex-shrink-0" />
                   <span>{c.phone}</span>
                 </div>
               )}
               {!c.email && !c.phone && (
-                <p className="text-xs text-[#8A8480]">No contact info added</p>
+                <p className="text-xs text-[#736E6A]">No contact info added</p>
               )}
             </div>
 
             {/* Stats */}
             <div className="py-4 grid grid-cols-2 gap-3 border-b border-[#E5E0D8]">
               <div className="bg-[#F4F1EC] rounded-[8px] p-3">
-                <div className="flex items-center gap-1.5 text-[10px] text-[#8A8480] mb-1">
+                <div className="flex items-center gap-1.5 text-[10px] text-[#736E6A] mb-1">
                   <CalendarDays size={10} />
                   Sessions
                 </div>
@@ -674,7 +674,7 @@ export default function ClientDetailPage({
                 </div>
               </div>
               <div className="bg-[#F4F1EC] rounded-[8px] p-3">
-                <div className="flex items-center gap-1.5 text-[10px] text-[#8A8480] mb-1">
+                <div className="flex items-center gap-1.5 text-[10px] text-[#736E6A] mb-1">
                   <Clock size={10} />
                   Last seen
                 </div>
@@ -690,7 +690,7 @@ export default function ClientDetailPage({
             </div>
 
             {/* Client since */}
-            <div className="pt-4 flex items-center gap-2 text-xs text-[#8A8480]">
+            <div className="pt-4 flex items-center gap-2 text-xs text-[#736E6A]">
               <User size={11} />
               Client since{" "}
               {new Date(c.created_at).toLocaleDateString("en-IN", {
@@ -704,7 +704,7 @@ export default function ClientDetailPage({
             {/* Recurring reservations */}
             {c.recurring_reservations && c.recurring_reservations.length > 0 && (
               <div className="mt-4 pt-4 border-t border-[#E5E0D8]">
-                <p className="text-[10px] font-medium tracking-[0.06em] uppercase text-[#8A8480] mb-2">
+                <p className="text-[10px] font-medium tracking-[0.06em] uppercase text-[#736E6A] mb-2">
                   Fixed weekly slots
                 </p>
                 <div className="space-y-1.5">
@@ -740,7 +740,7 @@ export default function ClientDetailPage({
               </button>
             )}
             {c.user_id && (
-              <div className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-[8px] bg-[#F4F1EC] text-[#8A8480] text-xs font-medium">
+              <div className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-[8px] bg-[#F4F1EC] text-[#736E6A] text-xs font-medium">
                 <Send size={11} />
                 Portal access active
               </div>
@@ -771,7 +771,7 @@ export default function ClientDetailPage({
                     className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-[8px] transition-all duration-150 relative -mb-px whitespace-nowrap ${
                       isActive
                         ? "text-[#5C7A6B] border-b-2 border-[#5C7A6B] bg-[#EBF0EB]/50"
-                        : "text-[#8A8480] hover:text-[#5C5856] hover:bg-[#F4F1EC] border-b-2 border-transparent"
+                        : "text-[#736E6A] hover:text-[#5C5856] hover:bg-[#F4F1EC] border-b-2 border-transparent"
                     }`}
                   >
                     <Icon size={14} />

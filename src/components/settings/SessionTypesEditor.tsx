@@ -165,7 +165,7 @@ function ModeSelector({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium transition-all duration-150 cursor-pointer"
             style={{
               background: isActive ? bg : "#F4F1EC",
-              color: isActive ? text : "#8A8480",
+              color: isActive ? text : "#736E6A",
               border: `1.5px solid ${isActive ? text + "40" : "#E5E0D8"}`,
               boxShadow: isActive ? `0 0 0 2px ${text}18` : "none",
             }}
@@ -605,7 +605,7 @@ export default function SessionTypesEditor() {
                       size={14}
                       strokeWidth={1.5}
                       className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                      style={{ color: "#8A8480" }}
+                      style={{ color: "#736E6A" }}
                     />
                     <input
                       id="st-rate"

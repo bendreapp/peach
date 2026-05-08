@@ -174,7 +174,7 @@ export default function TagManager({ customTags }: TagManagerProps) {
           <Tags size={18} style={{ color: "#5C7A6B" }} />
           Customize Tags
         </h3>
-        <p className="text-xs mt-1" style={{ color: "#8A8480" }}>
+        <p className="text-xs mt-1" style={{ color: "#736E6A" }}>
           Add or remove tags used across resources, notes, and treatment plans
         </p>
       </div>
@@ -231,7 +231,7 @@ export default function TagManager({ customTags }: TagManagerProps) {
       />
 
       {update.isPending && (
-        <p className="text-xs animate-pulse" style={{ color: "#8A8480" }}>Saving...</p>
+        <p className="text-xs animate-pulse" style={{ color: "#736E6A" }}>Saving...</p>
       )}
     </div>
   );
@@ -268,9 +268,9 @@ function TagGroup({
           type="button"
           onClick={onReset}
           className="flex items-center gap-1 text-[11px] transition-colors cursor-pointer"
-          style={{ color: "#8A8480" }}
+          style={{ color: "#736E6A" }}
           onMouseEnter={(e) => { e.currentTarget.style.color = "#5C7A6B"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "#8A8480"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#736E6A"; }}
         >
           <RotateCcw size={10} /> Reset defaults
         </button>

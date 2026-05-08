@@ -40,7 +40,7 @@ export default function NoteTypeSelector({
     <div>
       <label
         className="block text-[11px] font-medium uppercase tracking-wider mb-2"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
       >
         Note format
       </label>
@@ -82,7 +82,7 @@ export default function NoteTypeSelector({
       </div>
       <p
         className="text-[11px] mt-1.5"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
       >
         {NOTE_TEMPLATES[selected].description}
       </p>

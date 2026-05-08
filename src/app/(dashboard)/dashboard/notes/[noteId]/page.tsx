@@ -75,7 +75,7 @@ function NoteReadView({ note }: { note: any }) {
             <div key={s.key}>
               <p
                 className="text-[11px] font-medium uppercase tracking-wider mb-2"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               >
                 {s.label}
               </p>
@@ -123,7 +123,7 @@ function NoteReadView({ note }: { note: any }) {
             <div>
               <p
                 className="text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               >
                 Homework / Between-Session Tasks
               </p>
@@ -139,7 +139,7 @@ function NoteReadView({ note }: { note: any }) {
             <div>
               <p
                 className="text-[11px] font-medium uppercase tracking-wider mb-2"
-                style={{ color: "#8A8480" }}
+                style={{ color: "#736E6A" }}
               >
                 Techniques Used
               </p>
@@ -230,9 +230,9 @@ export default function EditNotePage({
         <Link
           href="/dashboard/notes"
           className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors duration-150"
-          style={{ color: "#8A8480" }}
+          style={{ color: "#736E6A" }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#5C5856")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#8A8480")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#736E6A")}
         >
           <ArrowLeft size={14} strokeWidth={1.5} />
           Back to notes
@@ -249,7 +249,7 @@ export default function EditNotePage({
           </p>
           <p
             className="text-[12px] mt-1"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
           >
             This note may have been deleted or does not exist.
           </p>
@@ -279,9 +279,9 @@ export default function EditNotePage({
       <Link
         href="/dashboard/notes"
         className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors duration-150"
-        style={{ color: "#8A8480" }}
+        style={{ color: "#736E6A" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "#5C5856")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#8A8480")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#736E6A")}
       >
         <ArrowLeft size={14} strokeWidth={1.5} />
         Back to notes
@@ -344,7 +344,7 @@ export default function EditNotePage({
               {sessions && (
                 <div
                   className="flex items-center gap-4 mt-1.5 text-[12px]"
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                 >
                   <span className="flex items-center gap-1">
                     <Calendar size={11} strokeWidth={1.5} />
@@ -380,7 +380,7 @@ export default function EditNotePage({
               style={
                 mode === "view"
                   ? { background: "#FFFFFF", color: "#1C1C1E", boxShadow: "0 1px 2px rgba(0,0,0,0.06)" }
-                  : { background: "transparent", color: "#8A8480" }
+                  : { background: "transparent", color: "#736E6A" }
               }
             >
               <Eye size={12} strokeWidth={1.5} />
@@ -392,7 +392,7 @@ export default function EditNotePage({
               style={
                 mode === "edit"
                   ? { background: "#FFFFFF", color: "#1C1C1E", boxShadow: "0 1px 2px rgba(0,0,0,0.06)" }
-                  : { background: "transparent", color: "#8A8480" }
+                  : { background: "transparent", color: "#736E6A" }
               }
             >
               <Pencil size={12} strokeWidth={1.5} />

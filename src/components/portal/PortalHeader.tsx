@@ -15,7 +15,7 @@ export default function PortalHeader({ name, email }: PortalHeaderProps) {
         Hi, {name}
       </h1>
       {email && (
-        <p className="text-sm" style={{ color: "#8A8480" }}>
+        <p className="text-sm" style={{ color: "#736E6A" }}>
           {email}
         </p>
       )}

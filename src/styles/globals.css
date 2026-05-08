@@ -41,7 +41,7 @@
     --color-border-hover: #A8BFD8;
     --color-ink: #1C1C1E;
     --color-ink-secondary: #5C5856;
-    --color-ink-tertiary: #8A8480;
+    --color-ink-tertiary: #736E6A;
 
     /* Primary — Deep sage-green (from logo) */
     --color-primary: #5C7A6B;
@@ -80,13 +80,13 @@
     --color-auth-input: #F8F6F2;
     --color-auth-input-border: #E5E0D8;
     --color-auth-input-text: #1C1C1E;
-    --color-auth-placeholder: #8A8480;
+    --color-auth-placeholder: #736E6A;
     --color-auth-text: #1C1C1E;
     --color-auth-text-secondary: #5C5856;
-    --color-auth-text-muted: #8A8480;
+    --color-auth-text-muted: #736E6A;
     --color-auth-divider: #E5E0D8;
     --color-auth-toggle-border: #E5E0D8;
-    --color-auth-toggle-color: #8A8480;
+    --color-auth-toggle-color: #736E6A;
     --color-auth-toggle-hover: rgba(0,0,0,0.04);
   }
 

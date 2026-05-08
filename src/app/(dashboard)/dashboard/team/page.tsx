@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { usePracticeMe, useOnboardingTokens } from "@/lib/api-hooks";
+import { Select } from "@/components/ui/Select";
 const PRACTICE_ROLES: Record<string, { label: string; description: string }> = {
   owner: { label: "Owner", description: "Full access" },
   admin: { label: "Admin", description: "Manage team and settings" },
@@ -223,7 +224,7 @@ export default function TeamPage() {
           <p className="text-base font-medium text-[#5C5856]">
             You don&apos;t have a practice yet
           </p>
-          <p className="text-sm text-[#8A8480] mt-1 max-w-sm">
+          <p className="text-sm text-[#736E6A] mt-1 max-w-sm">
             Create one to start managing a team. You&apos;ll be the owner with full access.
           </p>
           <form
@@ -240,7 +241,7 @@ export default function TeamPage() {
               onChange={(e) => setPracticeName(e.target.value)}
               placeholder="Practice name"
               required
-              className="flex-1 px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+              className="flex-1 px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
             />
             <button
               type="submit"
@@ -312,7 +313,7 @@ export default function TeamPage() {
             <button
               type="button"
               onClick={() => setShowInviteForm(false)}
-              className="p-1.5 rounded-[6px] text-[#8A8480] hover:text-[#1C1C1E] hover:bg-[#F4F1EC] transition-all duration-150"
+              className="p-1.5 rounded-[6px] text-[#736E6A] hover:text-[#1C1C1E] hover:bg-[#F4F1EC] transition-all duration-150"
             >
               <X size={16} />
             </button>
@@ -331,7 +332,7 @@ export default function TeamPage() {
             <div>
               <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
                 Email{" "}
-                <span className="text-[#8A8480] font-normal">
+                <span className="text-[#736E6A] font-normal">
                   (optional — leave blank for open link)
                 </span>
               </label>
@@ -340,7 +341,7 @@ export default function TeamPage() {
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="therapist@example.com"
-                className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+                className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
               />
             </div>
             <div className="grid grid-cols-2 gap-4 items-end">
@@ -348,16 +349,14 @@ export default function TeamPage() {
                 <label className="block text-[13px] font-medium text-[#5C5856] mb-1.5">
                   Role
                 </label>
-                <select
+                <Select
                   value={inviteRole}
-                  onChange={(e) =>
-                    setInviteRole(e.target.value as "therapist" | "admin")
-                  }
-                  className="w-full px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
-                >
-                  <option value="therapist">Therapist</option>
-                  <option value="admin">Admin</option>
-                </select>
+                  onChange={(value) => setInviteRole(value as "therapist" | "admin")}
+                  options={[
+                    { value: "therapist", label: "Therapist" },
+                    { value: "admin", label: "Admin" },
+                  ]}
+                />
               </div>
               <label className="flex items-center gap-2.5 cursor-pointer pb-2">
                 <input
@@ -394,7 +393,7 @@ export default function TeamPage() {
       {/* Pending invitations */}
       {pendingInvitations.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+          <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A]">
             Pending Invitations
           </p>
           <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#E5E0D8]">
@@ -429,7 +428,7 @@ export default function TeamPage() {
                     <button
                       type="button"
                       onClick={() => copyToClipboard(inviteUrl)}
-                      className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150"
+                      className="p-2 rounded-[6px] text-[#736E6A] hover:text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150"
                       title="Copy invite link"
                     >
                       <Copy size={14} />
@@ -440,7 +439,7 @@ export default function TeamPage() {
                         onClick={() =>
                           revokeInvitation.mutate({ invitation_id: inv.id })
                         }
-                        className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
+                        className="p-2 rounded-[6px] text-[#736E6A] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
                         title="Revoke invitation"
                       >
                         <X size={14} />
@@ -456,22 +455,22 @@ export default function TeamPage() {
 
       {/* Members table */}
       <div className="space-y-2">
-        <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+        <p className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A]">
           Team Members
         </p>
         <div className="bg-white rounded-[12px] border border-[#E5E0D8] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
           {/* Table header */}
           <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-3 border-b border-[#E5E0D8] bg-[#F4F1EC]">
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480]">
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A]">
               Member
             </span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-24">
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-24">
               Role
             </span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-28">
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-28">
               Notes Access
             </span>
-            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] w-20">
+            <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] w-20">
               Actions
             </span>
           </div>
@@ -480,7 +479,7 @@ export default function TeamPage() {
             <div className="p-12 flex flex-col items-center justify-center text-center">
               <UsersRound size={40} className="text-[#C5BFB8] mb-4" strokeWidth={1.5} />
               <p className="text-base font-medium text-[#5C5856]">No team members yet</p>
-              <p className="text-sm text-[#8A8480] mt-1">
+              <p className="text-sm text-[#736E6A] mt-1">
                 Invite colleagues to collaborate on your practice.
               </p>
             </div>
@@ -517,7 +516,7 @@ export default function TeamPage() {
                           {name}
                         </div>
                         {therapistInfo?.email && (
-                          <div className="text-xs text-[#8A8480] truncate">
+                          <div className="text-xs text-[#736E6A] truncate">
                             {therapistInfo.email}
                           </div>
                         )}
@@ -527,19 +526,19 @@ export default function TeamPage() {
                     {/* Role */}
                     <div className="w-24">
                       {isOwner && m.role !== "owner" ? (
-                        <select
+                        <Select
                           value={m.role}
-                          onChange={(e) =>
+                          onChange={(value) =>
                             updateMember.mutate({
                               member_id: m.id,
-                              role: e.target.value as "therapist" | "admin",
+                              role: value as "therapist" | "admin",
                             })
                           }
-                          className="w-full px-2.5 py-1.5 text-xs rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
-                        >
-                          <option value="therapist">Therapist</option>
-                          <option value="admin">Admin</option>
-                        </select>
+                          options={[
+                            { value: "therapist", label: "Therapist" },
+                            { value: "admin", label: "Admin" },
+                          ]}
+                        />
                       ) : (
                         <span
                           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[999px] text-[11px] font-medium"
@@ -595,7 +594,7 @@ export default function TeamPage() {
                               removeMember.mutate({ member_id: m.id });
                             }
                           }}
-                          className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
+                          className="p-2 rounded-[6px] text-[#736E6A] hover:text-[#C0705A] hover:bg-[#F9EDED] transition-all duration-150"
                           title="Remove member"
                         >
                           <Trash2 size={14} />
@@ -616,7 +615,7 @@ export default function TeamPage() {
           <button
             type="button"
             onClick={() => setShowPastInvites(!showPastInvites)}
-            className="flex items-center gap-2 text-[11px] font-medium tracking-[0.06em] uppercase text-[#8A8480] hover:text-[#5C5856] transition-colors"
+            className="flex items-center gap-2 text-[11px] font-medium tracking-[0.06em] uppercase text-[#736E6A] hover:text-[#5C5856] transition-colors"
           >
             <ChevronDown
               size={12}
@@ -728,7 +727,7 @@ function OnboardingSection({
             <LinkIcon size={14} className="text-[#5C7A6B]" />
             Client onboarding links
           </h3>
-          <p className="text-xs text-[#8A8480] mt-0.5">
+          <p className="text-xs text-[#736E6A] mt-0.5">
             Share these links so clients can register themselves.
           </p>
         </div>
@@ -749,7 +748,7 @@ function OnboardingSection({
             value={label}
             onChange={(e) => onLabelChange(e.target.value)}
             placeholder="Label (e.g. Website, WhatsApp group)"
-            className="flex-1 px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#8A8480] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
+            className="flex-1 px-3 py-2 text-sm rounded-[8px] border border-[#E5E0D8] bg-white text-[#1C1C1E] placeholder:text-[#736E6A] focus:outline-none focus:border-[#5C7A6B] focus:ring-[3px] focus:ring-[rgba(74,111,165,0.15)] transition-all"
           />
           <button
             type="button"
@@ -775,7 +774,7 @@ function OnboardingSection({
                   <div className="text-sm font-medium text-[#1C1C1E] truncate">
                     {t.label || "Onboarding link"}
                   </div>
-                  <div className="text-xs text-[#8A8480]">
+                  <div className="text-xs text-[#736E6A]">
                     {t.use_count} registered
                     {t.max_uses && ` / ${t.max_uses} max`}
                   </div>
@@ -784,7 +783,7 @@ function OnboardingSection({
                   <button
                     type="button"
                     onClick={() => onCopy(url)}
-                    className="p-2 rounded-[6px] text-[#8A8480] hover:text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150"
+                    className="p-2 rounded-[6px] text-[#736E6A] hover:text-[#5C7A6B] hover:bg-[#EBF0EB] transition-all duration-150"
                     title="Copy link"
                   >
                     <Copy size={14} />

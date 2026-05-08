@@ -125,7 +125,7 @@ export default function IntakeFormEditor() {
               Intake Form
             </h2>
           </div>
-          <p className="text-sm text-[#8A8480]" style={{ fontFamily: "Satoshi" }}>
+          <p className="text-sm text-[#736E6A]" style={{ fontFamily: "Satoshi" }}>
             Build the questions your clients fill out before their first session.
           </p>
         </div>
@@ -159,12 +159,12 @@ export default function IntakeFormEditor() {
             className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center"
             style={{ background: "#E5E0D8" }}
           >
-            <ClipboardList size={20} className="text-[#8A8480]" />
+            <ClipboardList size={20} className="text-[#736E6A]" />
           </div>
-          <p className="text-sm text-[#8A8480]" style={{ fontFamily: "Satoshi" }}>
+          <p className="text-sm text-[#736E6A]" style={{ fontFamily: "Satoshi" }}>
             No questions yet
           </p>
-          <p className="text-xs text-[#8A8480]/70 mt-1" style={{ fontFamily: "Satoshi" }}>
+          <p className="text-xs text-[#736E6A]/70 mt-1" style={{ fontFamily: "Satoshi" }}>
             Click "Add Question" to start building your intake form.
           </p>
         </div>
@@ -299,7 +299,7 @@ function QuestionCard({
           onClick={onMoveUp}
           disabled={idx === 0}
           className="p-0.5 rounded transition-colors disabled:opacity-30"
-          style={{ color: "#8A8480" }}
+          style={{ color: "#736E6A" }}
           title="Move up"
         >
           <ChevronUp size={14} />
@@ -310,7 +310,7 @@ function QuestionCard({
           onClick={onMoveDown}
           disabled={idx === total - 1}
           className="p-0.5 rounded transition-colors disabled:opacity-30"
-          style={{ color: "#8A8480" }}
+          style={{ color: "#736E6A" }}
           title="Move down"
         >
           <ChevronDown size={14} />
@@ -336,7 +336,7 @@ function QuestionCard({
             />
           </div>
           <span
-            className="text-[10px] font-medium ml-auto text-[#8A8480]"
+            className="text-[10px] font-medium ml-auto text-[#736E6A]"
             style={{ fontFamily: "Satoshi" }}
           >
             {FIELD_TYPE_LABELS[fieldType]}
@@ -371,7 +371,7 @@ function QuestionCard({
               <div key={optIdx} className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ border: "1.5px solid #8A8480" }}
+                  style={{ border: "1.5px solid #736E6A" }}
                 />
                 <input
                   type="text"
@@ -392,7 +392,7 @@ function QuestionCard({
                   type="button"
                   onClick={() => handleRemoveOption(optIdx)}
                   className="flex-shrink-0 transition-colors"
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                   title="Remove option"
                 >
                   <Trash2 size={12} />
@@ -418,7 +418,7 @@ function QuestionCard({
           type="button"
           onClick={handleRequiredToggle}
           className="flex items-center gap-1.5 text-xs transition-colors"
-          style={{ color: isRequired ? "#5C7A6B" : "#8A8480", fontFamily: "Satoshi" }}
+          style={{ color: isRequired ? "#5C7A6B" : "#736E6A", fontFamily: "Satoshi" }}
           title={isRequired ? "Required (click to make optional)" : "Optional (click to make required)"}
         >
           {isRequired ? (

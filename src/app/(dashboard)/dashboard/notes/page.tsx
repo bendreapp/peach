@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useNotesList, useClientsList } from "@/lib/api-hooks";
+import { Select } from "@/components/ui/Select";
 import {
   FileText,
   Clock,
@@ -11,6 +12,7 @@ import {
   Search,
   Calendar,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 
 // ── Inline constants (no @bendre/shared) ──────────────────────────────────────
@@ -194,10 +196,10 @@ export default function NotesPage() {
         background: "var(--color-surface)",
       }}
     >
-      {/* ── Left Panel: Note List (280px) ── */}
+      {/* ── Left Panel: Note List ── */}
+      {/* On mobile: hidden when a note is selected; full width when visible */}
       <div
-        className="flex flex-col border-r border-border flex-shrink-0"
-        style={{ width: 280 }}
+        className={`flex-col border-r border-border flex-shrink-0 md:w-[280px] ${selectedNoteId ? "hidden md:flex" : "flex w-full"}`}
       >
         {/* Panel header */}
         <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -265,18 +267,15 @@ export default function NotesPage() {
         {/* Client picker for "By Client" filter */}
         {activeFilter === "by-client" && clientsData.length > 0 && (
           <div className="px-3 py-2 border-b border-border">
-            <select
+            <Select
               value={clientFilter}
-              onChange={(e) => setClientFilter(e.target.value)}
-              className="w-full h-8 px-2.5 text-[12px] rounded-small border border-border bg-bg text-ink focus:outline-none focus:border-primary-500 appearance-none"
-            >
-              <option value="">All clients</option>
-              {clientsData.map((c: any) => (
-                <option key={c.id} value={c.id}>
-                  {c.full_name}
-                </option>
-              ))}
-            </select>
+              onChange={setClientFilter}
+              placeholder="All clients"
+              options={[
+                { value: "", label: "All clients" },
+                ...clientsData.map((c: any) => ({ value: c.id, label: c.full_name })),
+              ]}
+            />
           </div>
         )}
 
@@ -415,9 +414,10 @@ export default function NotesPage() {
       </div>
 
       {/* ── Right Panel: Note Viewer ── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* On mobile: only shown when a note is selected */}
+      <div className={`flex-1 flex-col min-w-0 overflow-hidden ${selectedNoteId ? "flex" : "hidden md:flex"}`}>
         {selectedNote ? (
-          <NoteViewer note={selectedNote} />
+          <NoteViewer note={selectedNote} onBack={() => setSelectedNoteId(null)} />
         ) : (
           <NoteEmptyState />
         )}
@@ -428,7 +428,7 @@ export default function NotesPage() {
 
 // ── Note Viewer ───────────────────────────────────────────────────────────────
 
-function NoteViewer({ note }: { note: any }) {
+function NoteViewer({ note, onBack }: { note: any; onBack?: () => void }) {
   const sessions = note.sessions as {
     starts_at: string;
     client_id: string;
@@ -442,8 +442,21 @@ function NoteViewer({ note }: { note: any }) {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
+      {/* Mobile back button */}
+      {onBack && (
+        <div className="md:hidden px-4 py-2 border-b border-border flex-shrink-0">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-[13px] font-medium text-ink-secondary hover:text-ink transition-colors"
+            aria-label="Back to notes list"
+          >
+            <ArrowLeft size={14} />
+            Back
+          </button>
+        </div>
+      )}
       {/* Viewer header */}
-      <div className="px-8 py-5 border-b border-border flex-shrink-0">
+      <div className="px-4 md:px-8 py-5 border-b border-border flex-shrink-0">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -526,7 +539,7 @@ function NoteViewer({ note }: { note: any }) {
       </div>
 
       {/* Note content */}
-      <div className="flex-1 px-8 py-6">
+      <div className="flex-1 px-4 md:px-8 py-6">
         {note.note_type === "soap" ? (
           <SoapNoteView note={note} />
         ) : note.note_type === "dap" ? (
@@ -544,7 +557,7 @@ function NoteViewer({ note }: { note: any }) {
               <div>
                 <p
                   className="text-[11px] font-medium uppercase tracking-wider mb-2"
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                 >
                   Techniques Used
                 </p>
@@ -566,7 +579,7 @@ function NoteViewer({ note }: { note: any }) {
               <div>
                 <p
                   className="text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                  style={{ color: "#8A8480" }}
+                  style={{ color: "#736E6A" }}
                 >
                   Homework / Between-Session Tasks
                 </p>
@@ -621,7 +634,7 @@ function SoapNoteView({ note }: { note: any }) {
         <div key={section.key}>
           <p
             className="text-[11px] font-medium uppercase tracking-wider mb-2"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
           >
             {section.label}
           </p>
@@ -655,7 +668,7 @@ function DapNoteView({ note }: { note: any }) {
         <div key={section.key}>
           <p
             className="text-[11px] font-medium uppercase tracking-wider mb-2"
-            style={{ color: "#8A8480" }}
+            style={{ color: "#736E6A" }}
           >
             {section.label}
           </p>
@@ -706,7 +719,7 @@ function NoteEmptyState() {
       <p className="text-[16px] font-medium" style={{ color: "#5C5856" }}>
         Select a note to read it
       </p>
-      <p className="text-[14px] mt-1" style={{ color: "#8A8480" }}>
+      <p className="text-[14px] mt-1" style={{ color: "#736E6A" }}>
         Choose a note from the list, or create a new one.
       </p>
       <Link
