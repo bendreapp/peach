@@ -554,15 +554,21 @@ export const api = {
   // ── Client Portal ────────────────────────────────────────────────────
   clientPortal: {
     /// Returns array of ClientPortalProfile objects for the authenticated client user.
-    me: () => apiFetch<Array<{ id: string; therapist_id: string; full_name: string; email: string | null; phone: string | null; intake_completed: boolean; status: string }>>("/api/v1/portal/profiles"),
+    me: () => apiFetch<Array<{ id: string; therapist_id: string; full_name: string; email: string | null; phone: string | null; emergency_contact_name: string | null; emergency_contact_phone: string | null; intake_completed: boolean; status: string; therapist_name?: string; practice_name?: string; therapist_avatar?: string | null }>>("/api/v1/portal/profiles"),
     upcomingSessions: (clientId: string) =>
       apiFetch(`/api/v1/portal/profiles/${clientId}/sessions/upcoming`),
     pastSessions: (clientId: string, params?: { page?: number; per_page?: number }) =>
       apiFetch(`/api/v1/portal/profiles/${clientId}/sessions/past`, { params }),
     cancelSession: (id: string) =>
-      apiFetch(`/api/v1/sessions/${id}/cancel`, { method: "POST" }),
+      apiFetch(`/api/v1/portal/sessions/${id}/cancel`, { method: "POST" }),
     resources: (clientId: string) =>
       apiFetch(`/api/v1/portal/profiles/${clientId}/resources`),
+    updateProfile: (clientId: string, data: { phone?: string; emergency_contact_name?: string; emergency_contact_phone?: string }) =>
+      apiFetch(`/api/v1/portal/profiles/${clientId}`, { method: "PUT", body: data }),
+    invoices: (clientId: string) =>
+      apiFetch(`/api/v1/portal/profiles/${clientId}/invoices`),
+    rescheduleSession: (sessionId: string, data: { requested_date: string; requested_time: string; reason?: string }) =>
+      apiFetch(`/api/v1/portal/sessions/${sessionId}/reschedule`, { method: "POST", body: data }),
   },
 
   // ── Client Invitations (portal claim) ────────────────────────────────

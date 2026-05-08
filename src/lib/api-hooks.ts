@@ -770,6 +770,38 @@ export function usePortalCancelSession() {
   });
 }
 
+export function useUpdatePortalProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ clientId, ...data }: { clientId: string; phone?: string; emergency_contact_name?: string; emergency_contact_phone?: string }) =>
+      api.clientPortal.updateProfile(clientId, data),
+    onSuccess: () => {
+      posthog.capture("portal_profile_updated");
+      qc.invalidateQueries({ queryKey: ["portal", "me"] });
+    },
+  });
+}
+
+export function usePortalInvoices(clientId: string) {
+  return useQuery({
+    queryKey: ["portal", "invoices", clientId],
+    queryFn: () => api.clientPortal.invoices(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useRescheduleSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sessionId, ...data }: { sessionId: string; requested_date: string; requested_time: string; reason?: string }) =>
+      api.clientPortal.rescheduleSession(sessionId, data),
+    onSuccess: () => {
+      posthog.capture("portal_session_reschedule_requested");
+      qc.invalidateQueries({ queryKey: ["portal", "sessions", "upcoming"] });
+    },
+  });
+}
+
 // ── Client Invitation (portal claim) ─────────────────────────────────────────
 
 export function useClientInvitationDetail(token: string) {

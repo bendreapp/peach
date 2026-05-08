@@ -12,15 +12,23 @@ import PendingFormsBanner from "@/components/portal/PendingFormsBanner";
 import UpcomingSessionsList from "@/components/portal/UpcomingSessionsList";
 import PastSessionsList from "@/components/portal/PastSessionsList";
 import SharedResourcesCard from "@/components/portal/SharedResourcesCard";
+import InvoicesList from "@/components/portal/InvoicesList";
+import TherapistSwitcher from "@/components/portal/TherapistSwitcher";
+import Link from "next/link";
+import { UserCircle } from "lucide-react";
 
 export default function PortalPage() {
   const [pastPage, setPastPage] = useState(1);
+  const [selectedProfileIndex, setSelectedProfileIndex] = useState(0);
   const PER_PAGE = 5;
 
   const me = usePortalMe();
 
-  // Take the first profile (a client may have multiple therapists in future)
-  const profile = me.data?.[0] ?? null;
+  const profiles = me.data ?? [];
+  const hasMultipleTherapists = profiles.length > 1;
+
+  // Active profile based on switcher selection
+  const profile = profiles[selectedProfileIndex] ?? profiles[0] ?? null;
   const clientId = profile?.id ?? "";
 
   const upcoming = usePortalUpcomingSessions(clientId);
@@ -31,9 +39,7 @@ export default function PortalPage() {
   const resources = usePortalResources(clientId);
 
   // Derive client name
-  const clientName =
-    profile?.full_name?.split(" ")[0] ??
-    "there";
+  const clientName = profile?.full_name?.split(" ")[0] ?? "there";
 
   if (me.isLoading) {
     return (
@@ -58,7 +64,6 @@ export default function PortalPage() {
   }
 
   // Build pending forms from profile intake status
-  // The portal reports pending forms through the intake_completed flag
   const pendingForms = !profile.intake_completed
     ? [{ id: profile.id, access_token: "", status: "pending", expires_at: "" }]
     : [];
@@ -69,8 +74,39 @@ export default function PortalPage() {
 
   return (
     <div className="space-y-8">
+      {/* Therapist switcher (only if client has multiple therapists) */}
+      {hasMultipleTherapists && (
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#736E6A" }}>
+            Viewing records for
+          </p>
+          <TherapistSwitcher
+            profiles={profiles}
+            selectedIndex={selectedProfileIndex}
+            onChange={(idx) => {
+              setSelectedProfileIndex(idx);
+              setPastPage(1);
+            }}
+          />
+        </div>
+      )}
+
       {/* Greeting */}
-      <PortalHeader name={clientName} email={profile.email ?? undefined} />
+      <div className="flex items-start justify-between gap-4">
+        <PortalHeader name={clientName} email={profile.email ?? undefined} />
+        <Link
+          href="/portal/profile"
+          className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+          style={{
+            color: "#5C7A6B",
+            border: "1px solid #E5E0D8",
+            background: "white",
+          }}
+        >
+          <UserCircle size={14} strokeWidth={1.5} />
+          Edit profile
+        </Link>
+      </div>
 
       {/* Pending intake forms banner */}
       <PendingFormsBanner forms={pendingForms as any} />
@@ -103,6 +139,17 @@ export default function PortalPage() {
           loading={past.isLoading}
           onLoadMore={() => setPastPage((p) => p + 1)}
         />
+      </section>
+
+      {/* Invoices */}
+      <section>
+        <h2
+          className="text-lg font-bold mb-3"
+          style={{ color: "#1C1C1E", letterSpacing: "-0.02em" }}
+        >
+          Invoices
+        </h2>
+        <InvoicesList clientId={clientId} />
       </section>
 
       {/* Shared resources */}

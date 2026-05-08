@@ -18,8 +18,19 @@ export default function PortalLayout({
   const router = useRouter();
   const me = usePortalMe();
 
-  const profile = me.data?.[0] ?? null;
+  const profiles = me.data ?? [];
+  const profile = profiles[0] ?? null;
   const displayName = profile?.full_name ?? "";
+
+  // Show therapist names if multi-therapist
+  const therapistNames = profiles
+    .map((p) => p.therapist_name)
+    .filter(Boolean) as string[];
+
+  const therapistLabel =
+    therapistNames.length > 1
+      ? therapistNames.map((n) => n.split(" ").slice(-1)[0]).join(", ")
+      : therapistNames[0] ?? null;
 
   async function handleLogout() {
     const supabase = createClient();
@@ -55,6 +66,17 @@ export default function PortalLayout({
             >
               Bendre
             </span>
+            {therapistLabel && (
+              <>
+                <span style={{ color: "#C5BFB8", fontSize: 14 }}>/</span>
+                <span
+                  className="text-sm hidden sm:block"
+                  style={{ color: "#736E6A" }}
+                >
+                  {therapistLabel}
+                </span>
+              </>
+            )}
           </div>
 
           {/* Client name + sign out */}
