@@ -23,7 +23,8 @@ interface Goal {
   id: string;
   title: string;
   modality?: string;
-  status: "not_started" | "in_progress" | "completed";
+  status?: "not_started" | "in_progress" | "completed";
+  completed?: boolean;
   sub_goals?: SubGoal[];
 }
 import { formatDate } from "./utils";

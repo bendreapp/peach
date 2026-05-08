@@ -239,7 +239,6 @@ export default function OnboardingPage() {
                       ? "1px solid #C0705A"
                       : "1px solid var(--color-auth-input-border)",
                     color: "var(--color-auth-input-text)",
-                    focusRingColor: "#6B7E6C",
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = "#6B7E6C";

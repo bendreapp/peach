@@ -51,9 +51,20 @@ export function useCustomTags() {
   const { data } = useTherapistMe();
   const ct = (data as any)?.custom_tags;
 
+  const DEFAULT_MODALITIES = [
+    { key: "cbt", name: "CBT" },
+    { key: "dbt", name: "DBT" },
+    { key: "act", name: "ACT" },
+    { key: "emdr", name: "EMDR" },
+    { key: "psychodynamic", name: "Psychodynamic" },
+    { key: "humanistic", name: "Humanistic" },
+    { key: "systemic", name: "Systemic" },
+  ];
+
   return {
     techniques: (ct?.techniques as string[]) ?? DEFAULT_TECHNIQUES,
     categories: (ct?.categories as string[]) ?? DEFAULT_CATEGORIES,
     riskFlags: (ct?.risk_flags as string[]) ?? DEFAULT_RISK_FLAGS,
+    modalities: (ct?.modalities as { key: string; name: string }[]) ?? DEFAULT_MODALITIES,
   };
 }

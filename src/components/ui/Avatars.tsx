@@ -180,6 +180,8 @@ function Sage08({ size }: { size: number }) {
 
 // ── Component map ─────────────────────────────────────────────────────────────
 
+import type { JSX } from "react";
+
 const AVATAR_COMPONENTS: Record<AvatarKey, (props: { size: number }) => JSX.Element> = {
   "sage-01": Sage01,
   "sage-02": Sage02,

@@ -7,14 +7,16 @@ import { useCreateTreatmentPlan, useUpdateTreatmentPlan } from "@/lib/api-hooks"
 interface SubGoal {
   id: string;
   title: string;
-  status: "not_started" | "in_progress" | "completed";
+  status?: "not_started" | "in_progress" | "completed";
+  completed?: boolean;
 }
 
 interface Goal {
   id: string;
   title: string;
   modality?: string;
-  status: "not_started" | "in_progress" | "completed";
+  status?: "not_started" | "in_progress" | "completed";
+  completed?: boolean;
   sub_goals?: SubGoal[];
 }
 import { useCustomTags } from "@/lib/use-custom-tags";

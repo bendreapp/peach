@@ -3,14 +3,16 @@
 interface SubGoal {
   id: string;
   title: string;
-  status: "not_started" | "in_progress" | "completed";
+  status?: "not_started" | "in_progress" | "completed";
+  completed?: boolean;
 }
 
 interface Goal {
   id: string;
   title: string;
   modality?: string;
-  status: "not_started" | "in_progress" | "completed";
+  status?: "not_started" | "in_progress" | "completed";
+  completed?: boolean;
   sub_goals?: SubGoal[];
 }
 import { Plus, X, ChevronDown, ChevronRight, Check } from "lucide-react";
@@ -24,7 +26,7 @@ export default function GoalList({ goals, onChange }: GoalListProps) {
   function addGoal() {
     onChange([
       ...goals,
-      { id: crypto.randomUUID(), title: "", sub_goals: [], completed: false },
+      { id: crypto.randomUUID(), title: "", sub_goals: [], completed: false } as Goal,
     ]);
   }
 
@@ -43,8 +45,8 @@ export default function GoalList({ goals, onChange }: GoalListProps) {
           ? {
               ...g,
               sub_goals: [
-                ...g.sub_goals,
-                { id: crypto.randomUUID(), title: "", completed: false },
+                ...(g.sub_goals ?? []),
+                { id: crypto.randomUUID(), title: "", completed: false } as SubGoal,
               ],
             }
           : g
@@ -112,7 +114,7 @@ export default function GoalList({ goals, onChange }: GoalListProps) {
           </div>
 
           {/* Sub-goals */}
-          {goal.sub_goals.length > 0 && (
+          {(goal.sub_goals?.length ?? 0) > 0 && (
             <div className="ml-7 space-y-2">
               {goal.sub_goals.map((sub: any) => (
                 <div key={sub.id} className="flex items-center gap-2">

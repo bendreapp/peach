@@ -354,7 +354,9 @@ export default function DashboardPage() {
   const pending = useSessionsPending();
   const clients = useClientsList();
   const therapist = useTherapistMe();
-  const analytics = useAnalyticsOverview();
+  const analyticsStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0];
+  const analyticsEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split("T")[0];
+  const analytics = useAnalyticsOverview({ start: analyticsStart, end: analyticsEnd });
   const availability = useTherapistAvailability();
   const sessionTypes = useQuery({
     queryKey: ["session-types", "list"],
