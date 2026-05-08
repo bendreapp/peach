@@ -267,13 +267,11 @@ function SignupForm() {
     setLoading(true);
 
     const supabase = createClient();
-    console.log("[OTP] Verifying", { email, token: otpValue, type: "email" });
     const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
       email,
       token: otpValue,
       type: "email",
     });
-    console.log("[OTP] Result", { verifyData, verifyError });
 
     if (verifyError) {
       const msg = verifyError.message || "";
