@@ -44,6 +44,27 @@ const TIME_RANGE_LABELS: Record<TimeRange, string> = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+function timeRangeToDates(range: TimeRange): { start: string; end: string } {
+  const now = new Date();
+  const end = now.toISOString();
+  let start: Date;
+  switch (range) {
+    case "7d":
+      start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case "30d":
+      start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case "3m":
+      start = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      break;
+    case "1y":
+      start = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      break;
+  }
+  return { start: start.toISOString(), end };
+}
+
 function toArray(d: unknown): unknown[] {
   if (Array.isArray(d)) return d;
   if (d && typeof d === "object" && Array.isArray((d as { data?: unknown }).data))
@@ -300,10 +321,12 @@ function SessionTypesList({
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
 
-  const overview = useAnalyticsOverview();
-  const revenueByMonth = useAnalyticsRevenueByMonth();
-  const sessionsByMonth = useAnalyticsSessionsByMonth();
-  const clientGrowth = useAnalyticsClientGrowth();
+  const dateParams = timeRangeToDates(timeRange);
+
+  const overview = useAnalyticsOverview(dateParams);
+  const revenueByMonth = useAnalyticsRevenueByMonth(dateParams);
+  const sessionsByMonth = useAnalyticsSessionsByMonth(dateParams);
+  const clientGrowth = useAnalyticsClientGrowth(dateParams);
   const categoryBreakdown = useAnalyticsCategoryBreakdown();
 
   const isLoadingCore =

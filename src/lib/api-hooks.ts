@@ -364,31 +364,35 @@ export function useRecurringReservations() {
 
 // ── Analytics ────────────────────────────────────────────────────────────────
 
-export function useAnalyticsOverview() {
+export function useAnalyticsOverview(params: { start: string; end: string }) {
   return useQuery({
-    queryKey: ["analytics", "overview"],
-    queryFn: () => api.analytics.overview(),
+    queryKey: ["analytics", "overview", params.start, params.end],
+    queryFn: () => api.analytics.overview(params),
+    enabled: !!params.start && !!params.end,
   });
 }
 
-export function useAnalyticsRevenueByMonth() {
+export function useAnalyticsRevenueByMonth(params: { start: string; end: string }) {
   return useQuery({
-    queryKey: ["analytics", "revenue-by-month"],
-    queryFn: () => api.analytics.revenueByMonth(),
+    queryKey: ["analytics", "revenue-by-month", params.start, params.end],
+    queryFn: () => api.analytics.revenueByMonth(params),
+    enabled: !!params.start && !!params.end,
   });
 }
 
-export function useAnalyticsSessionsByMonth() {
+export function useAnalyticsSessionsByMonth(params: { start: string; end: string }) {
   return useQuery({
-    queryKey: ["analytics", "sessions-by-month"],
-    queryFn: () => api.analytics.sessionsByMonth(),
+    queryKey: ["analytics", "sessions-by-month", params.start, params.end],
+    queryFn: () => api.analytics.sessionsByMonth(params),
+    enabled: !!params.start && !!params.end,
   });
 }
 
-export function useAnalyticsClientGrowth() {
+export function useAnalyticsClientGrowth(params: { start: string; end: string }) {
   return useQuery({
-    queryKey: ["analytics", "client-growth"],
-    queryFn: () => api.analytics.clientGrowth(),
+    queryKey: ["analytics", "client-growth", params.start, params.end],
+    queryFn: () => api.analytics.clientGrowth(params),
+    enabled: !!params.start && !!params.end,
   });
 }
 

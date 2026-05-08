@@ -527,10 +527,14 @@ export const api = {
 
   // ── Analytics ────────────────────────────────────────────────────────
   analytics: {
-    overview: () => apiFetch("/api/v1/analytics/overview"),
-    revenueByMonth: () => apiFetch("/api/v1/analytics/revenue"),
-    sessionsByMonth: () => apiFetch("/api/v1/analytics/sessions"),
-    clientGrowth: () => apiFetch("/api/v1/analytics/client-growth"),
+    overview: (params: { start: string; end: string }) =>
+      apiFetch("/api/v1/analytics/overview", { params }),
+    revenueByMonth: (params: { start: string; end: string }) =>
+      apiFetch("/api/v1/analytics/revenue", { params }),
+    sessionsByMonth: (params: { start: string; end: string }) =>
+      apiFetch("/api/v1/analytics/sessions", { params }),
+    clientGrowth: (params: { start: string; end: string }) =>
+      apiFetch("/api/v1/analytics/client-growth", { params }),
     topClients: (params?: { limit?: number }) =>
       apiFetch("/api/v1/analytics/top-clients", { params }),
     clientCategoryBreakdown: () =>

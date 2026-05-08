@@ -907,7 +907,7 @@ function SignupForm() {
                   className="text-[13px] mt-1.5"
                   style={{ color: "var(--color-auth-text-secondary)" }}
                 >
-                  We sent a 6-digit code to
+                  We sent a verification code to
                   <br />
                   <span className="font-semibold" style={{ color: "var(--color-auth-text)" }}>
                     {email}
