@@ -12,6 +12,7 @@ import {
   useSetDefaultClientSessionType,
   useUpdateClientSessionType,
 } from "@/lib/api-hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -177,6 +178,106 @@ function MoreActionsMenu({
 }
 
 // ─── Client Labels ────────────────────────────────────────────────────────────
+
+function ContactInfoEditor({
+  clientId,
+  email: initialEmail,
+  phone: initialPhone,
+}: {
+  clientId: string;
+  email: string | null;
+  phone: string | null;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [email, setEmail] = useState(initialEmail || "");
+  const [phone, setPhone] = useState(initialPhone || "");
+  const updateClient = useUpdateClient();
+  const qc = useQueryClient();
+
+  function handleSave() {
+    updateClient.mutate(
+      { id: clientId, email: email.trim() || null, phone: phone.trim() || null },
+      {
+        onSuccess: () => {
+          toast.success("Contact info updated");
+          setEditing(false);
+          qc.invalidateQueries({ queryKey: ["clients", clientId] });
+        },
+        onError: (err: Error) => toast.error(err.message),
+      }
+    );
+  }
+
+  if (editing) {
+    return (
+      <div className="py-4 space-y-2.5 border-b border-[#E5E0D8]">
+        <div>
+          <label className="block text-[10px] font-medium text-[#736E6A] mb-1">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="client@email.com"
+            className="w-full px-2.5 py-1.5 text-sm rounded-[6px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#8FAF8A]"
+            autoFocus
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-medium text-[#736E6A] mb-1">Phone</label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+91 98765 43210"
+            className="w-full px-2.5 py-1.5 text-sm rounded-[6px] border border-[#E5E0D8] bg-white text-[#1C1C1E] focus:outline-none focus:border-[#8FAF8A]"
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSave}
+            disabled={updateClient.isPending}
+            className="px-3 py-1 text-xs font-medium text-white rounded-[6px] cursor-pointer disabled:opacity-50"
+            style={{ background: "#5C7A6B" }}
+          >
+            {updateClient.isPending ? "Saving..." : "Save"}
+          </button>
+          <button
+            onClick={() => { setEditing(false); setEmail(initialEmail || ""); setPhone(initialPhone || ""); }}
+            className="px-3 py-1 text-xs font-medium text-[#736E6A] rounded-[6px] border border-[#E5E0D8] cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-4 space-y-2.5 border-b border-[#E5E0D8]">
+      {initialEmail && (
+        <div className="flex items-center gap-2.5 text-sm text-[#5C5856]">
+          <Mail size={13} className="text-[#736E6A] flex-shrink-0" />
+          <span className="truncate">{initialEmail}</span>
+        </div>
+      )}
+      {initialPhone && (
+        <div className="flex items-center gap-2.5 text-sm text-[#5C5856]">
+          <Phone size={13} className="text-[#736E6A] flex-shrink-0" />
+          <span>{initialPhone}</span>
+        </div>
+      )}
+      {!initialEmail && !initialPhone && (
+        <p className="text-xs text-[#736E6A]">No contact info added</p>
+      )}
+      <button
+        onClick={() => setEditing(true)}
+        className="text-[11px] font-medium text-[#5C7A6B] hover:underline cursor-pointer"
+      >
+        {initialEmail || initialPhone ? "Edit contact info" : "+ Add contact info"}
+      </button>
+    </div>
+  );
+}
 
 function ClientLabels({
   clientId,
@@ -643,24 +744,8 @@ export default function ClientDetailPage({
               </div>
             </div>
 
-            {/* Contact info */}
-            <div className="py-4 space-y-2.5 border-b border-[#E5E0D8]">
-              {c.email && (
-                <div className="flex items-center gap-2.5 text-sm text-[#5C5856]">
-                  <Mail size={13} className="text-[#736E6A] flex-shrink-0" />
-                  <span className="truncate">{c.email}</span>
-                </div>
-              )}
-              {c.phone && (
-                <div className="flex items-center gap-2.5 text-sm text-[#5C5856]">
-                  <Phone size={13} className="text-[#736E6A] flex-shrink-0" />
-                  <span>{c.phone}</span>
-                </div>
-              )}
-              {!c.email && !c.phone && (
-                <p className="text-xs text-[#736E6A]">No contact info added</p>
-              )}
-            </div>
+            {/* Contact info — editable inline */}
+            <ContactInfoEditor clientId={c.id} email={c.email} phone={c.phone} />
 
             {/* Stats */}
             <div className="py-4 grid grid-cols-2 gap-3 border-b border-[#E5E0D8]">
