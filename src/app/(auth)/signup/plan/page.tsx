@@ -72,6 +72,7 @@ export default function PlanPage() {
   const [selected, setSelected] = useState<Plan | null>(null);
   const selectPlan = useSelectPlan();
 
+
   async function handleSelect(plan: Plan) {
     setSelected(plan);
     try {

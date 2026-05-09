@@ -100,11 +100,29 @@ export default function DashboardLayout({
   // Prefetch at layout level
   useClientsList();
 
-  // If phone is missing, check localStorage for pending signup data and auto-save
+  // ── Onboarding flow guards ──────────────────────────────────────────────
+  // Enforce the correct signup sequence: plan → onboarding → dashboard.
+  // If a step is incomplete, redirect the user back to the right page.
   useEffect(() => {
-    if (therapist.data && !therapist.data.phone && !autoSaving) {
+    if (!therapist.data) return; // still loading
+
+    const t = therapist.data as any;
+
+    // Step 1: No plan selected → go pick a plan
+    if (!t.plan_selected) {
+      router.push("/signup/plan");
+      return;
+    }
+
+    // Step 2: Onboarding not complete (no bio) → go to onboarding wizard
+    if (!t.onboarding_complete && !t.bio) {
+      router.push("/onboarding");
+      return;
+    }
+
+    // Step 3: Phone missing → try to auto-save from Supabase metadata
+    if (!t.phone && !autoSaving) {
       const pendingSlug = localStorage.getItem("bendre_pending_slug");
-      // The signup form stores phone in Supabase auth metadata — retrieve it
       const tryAutoSave = async () => {
         setAutoSaving(true);
         try {
@@ -116,23 +134,16 @@ export default function DashboardLayout({
           const slug = pendingSlug || meta?.username;
 
           if (phone) {
-            // We have signup data — save it to therapists table
             const updateData: Record<string, unknown> = { phone };
             if (slug) updateData.slug = slug;
             if (meta?.full_name) updateData.full_name = meta.full_name;
 
             await updateTherapist.mutateAsync(updateData);
-
-            // Clean up localStorage
             localStorage.removeItem("bendre_pending_slug");
             localStorage.removeItem("bendre_pending_practice");
-          } else {
-            // No pending data — redirect to onboarding
-            router.push("/onboarding");
           }
         } catch {
-          // If auto-save fails, redirect to onboarding as fallback
-          router.push("/onboarding");
+          // Silent fail — phone can be added later from settings
         }
       };
       tryAutoSave();
