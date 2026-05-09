@@ -48,13 +48,17 @@ export async function middleware(request: NextRequest) {
 
   // --- Subdomain Routing ---
   const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN ?? "localhost:3035";
+  // Known deployment prefixes that are NOT booking slugs
+  const knownPrefixes = ["dev", "staging", "www", "hq", "api"];
+  const hostnamePrefix = hostname.split(".")[0] ?? "";
   const isSubdomain =
     hostname !== appDomain &&
     hostname !== `www.${appDomain}` &&
+    !knownPrefixes.includes(hostnamePrefix) &&
     !hostname.startsWith("localhost");
 
   if (isSubdomain) {
-    const slug = hostname.split(".")[0];
+    const slug = hostnamePrefix;
     if (slug && pathname === "/") {
       const url = request.nextUrl.clone();
       url.pathname = `/booking/${slug}`;
