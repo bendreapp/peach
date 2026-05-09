@@ -237,6 +237,10 @@ function SignupForm() {
       return;
     }
 
+    // Sign out immediately — we don't want a session until OTP is verified.
+    // signUp() creates a session, which lets the user access /dashboard before verification.
+    await supabase.auth.signOut();
+
     posthog.capture("signup_started", { method: "email", org_type: orgType });
 
     const name = orgType === "solo" ? "" : orgName.trim();
