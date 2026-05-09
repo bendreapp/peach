@@ -48,7 +48,14 @@ function LoginForm() {
     });
 
     if (authError) {
-      setError(authError.message);
+      const msg = authError.message?.toLowerCase() || "";
+      if (msg.includes("email not confirmed") || msg.includes("not confirmed")) {
+        setError("Your email hasn't been verified yet. Please check your inbox for the verification code, or sign up again to resend it.");
+      } else if (msg.includes("invalid login credentials") || msg.includes("invalid credentials")) {
+        setError("Invalid email or password. Please check and try again.");
+      } else {
+        setError(authError.message);
+      }
       setLoading(false);
       return;
     }

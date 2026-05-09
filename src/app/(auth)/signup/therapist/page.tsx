@@ -226,6 +226,26 @@ function SignupForm() {
     });
 
     if (authError) {
+      const msg = authError.message?.toLowerCase() || "";
+      if (msg.includes("already registered") || msg.includes("already been registered")) {
+        // User exists but may not have verified email — offer to resend OTP or login
+        setError(null);
+        // Try to resend the OTP for verification
+        const { error: resendError } = await supabase.auth.resend({
+          type: "signup",
+          email,
+        });
+        if (resendError) {
+          // If resend fails, user probably already verified — send to login
+          setError("This email is already registered. Try logging in instead.");
+        } else {
+          // OTP resent — show the verification step
+          setStep(3);
+          setResendCooldown(60);
+        }
+        setLoading(false);
+        return;
+      }
       setError(authError.message);
       setLoading(false);
       return;
