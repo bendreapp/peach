@@ -201,7 +201,8 @@ function ContactInfoEditor({
         onSuccess: () => {
           toast.success("Contact info updated");
           setEditing(false);
-          qc.invalidateQueries({ queryKey: ["clients", clientId] });
+          qc.invalidateQueries({ queryKey: ["clients", clientId, "detail"] });
+          qc.invalidateQueries({ queryKey: ["clients"] });
         },
         onError: (err: Error) => toast.error(err.message),
       }
