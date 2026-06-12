@@ -32,11 +32,14 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // --- Protected Routes ---
+  // `/access-locked` is included so unauthenticated users get bounced to login,
+  // but it is NOT gated by plan status — that's the whole point of the page.
   const isProtected =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/settings") ||
     pathname.startsWith("/portal") ||
-    pathname.startsWith("/onboarding");
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/access-locked");
 
   if (isProtected && !user) {
     const loginPath = pathname.startsWith("/portal") ? "/login/client" : "/login/therapist";
@@ -83,6 +86,7 @@ export const config = {
     // Listed here so Supabase session cookies are refreshed, but NOT protected.
     "/onboard/:path*",
     "/intake/:path*",
+    "/access-locked",
     "/",
   ],
 };

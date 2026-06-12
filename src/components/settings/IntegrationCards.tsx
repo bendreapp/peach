@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Video, Calendar, ExternalLink } from "lucide-react";
 
@@ -17,11 +18,19 @@ export default function IntegrationCards({
 
   const disconnectZoom = useMutation({
     mutationFn: () => api.integration.disconnectZoom(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["integration", "status"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["integration", "status"] });
+      toast.success("Zoom disconnected. Existing sessions keep their links.");
+    },
+    onError: () => toast.error("Couldn't disconnect Zoom. Try again."),
   });
   const disconnectGoogle = useMutation({
     mutationFn: () => api.integration.disconnectGoogle(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["integration", "status"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["integration", "status"] });
+      toast.success("Google Calendar disconnected. Existing events remain.");
+    },
+    onError: () => toast.error("Couldn't disconnect Google Calendar. Try again."),
   });
 
   function connectZoom() {
@@ -53,80 +62,90 @@ export default function IntegrationCards({
       <div>
         <h2 className="text-lg font-semibold text-ink">Integrations</h2>
         <p className="text-sm text-ink-secondary mt-1">
-          Connect your tools for automatic meeting links and calendar sync.
+          Optional. Connect Zoom or Google Calendar to skip manual link-copying and double-booking.
         </p>
       </div>
 
       <div className="space-y-3">
         {/* Zoom */}
-        <div className="flex items-center justify-between p-4 rounded-lg border border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
-              <Video size={20} className="text-blue-600" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-border">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+              <Video size={20} className="text-blue-600" aria-hidden="true" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium text-ink">Zoom</p>
-              <p className="text-xs text-ink-tertiary">Auto-create meeting links for sessions</p>
+              <p className="text-xs text-ink-tertiary leading-relaxed">
+                When you create an online session, Bendre auto-generates a Zoom link and
+                shares it with the client. Without this, you'll paste a link manually each time.
+              </p>
             </div>
           </div>
 
           {zoomConnected ? (
-            <div className="flex items-center gap-2">
-              <span className="badge-success flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <span className="badge-success flex items-center gap-1.5" aria-label="Zoom is connected">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" aria-hidden="true" />
                 Connected
               </span>
               <button
                 onClick={() => disconnectZoom.mutate()}
                 disabled={disconnectZoom.isPending}
-                className="text-xs text-ink-tertiary hover:text-error transition-colors font-medium"
+                aria-label="Disconnect Zoom"
+                className="text-xs text-ink-tertiary hover:text-error transition-colors font-medium disabled:opacity-50"
               >
-                {disconnectZoom.isPending ? "..." : "Disconnect"}
+                {disconnectZoom.isPending ? "Disconnecting…" : "Disconnect"}
               </button>
             </div>
           ) : (
             <button
               onClick={connectZoom}
-              className="btn-secondary btn-sm flex items-center gap-1.5"
+              aria-label="Connect Zoom"
+              className="btn-secondary btn-sm flex items-center gap-1.5 flex-shrink-0"
             >
-              <ExternalLink size={12} />
+              <ExternalLink size={12} aria-hidden="true" />
               Connect Zoom
             </button>
           )}
         </div>
 
         {/* Google Calendar */}
-        <div className="flex items-center justify-between p-4 rounded-lg border border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
-              <Calendar size={20} className="text-amber-600" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-border">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+              <Calendar size={20} className="text-amber-600" aria-hidden="true" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium text-ink">Google Calendar</p>
-              <p className="text-xs text-ink-tertiary">Sync sessions to your calendar</p>
+              <p className="text-xs text-ink-tertiary leading-relaxed">
+                Every session you book in Bendre lands on your Google Calendar with the client name
+                and notes link. Helps avoid double-booking and surfaces sessions in your phone's calendar app.
+              </p>
             </div>
           </div>
 
           {googleConnected ? (
-            <div className="flex items-center gap-2">
-              <span className="badge-success flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <span className="badge-success flex items-center gap-1.5" aria-label="Google Calendar is connected">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" aria-hidden="true" />
                 Connected
               </span>
               <button
                 onClick={() => disconnectGoogle.mutate()}
                 disabled={disconnectGoogle.isPending}
-                className="text-xs text-ink-tertiary hover:text-error transition-colors font-medium"
+                aria-label="Disconnect Google Calendar"
+                className="text-xs text-ink-tertiary hover:text-error transition-colors font-medium disabled:opacity-50"
               >
-                {disconnectGoogle.isPending ? "..." : "Disconnect"}
+                {disconnectGoogle.isPending ? "Disconnecting…" : "Disconnect"}
               </button>
             </div>
           ) : (
             <button
               onClick={connectGoogle}
-              className="btn-secondary btn-sm flex items-center gap-1.5"
+              aria-label="Connect Google Calendar"
+              className="btn-secondary btn-sm flex items-center gap-1.5 flex-shrink-0"
             >
-              <ExternalLink size={12} />
+              <ExternalLink size={12} aria-hidden="true" />
               Connect Google Calendar
             </button>
           )}

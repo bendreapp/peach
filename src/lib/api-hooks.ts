@@ -18,6 +18,18 @@ export function useTherapistMe() {
   });
 }
 
+/// Plan-status hook backed by the exempt endpoint — safe to call even when the
+/// user's plan is inactive (the gate skips this path). Used for the dashboard
+/// "expires in N days" banner.
+export function usePlanStatus() {
+  return useQuery({
+    queryKey: ["therapist", "plan-status"],
+    queryFn: () => api.therapist.planStatus(),
+    // Refetch every 5 min so the countdown stays fresh during a long session.
+    refetchInterval: 5 * 60 * 1000,
+  });
+}
+
 export function useTherapistBySlug(slug: string) {
   return useQuery({
     queryKey: ["therapist", "by-slug", slug],

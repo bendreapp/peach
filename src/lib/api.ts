@@ -10,19 +10,44 @@ interface ApiError {
   error: {
     code: string;
     message: string;
+    // PLAN_INACTIVE carries these so the locked screen can render the right copy.
+    plan_status?: string;
+    expires_at?: string | null;
   };
 }
 
 class ApiClientError extends Error {
   code: string;
   status: number;
+  /// Populated only when `code === "PLAN_INACTIVE"`. Drives the access-locked screen copy.
+  planStatus?: string;
+  expiresAt?: string | null;
 
-  constructor(message: string, code: string, status: number) {
+  constructor(
+    message: string,
+    code: string,
+    status: number,
+    extras?: { planStatus?: string; expiresAt?: string | null }
+  ) {
     super(message);
     this.code = code;
     this.status = status;
+    this.planStatus = extras?.planStatus;
+    this.expiresAt = extras?.expiresAt ?? null;
     this.name = "ApiClientError";
   }
+}
+
+/// Redirect the browser to the access-locked screen on PLAN_INACTIVE.
+/// Module-scoped guard so concurrent failing requests don't pile up history entries.
+let redirectingToAccessLocked = false;
+function redirectToAccessLocked(planStatus?: string) {
+  if (typeof window === "undefined") return;
+  if (redirectingToAccessLocked) return;
+  if (window.location.pathname === "/access-locked") return;
+  redirectingToAccessLocked = true;
+  const status = planStatus ?? "expired";
+  window.location.href = `/access-locked?status=${encodeURIComponent(status)}`;
 }
 
 async function getAccessToken(): Promise<string | null> {
@@ -83,11 +108,19 @@ async function apiFetch<T = any>(
         res.status
       );
     }
-    throw new ApiClientError(
+    const err = new ApiClientError(
       errorData.error.message,
       errorData.error.code,
-      res.status
+      res.status,
+      {
+        planStatus: errorData.error.plan_status,
+        expiresAt: errorData.error.expires_at ?? null,
+      }
     );
+    if (err.code === "PLAN_INACTIVE") {
+      redirectToAccessLocked(err.planStatus);
+    }
+    throw err;
   }
 
   // Handle 204 No Content
@@ -120,6 +153,14 @@ export const api = {
         method: "POST",
         body: { plan },
       }),
+    planStatus: () =>
+      apiFetch<{
+        status: "active" | "pending" | "expired" | "suspended";
+        plan_status: string;
+        plan_selected: string | null;
+        plan_expires_at: string | null;
+        days_remaining: number | null;
+      }>("/api/v1/therapists/me/plan-status"),
     completeOnboarding: (data: {
       avatar_key: string;
       bio: string;

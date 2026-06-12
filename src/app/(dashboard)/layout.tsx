@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import posthog from "posthog-js";
-import { useTherapistMe, useClientsList, useUpdateTherapist } from "@/lib/api-hooks";
+import { useTherapistMe, useClientsList, useUpdateTherapist, usePlanStatus } from "@/lib/api-hooks";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -94,11 +94,25 @@ export default function DashboardLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const therapist = useTherapistMe();
+  const planStatus = usePlanStatus();
   const updateTherapist = useUpdateTherapist();
   const [autoSaving, setAutoSaving] = useState(false);
 
   // Prefetch at layout level
   useClientsList();
+
+  // ── Plan gate (client-side) ─────────────────────────────────────────────
+  // The backend rejects API calls with PLAN_INACTIVE for non-active users; the
+  // api.ts interceptor catches that and redirects. This proactive check avoids
+  // the flash of dashboard chrome before the first API call fails.
+  useEffect(() => {
+    if (!planStatus.data) return;
+    const status = planStatus.data.status;
+    if (status !== "active") {
+      const url = `/access-locked?status=${encodeURIComponent(status)}`;
+      router.replace(url);
+    }
+  }, [planStatus.data, router]);
 
   // ── Onboarding flow guards ──────────────────────────────────────────────
   // Enforce the correct signup sequence: plan → onboarding → dashboard.
@@ -399,23 +413,40 @@ export default function DashboardLayout({
         className="flex-1 min-h-screen md:ml-[220px]"
         style={{ backgroundColor: "#F4F1EC" }}
       >
-        {/* Plan pending banner */}
-        {therapist.data?.plan_status === "pending" && (
-          <div
-            className="flex items-center justify-center gap-2 w-full"
-            style={{
-              background: "#FBF0E8",
-              color: "#B5733A",
-              height: "44px",
-              fontSize: "13px",
-              fontWeight: 500,
-              borderRadius: 0,
-            }}
-          >
-            <Clock size={16} strokeWidth={1.5} />
-            <span>Plan pending activation — our team will reach out soon</span>
-          </div>
-        )}
+        {/* Expiring-soon banner — shown when the active plan has ≤7 days left.
+            Status === "pending" / "expired" / "suspended" all route through
+            /access-locked, so we only reach this branch for active plans.
+            role=status + aria-live so screen readers announce when this appears;
+            content-driven height (min-h instead of fixed) so the message wraps
+            cleanly on narrow phones instead of getting clipped. */}
+        {planStatus.data?.status === "active" &&
+          planStatus.data.days_remaining != null &&
+          planStatus.data.days_remaining <= 7 && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-start sm:items-center justify-center gap-2 w-full px-4 py-2.5 text-[13px] font-medium leading-snug"
+              style={{
+                background: "#FBF0E8",
+                color: "#B5733A",
+                minHeight: "44px",
+              }}
+            >
+              <Clock size={16} strokeWidth={1.5} className="flex-shrink-0 mt-[2px] sm:mt-0" aria-hidden="true" />
+              <span>
+                Your access expires in{" "}
+                <strong>
+                  {Math.max(1, Math.ceil(planStatus.data.days_remaining))} day
+                  {Math.ceil(planStatus.data.days_remaining) === 1 ? "" : "s"}
+                </strong>
+                . Pay to UPI{" "}
+                <code className="font-mono bg-white/40 px-1 py-0.5 rounded text-[12px]">
+                  {process.env.NEXT_PUBLIC_BENDRE_UPI ?? "bendre@upi"}
+                </code>{" "}
+                to renew.
+              </span>
+            </div>
+          )}
 
         <div
           className="animate-fade-in pt-20 md:pt-8 px-4 md:px-8 pb-8 mx-auto"

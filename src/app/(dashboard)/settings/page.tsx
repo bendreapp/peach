@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   useTherapistMe,
   useTherapistAvailability,
 } from "@/lib/api-hooks";
 import { Select } from "@/components/ui/Select";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ProfileForm from "@/components/settings/ProfileForm";
 import SessionTypesEditor from "@/components/settings/SessionTypesEditor";
@@ -43,8 +45,31 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]["key"];
 
-export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>("profile");
+// Maps the OAuth callback's ?error=... param to user-facing copy. Keep these
+// short — they appear in a transient toast.
+const OAUTH_ERROR_COPY: Record<string, string> = {
+  zoom_auth: "Zoom didn't grant access. Try connecting again.",
+  zoom_exchange: "Couldn't finish the Zoom handshake. Try again.",
+  zoom_user: "Zoom is connected but we couldn't read your account. Try again.",
+  google_auth: "Google didn't grant access. Try connecting again.",
+  google_exchange: "Couldn't finish the Google handshake. Try again.",
+  google_user: "Google is connected but we couldn't read your account. Try again.",
+};
+
+function isTabKey(s: string | null): s is TabKey {
+  return !!s && TABS.some((t) => t.key === s);
+}
+
+// Inner component because useSearchParams() must sit under a Suspense boundary
+// in Next 15's static prerender; the default export below wraps it.
+function SettingsPageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const qc = useQueryClient();
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    isTabKey(tabParam) ? tabParam : "profile"
+  );
 
   const therapist = useTherapistMe();
   const availability = useTherapistAvailability();
@@ -53,6 +78,34 @@ export default function SettingsPage() {
     queryFn: () => api.integration.status(),
     retry: false,
   });
+
+  // Handle OAuth callback redirects: ?zoom=connected, ?google=connected, ?error=…
+  // The callback routes in src/app/api/auth/{zoom,google}/callback/route.ts land
+  // here. We surface a toast, refetch integration status, jump to the
+  // Integrations tab, and strip the params so a reload doesn't replay the toast.
+  useEffect(() => {
+    const zoom = searchParams.get("zoom");
+    const google = searchParams.get("google");
+    const error = searchParams.get("error");
+    if (!zoom && !google && !error) return;
+
+    if (zoom === "connected") {
+      toast.success("Zoom connected — meeting links will auto-attach to new sessions.");
+    }
+    if (google === "connected") {
+      toast.success("Google Calendar connected — sessions will sync to your calendar.");
+    }
+    if (error) {
+      const copy = OAUTH_ERROR_COPY[error] ?? "Something went wrong connecting. Try again.";
+      toast.error(copy);
+    }
+
+    if (zoom || google || error) {
+      qc.invalidateQueries({ queryKey: ["integration", "status"] });
+      setActiveTab("integrations");
+      router.replace("/settings", { scroll: false });
+    }
+  }, [searchParams, router, qc]);
 
   // Loading skeleton
   if (therapist.isLoading || availability.isLoading) {
@@ -206,6 +259,7 @@ export default function SettingsPage() {
                     qualifications: t.qualifications,
                     phone: t.phone,
                     gstin: t.gstin,
+                    upi_id: t.upi_id ?? null,
                   }}
                 />
               )}
@@ -261,5 +315,13 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsPageInner />
+    </Suspense>
   );
 }

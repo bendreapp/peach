@@ -1,14 +1,20 @@
 "use client";
 
-import { Receipt } from "lucide-react";
+import { Receipt, Send, Copy } from "lucide-react";
+import { useState } from "react";
 import { usePortalInvoices } from "@/lib/api-hooks";
 
-interface Invoice {
+interface PortalInvoice {
   id: string;
   invoice_number: string;
-  issued_at: string;
-  amount_paise: number;
-  status: "paid" | "unpaid" | "overdue";
+  amount_inr: number;
+  gst_amount_inr: number;
+  total_inr: number;
+  status: "paid" | "unpaid" | "overdue" | string;
+  paid_at: string | null;
+  created_at: string;
+  therapist_upi_id: string | null;
+  therapist_name: string;
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
@@ -26,8 +32,22 @@ function formatDate(iso: string): string {
   });
 }
 
-function formatAmount(paise: number): string {
-  return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 0 })}`;
+function formatRupees(inr: number): string {
+  return `₹${inr.toLocaleString("en-IN", { minimumFractionDigits: 0 })}`;
+}
+
+/// Build a `upi://pay?…` deeplink. On mobile this opens GPay / PhonePe / Paytm
+/// pre-filled with the therapist's VPA, the invoice amount, and a note.
+function buildUpiDeeplink(invoice: PortalInvoice): string | null {
+  if (!invoice.therapist_upi_id) return null;
+  const params = new URLSearchParams({
+    pa: invoice.therapist_upi_id,
+    pn: invoice.therapist_name,
+    am: String(invoice.total_inr),
+    tn: `Invoice ${invoice.invoice_number}`,
+    cu: "INR",
+  });
+  return `upi://pay?${params.toString()}`;
 }
 
 interface InvoicesListProps {
@@ -36,7 +56,19 @@ interface InvoicesListProps {
 
 export default function InvoicesList({ clientId }: InvoicesListProps) {
   const { data, isLoading } = usePortalInvoices(clientId);
-  const invoices: Invoice[] = (data as any) ?? [];
+  const invoices: PortalInvoice[] = (data as PortalInvoice[] | undefined) ?? [];
+  const [copiedUpiFor, setCopiedUpiFor] = useState<string | null>(null);
+
+  async function copyUpi(invoice: PortalInvoice) {
+    if (!invoice.therapist_upi_id) return;
+    try {
+      await navigator.clipboard.writeText(invoice.therapist_upi_id);
+      setCopiedUpiFor(invoice.id);
+      setTimeout(() => setCopiedUpiFor((cur) => (cur === invoice.id ? null : cur)), 1800);
+    } catch {
+      // clipboard unavailable; silent
+    }
+  }
 
   if (isLoading) {
     return (
@@ -94,35 +126,75 @@ export default function InvoicesList({ clientId }: InvoicesListProps) {
           text: "#6B6460",
           label: invoice.status,
         };
+        const upiLink = invoice.status !== "paid" ? buildUpiDeeplink(invoice) : null;
 
         return (
           <div
             key={invoice.id}
-            className="rounded-xl border border-[#E5E0D8] px-4 py-3 flex items-center justify-between gap-4"
+            className="rounded-xl border border-[#E5E0D8] px-4 py-3 flex flex-col gap-2"
             style={{
               background: "white",
               boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
             }}
           >
-            <div className="min-w-0">
-              <p className="text-sm font-semibold" style={{ color: "#1C1C1E" }}>
-                {invoice.invoice_number}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
-                {formatDate(invoice.issued_at)}
-              </p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold" style={{ color: "#1C1C1E" }}>
+                  {invoice.invoice_number}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
+                  {formatDate(invoice.created_at)}
+                </p>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span
+                  className="text-sm font-semibold tabular-nums"
+                  style={{ color: "#1C1C1E" }}
+                >
+                  {formatRupees(invoice.total_inr)}
+                </span>
+                <span
+                  className="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                  style={{ background: status.bg, color: status.text }}
+                >
+                  {status.label}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="text-sm font-semibold tabular-nums" style={{ color: "#1C1C1E" }}>
-                {formatAmount(invoice.amount_paise)}
-              </span>
-              <span
-                className="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
-                style={{ background: status.bg, color: status.text }}
-              >
-                {status.label}
-              </span>
-            </div>
+
+            {/* UPI payment row — only for unpaid invoices where therapist set a UPI ID.
+                Touch targets sized to 44px iOS minimum since clients open the
+                portal on phones. Helper text always visible (no sm:hidden) so
+                mobile users see the UTR-handoff instruction. */}
+            {upiLink && (
+              <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#F0EDE7]">
+                <a
+                  href={upiLink}
+                  aria-label={`Pay ${formatRupees(invoice.total_inr)} via UPI to ${invoice.therapist_name}`}
+                  className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-[#5C7A6B] text-white px-4 py-2.5 rounded-md hover:bg-[#4A6557] transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C7A6B] focus-visible:ring-offset-2"
+                >
+                  <Send size={14} aria-hidden="true" />
+                  Pay {formatRupees(invoice.total_inr)} via UPI
+                </a>
+                <button
+                  type="button"
+                  onClick={() => copyUpi(invoice)}
+                  aria-label={`Copy UPI ID ${invoice.therapist_upi_id ?? ""}`}
+                  className="inline-flex items-center justify-center gap-1.5 text-sm text-[#5C5856] hover:text-[#1C1C1E] transition-colors px-3 py-2.5 rounded-md hover:bg-[#F4F1EC] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C7A6B]"
+                >
+                  <Copy size={13} aria-hidden="true" />
+                  {copiedUpiFor === invoice.id ? "Copied" : "Copy UPI"}
+                </button>
+                <p className="text-[12px] text-[#736E6A] w-full mt-1 leading-snug">
+                  After paying, share the UTR with your therapist on WhatsApp so they can mark this invoice as paid.
+                </p>
+              </div>
+            )}
+            {invoice.status !== "paid" && !invoice.therapist_upi_id && (
+              <div className="text-[12px] text-[#736E6A] pt-3 border-t border-[#F0EDE7] leading-snug">
+                Your therapist hasn't set up a UPI ID yet — please reach out to them to pay.
+              </div>
+            )}
           </div>
         );
       })}

@@ -72,8 +72,10 @@ export default function OnboardingPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Welcome to Bendre");
-          router.push("/dashboard");
+          toast.success("Profile saved — we'll email you when activated");
+          // New therapists start with plan_status='pending'; admin activates from HQ
+          // and Bendre emails them. Until then, the platform is locked.
+          router.push("/access-locked?status=pending");
         },
         onError: (err) => {
           toast.error(err.message || "Something went wrong. Please try again.");

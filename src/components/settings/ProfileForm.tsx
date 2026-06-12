@@ -11,8 +11,11 @@ interface ProfileFormProps {
     qualifications: string | null;
     phone: string | null;
     gstin: string | null;
+    upi_id: string | null;
   };
 }
+
+const VPA_PATTERN = /^[a-z0-9._-]+@[a-z][a-z0-9._-]+$/i;
 
 export default function ProfileForm({ therapist }: ProfileFormProps) {
   const [fullName, setFullName] = useState(therapist.full_name);
@@ -22,7 +25,11 @@ export default function ProfileForm({ therapist }: ProfileFormProps) {
   const [qualifications, setQualifications] = useState(therapist.qualifications ?? "");
   const [phone, setPhone] = useState(therapist.phone ?? "");
   const [gstin, setGstin] = useState(therapist.gstin ?? "");
+  const [upiId, setUpiId] = useState(therapist.upi_id ?? "");
   const update = useUpdateTherapist();
+
+  const upiTrimmed = upiId.trim().toLowerCase();
+  const upiInvalid = upiTrimmed.length > 0 && !VPA_PATTERN.test(upiTrimmed);
 
   // Add local onSuccess/onError handlers
   const handleMutate = (data: Record<string, unknown>) => {
@@ -38,6 +45,10 @@ export default function ProfileForm({ therapist }: ProfileFormProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (upiInvalid) {
+      toast.error("UPI ID format looks wrong (expected name@bank)");
+      return;
+    }
     handleMutate({
       full_name: fullName,
       display_name: displayName || null,
@@ -46,6 +57,7 @@ export default function ProfileForm({ therapist }: ProfileFormProps) {
       qualifications: qualifications || null,
       phone: phone || null,
       gstin: gstin || null,
+      upi_id: upiTrimmed || "",
     });
   }
 
@@ -160,19 +172,45 @@ export default function ProfileForm({ therapist }: ProfileFormProps) {
           </div>
         </div>
 
-        <div className="max-w-xs">
-          <label htmlFor="gstin" className="block text-xs font-medium text-ink-secondary mb-1.5">
-            GSTIN <span className="text-ink-tertiary font-normal">(optional)</span>
-          </label>
-          <input
-            id="gstin"
-            type="text"
-            value={gstin}
-            onChange={(e) => setGstin(e.target.value.toUpperCase())}
-            maxLength={15}
-            placeholder="e.g. 27AABCU9603R1ZM"
-            className="w-full px-3.5 py-2.5 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm transition-shadow font-mono"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="gstin" className="block text-xs font-medium text-ink-secondary mb-1.5">
+              GSTIN <span className="text-ink-tertiary font-normal">(optional)</span>
+            </label>
+            <input
+              id="gstin"
+              type="text"
+              value={gstin}
+              onChange={(e) => setGstin(e.target.value.toUpperCase())}
+              maxLength={15}
+              placeholder="e.g. 27AABCU9603R1ZM"
+              className="w-full px-3.5 py-2.5 rounded-small border border-border bg-surface focus:outline-none focus:ring-[3px] focus:ring-sage/10 focus:border-sage text-sm transition-shadow font-mono"
+            />
+          </div>
+          <div>
+            <label htmlFor="upiId" className="block text-xs font-medium text-ink-secondary mb-1.5">
+              UPI ID
+            </label>
+            <input
+              id="upiId"
+              type="text"
+              value={upiId}
+              onChange={(e) => setUpiId(e.target.value)}
+              placeholder="yourname@bank"
+              autoComplete="off"
+              aria-invalid={upiInvalid || undefined}
+              className={`w-full px-3.5 py-2.5 rounded-small border bg-surface focus:outline-none focus:ring-[3px] text-sm transition-shadow font-mono ${
+                upiInvalid
+                  ? "border-red-500 focus:ring-red-500/10 focus:border-red-500"
+                  : "border-border focus:ring-sage/10 focus:border-sage"
+              }`}
+            />
+            <p className={`text-[11px] mt-1 ${upiInvalid ? "text-red-600" : "text-ink-tertiary"}`}>
+              {upiInvalid
+                ? "Use the format name@bank (e.g. priya@okhdfc)."
+                : "Clients pay invoices directly to this UPI handle."}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 pt-1">

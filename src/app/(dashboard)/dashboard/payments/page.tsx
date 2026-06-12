@@ -571,10 +571,10 @@ function TransactionsTab() {
         <CreditCard size={22} style={{ color: "#C5BFB8" }} />
       </div>
       <p className="text-base font-medium mb-1" style={{ color: "#5C5856" }}>
-        Transaction history coming soon
+        No transactions yet
       </p>
       <p className="text-sm" style={{ color: "#736E6A" }}>
-        Once Razorpay is connected, payment transactions will appear here
+        When clients pay invoices via UPI and you mark them as paid, the activity will appear here.
       </p>
     </div>
   );
@@ -599,22 +599,29 @@ function PaymentSettingsTab() {
         Payment Settings
       </h3>
       <p className="text-sm mb-6" style={{ color: "#736E6A" }}>
-        Configure your payment gateway and invoice preferences
+        Configure how you collect payments from clients
       </p>
       <div
         className="rounded-small p-4 flex items-start gap-3"
         style={{
-          background: "#FBF4EE",
-          border: "1px solid rgba(212,149,106,0.25)",
+          background: "#EBF0EB",
+          border: "1px solid rgba(92,122,107,0.25)",
         }}
       >
-        <AlertCircle size={16} style={{ color: "#D4956A", marginTop: 2 }} />
+        <AlertCircle size={16} style={{ color: "#5C7A6B", marginTop: 2 }} />
         <div>
-          <p className="text-sm font-medium" style={{ color: "#B5733A" }}>
-            Razorpay integration pending
+          <p className="text-sm font-medium" style={{ color: "#4A6557" }}>
+            UPI is your payment method
           </p>
           <p className="text-xs mt-0.5" style={{ color: "#736E6A" }}>
-            Online payment collection with auto-invoicing and GST will be available soon.
+            Set your UPI ID in{" "}
+            <a className="underline" href="/settings">
+              Settings → Profile
+            </a>{" "}
+            so unpaid invoices show a one-tap{" "}
+            <code className="text-[11px] bg-white px-1 py-0.5 rounded">upi://pay</code>{" "}
+            link in your client's portal. Mark invoices paid here once you've confirmed the UTR.
+            Online card / netbanking collection is coming later.
           </p>
         </div>
       </div>

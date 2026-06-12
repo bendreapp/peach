@@ -362,6 +362,13 @@ export default function DashboardPage() {
     queryKey: ["session-types", "list"],
     queryFn: () => api.sessionType.list(),
   });
+  // Integration status drives two of the setup checklist items below. retry:false
+  // matches the settings page query so we don't hammer the backend on a 401.
+  const integrationStatus = useQuery({
+    queryKey: ["integration", "status"],
+    queryFn: () => api.integration.status(),
+    retry: false,
+  });
 
   const approve = useApproveSession();
   const reject = useRejectSession();
@@ -405,6 +412,18 @@ export default function DashboardPage() {
       done: !!therapist.data?.cancellation_policy,
       href: "/settings?tab=policies",
       hrefLabel: "Add policy",
+    },
+    {
+      label: "Connect Zoom for auto-meeting links",
+      done: !!(integrationStatus.data as { zoom?: boolean } | undefined)?.zoom,
+      href: "/settings?tab=integrations",
+      hrefLabel: "Connect Zoom",
+    },
+    {
+      label: "Connect Google Calendar to sync sessions",
+      done: !!(integrationStatus.data as { google_calendar?: boolean } | undefined)?.google_calendar,
+      href: "/settings?tab=integrations",
+      hrefLabel: "Connect Calendar",
     },
   ];
 
