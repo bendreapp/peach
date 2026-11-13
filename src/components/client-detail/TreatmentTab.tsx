@@ -71,7 +71,13 @@ export default function TreatmentTab({ clientId }: TreatmentTabProps) {
       ) : (
         <div className="space-y-3">
           {plans.data?.map((plan: any) => {
-            const goals = (plan.goals as Goal[]) ?? [];
+            // goals is stored as a JSON string in the backend (encrypted text) — parse safely
+            let goals: Goal[] = [];
+            try {
+              goals = plan.goals ? JSON.parse(plan.goals) : [];
+            } catch {
+              goals = [];
+            }
             const completedGoals = goals.filter((g) => g.completed).length;
             const totalGoals = goals.length;
             const modality = THERAPY_MODALITIES[plan.modality as TherapyModalityKey];

@@ -97,8 +97,9 @@ interface NoteEditorProps {
     plan: string | null;
     freeform_content: string | null;
     homework: string | null;
-    techniques_used: string[];
-    risk_flags: string[];
+    // Backend stores these as a plain string (comma-separated); UI splits to string[] for chips
+    techniques_used: string | null;
+    risk_flags: string | null;
   };
   sessionInfo?: {
     clientName: string;
@@ -217,11 +218,17 @@ export default function NoteEditor({
     freeform_content: existingNote?.freeform_content ?? "",
   });
   const [homework, setHomework] = useState(existingNote?.homework ?? "");
+  // techniques_used / risk_flags come from the backend as a plain string (comma-separated).
+  // Split to string[] for the chip UI; join back to a string on save.
   const [techniques, setTechniques] = useState<string[]>(
-    existingNote?.techniques_used ?? []
+    existingNote?.techniques_used
+      ? existingNote.techniques_used.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
   );
   const [riskFlags, setRiskFlags] = useState<string[]>(
-    existingNote?.risk_flags ?? []
+    existingNote?.risk_flags
+      ? existingNote.risk_flags.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
   );
   const [saveState, setSaveState] = useState<SaveState>("idle");
 
@@ -242,8 +249,9 @@ export default function NoteEditor({
       plan: fields.plan || null,
       freeform_content: fields.freeform_content || null,
       homework: homework || null,
-      techniques_used: techniques,
-      risk_flags: riskFlags,
+      // Backend expects Option<String> — join the chip array to a comma-separated string
+      techniques_used: techniques.length > 0 ? techniques.join(", ") : null,
+      risk_flags: riskFlags.length > 0 ? riskFlags.join(", ") : null,
     }),
     [noteType, fields, homework, techniques, riskFlags]
   );
@@ -274,8 +282,9 @@ export default function NoteEditor({
           { onSuccess, onError }
         );
       } else {
+        // Backend requires snake_case `session_id` (not camelCase `sessionId`)
         createNote.mutate(
-          { sessionId, ...payload },
+          { session_id: sessionId, ...payload },
           { onSuccess, onError }
         );
       }

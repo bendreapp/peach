@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Sun, Moon, ArrowRight } from "lucide-react";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 function RoleCard({
   href,
@@ -80,7 +82,22 @@ const clientSvg = (
 );
 
 export default function SignupRolePicker() {
+  return (
+    <Suspense>
+      <SignupRolePickerInner />
+    </Suspense>
+  );
+}
+
+function SignupRolePickerInner() {
   const { theme, setTheme } = useTheme();
+  const searchParams = useSearchParams();
+
+  // Forward redirect/error params so downstream pages can read them
+  function withParams(base: string) {
+    const qs = searchParams.toString();
+    return qs ? `${base}?${qs}` : base;
+  }
 
   return (
     <main
@@ -120,13 +137,13 @@ export default function SignupRolePicker() {
 
         <div className="space-y-3.5">
           <RoleCard
-            href="/signup/therapist"
+            href={withParams("/signup/therapist")}
             illustration={therapistSvg}
             title="Therapist"
             subtitle="I provide care to my clients"
           />
           <RoleCard
-            href="/signup/client"
+            href={withParams("/signup/client")}
             illustration={clientSvg}
             title="Client"
             subtitle="Invite only"

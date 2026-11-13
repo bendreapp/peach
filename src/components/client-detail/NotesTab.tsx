@@ -21,7 +21,9 @@ interface NotesTabProps {
 }
 
 export default function NotesTab({ clientId }: NotesTabProps) {
-  const notes = useNotesList({ client_id: clientId, limit: 50 });
+  // TODO: per-client notes require GET /api/v1/clients/{id}/notes which is not yet implemented.
+  // For now, fetch the therapist's recent notes list (no client_id filter supported by backend).
+  const notes = useNotesList({ per_page: 50 });
 
   return (
     <div className="bg-surface rounded-card border border-border shadow-sm overflow-hidden">
@@ -45,7 +47,8 @@ export default function NotesTab({ clientId }: NotesTabProps) {
             const sessions = note.sessions as { starts_at: string } | null;
             const template = NOTE_TEMPLATES[note.note_type as NoteTemplate];
             const preview = note.freeform_content || note.subjective || "";
-            const hasRiskFlags = note.risk_flags && note.risk_flags.length > 0;
+            // risk_flags is a plain string from the backend (not an array)
+            const hasRiskFlags = !!note.risk_flags;
 
             return (
               <Link

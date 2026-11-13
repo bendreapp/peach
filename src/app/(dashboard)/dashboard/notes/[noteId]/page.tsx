@@ -112,9 +112,10 @@ function NoteReadView({ note }: { note: any }) {
           )}
 
       {/* Extra fields */}
+      {/* techniques_used and risk_flags are plain strings from the backend — split for display */}
       {(note.homework ||
-        note.techniques_used?.length > 0 ||
-        note.risk_flags?.length > 0) && (
+        note.techniques_used ||
+        note.risk_flags) && (
         <div
           className="mt-8 pt-6 space-y-4"
           style={{ borderTop: "1px solid #E5E0D8" }}
@@ -135,7 +136,7 @@ function NoteReadView({ note }: { note: any }) {
               </p>
             </div>
           )}
-          {note.techniques_used?.length > 0 && (
+          {note.techniques_used && (
             <div>
               <p
                 className="text-[11px] font-medium uppercase tracking-wider mb-2"
@@ -144,7 +145,7 @@ function NoteReadView({ note }: { note: any }) {
                 Techniques Used
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {note.techniques_used.map((t: string) => (
+                {String(note.techniques_used).split(",").map((t: string) => t.trim()).filter(Boolean).map((t: string) => (
                   <span
                     key={t}
                     className="px-2.5 py-0.5 rounded-full text-[12px] font-medium"
@@ -156,7 +157,7 @@ function NoteReadView({ note }: { note: any }) {
               </div>
             </div>
           )}
-          {note.risk_flags?.length > 0 && (
+          {note.risk_flags && (
             <div>
               <p
                 className="text-[11px] font-medium uppercase tracking-wider mb-2"
@@ -165,7 +166,7 @@ function NoteReadView({ note }: { note: any }) {
                 Risk Flags
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {note.risk_flags.map((f: string) => (
+                {String(note.risk_flags).split(",").map((f: string) => f.trim()).filter(Boolean).map((f: string) => (
                   <span
                     key={f}
                     className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[12px] font-medium"
@@ -331,7 +332,7 @@ export default function EditNotePage({
                 >
                   {noteStatus}
                 </span>
-                {n.risk_flags?.length > 0 && (
+                {n.risk_flags && (
                   <span
                     className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium"
                     style={{ background: "#F9EDED", color: "#C0705A" }}
@@ -425,8 +426,9 @@ export default function EditNotePage({
               plan: n.plan,
               freeform_content: n.freeform_content,
               homework: n.homework,
-              techniques_used: n.techniques_used ?? [],
-              risk_flags: n.risk_flags ?? [],
+              // Backend returns these as plain strings; NoteEditor splits them into chips
+              techniques_used: n.techniques_used ?? null,
+              risk_flags: n.risk_flags ?? null,
             }}
             sessionInfo={
               sessions

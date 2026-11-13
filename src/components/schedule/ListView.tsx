@@ -8,16 +8,9 @@ import {
   AlertCircle,
   UserX,
   IndianRupee,
-  Mail,
   FileText,
 } from "lucide-react";
 import { formatTimeIST, formatDateIST } from "@/lib/date-utils";
-
-interface SessionClient {
-  full_name: string;
-  email: string;
-  phone: string | null;
-}
 
 interface SessionData {
   id: string;
@@ -30,8 +23,7 @@ interface SessionData {
   session_type_name: string | null;
   zoom_join_url: string | null;
   zoom_start_url: string | null;
-  clients: SessionClient;
-  client_name?: string;
+  client_name: string | null;
 }
 
 interface ListViewProps {
@@ -112,19 +104,19 @@ export default function ListView({
           </div>
           <div className="bg-surface rounded-card border border-border shadow-sm overflow-hidden divide-y divide-border">
             {daySessions.map((session) => {
-              const client = session.clients ?? { full_name: session.client_name ?? "Client", email: "", phone: null };
+              const clientName = session.client_name ?? "Client";
               return (
                 <div key={session.id} className="px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-semibold text-sage">
-                          {client.full_name.charAt(0).toUpperCase()}
+                          {clientName.charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div>
                         <div className="text-sm font-medium text-ink">
-                          {client.full_name}
+                          {clientName}
                         </div>
                         <div className="text-xs text-ink-tertiary flex items-center gap-1">
                           <Clock size={11} />
@@ -254,12 +246,7 @@ export default function ListView({
                         {session.session_type_name}
                       </span>
                     )}
-                    {client.email && (
-                      <span className="text-[11px] text-ink-tertiary inline-flex items-center gap-1">
-                        <Mail size={10} />
-                        {client.email}
-                      </span>
-                    )}
+                    {/* email not included in session list response */}
                   </div>
                 </div>
               );

@@ -1,19 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Sun, Moon } from "lucide-react";
+import Link from "next/link";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasSession, setHasSession] = useState<boolean | null>(null); // null = checking
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+
+  // Check whether a recovery session exists (Supabase sets one when the reset link
+  // is opened in the same browser that requested the reset).
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setHasSession(!!session);
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +44,19 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      setError(error.message);
+      // Supabase returns "Auth session missing" when there is no recovery session,
+      // which happens when the link is opened in a different browser than the one
+      // that requested the reset.
+      const msg = error.message?.toLowerCase() ?? "";
+      if (msg.includes("session missing") || msg.includes("no session") || msg.includes("not authenticated")) {
+        setError(
+          "This reset link has expired or was opened in a different browser. Please request a new password reset link."
+        );
+      } else {
+        setError(error.message);
+      }
     } else {
-      router.push("/login?reset=success");
+      router.push("/login/therapist?reset=success");
     }
     setLoading(false);
   };
@@ -84,51 +105,72 @@ export default function ResetPasswordPage() {
             borderColor: "var(--color-auth-card-border)",
           }}
         >
-          <div className="text-center mb-7">
-            <h1 className="text-xl font-bold" style={{ color: "var(--color-auth-text)" }}>
-              Set New Password
-            </h1>
-            <p className="text-[13px] mt-1" style={{ color: "var(--color-auth-text-secondary)" }}>
-              Choose a new password for your account
-            </p>
-          </div>
-
-          {error && (
-            <div role="alert" className="mb-5 px-4 py-3 rounded-lg text-[13px]" style={{ background: "rgba(229,57,53,0.08)", border: "1px solid rgba(229,57,53,0.15)", color: "#e55" }}>
-              {error}
+          {/* No-session: link expired or opened in a different browser */}
+          {hasSession === false ? (
+            <div className="text-center space-y-4">
+              <h1 className="text-xl font-bold" style={{ color: "var(--color-auth-text)" }}>
+                Link expired
+              </h1>
+              <p className="text-[13px]" style={{ color: "var(--color-auth-text-secondary)" }}>
+                This password reset link has expired or was opened in a different browser than the one you used to request it. Please request a new one.
+              </p>
+              <Link
+                href="/forgot-password"
+                className="inline-block w-full h-11 rounded-lg text-white text-sm font-semibold transition-all leading-[44px]"
+                style={{ background: "var(--color-sage)" }}
+              >
+                Request a new reset link
+              </Link>
             </div>
+          ) : (
+            <>
+              <div className="text-center mb-7">
+                <h1 className="text-xl font-bold" style={{ color: "var(--color-auth-text)" }}>
+                  Set New Password
+                </h1>
+                <p className="text-[13px] mt-1" style={{ color: "var(--color-auth-text-secondary)" }}>
+                  Choose a new password for your account
+                </p>
+              </div>
+
+              {error && (
+                <div role="alert" className="mb-5 px-4 py-3 rounded-lg text-[13px]" style={{ background: "rgba(229,57,53,0.08)", border: "1px solid rgba(229,57,53,0.15)", color: "#e55" }}>
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="password" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
+                    New Password
+                  </label>
+                  <input
+                    id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="At least 8 characters"
+                    className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
+                    Confirm Password
+                  </label>
+                  <input
+                    id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Re-enter your password"
+                    className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
+                    style={inputStyle}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading || hasSession === null}
+                  className="w-full h-11 rounded-lg text-white text-sm font-semibold disabled:opacity-50 transition-all"
+                  style={{ background: "var(--color-sage)" }}
+                >
+                  {loading ? "Updating..." : "Update Password"}
+                </button>
+              </form>
+            </>
           )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="password" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                New Password
-              </label>
-              <input
-                id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="At least 8 characters"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--color-auth-text-secondary)" }}>
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Re-enter your password"
-                className="w-full h-11 px-4 rounded-lg text-sm transition-all focus:outline-none focus:border-[#6B7E6C] focus:ring-2 focus:ring-[#6B7E6C]/15"
-                style={inputStyle}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 rounded-lg text-white text-sm font-semibold disabled:opacity-50 transition-all"
-              style={{ background: "var(--color-sage)" }}
-            >
-              {loading ? "Updating..." : "Update Password"}
-            </button>
-          </form>
         </div>
       </div>
     </main>

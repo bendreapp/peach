@@ -42,8 +42,10 @@ export default function BroadcastPage() {
   const send = useMutation({
     mutationFn: (data: Record<string, unknown>) => api.broadcast.send(data),
     onSuccess: (data: any) => {
+      const sent: number = data.sent ?? 0;
+      const total: number = data.total_clients ?? selectedIds.length;
       toast.success(
-        `Sent to ${data.total_clients} client${data.total_clients > 1 ? "s" : ""}`
+        `Sent to ${sent} of ${total} client${total !== 1 ? "s" : ""}`
       );
       setSelectedIds([]);
       setSubject("");

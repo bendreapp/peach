@@ -5,19 +5,6 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import PlanEditor from "@/components/treatment-plan/PlanEditor";
-interface SubGoal {
-  id: string;
-  title: string;
-  status: "not_started" | "in_progress" | "completed";
-}
-
-interface Goal {
-  id: string;
-  title: string;
-  modality?: string;
-  status: "not_started" | "in_progress" | "completed";
-  sub_goals?: SubGoal[];
-}
 import { ArrowLeft, ClipboardList } from "lucide-react";
 
 export default function EditTreatmentPlanPage({
@@ -81,7 +68,8 @@ export default function EditTreatmentPlanPage({
             modality_other: p.modality_other,
             presenting_concerns: p.presenting_concerns,
             diagnosis: p.diagnosis,
-            goals: (p.goals as Goal[]) ?? [],
+            // goals comes from the backend as a JSON string — pass through; PlanEditor parses it
+            goals: p.goals ?? "[]",
             status: p.status,
             start_date: p.start_date,
             target_end_date: p.target_end_date,

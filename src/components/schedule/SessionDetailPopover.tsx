@@ -15,12 +15,6 @@ import {
 import { formatTimeIST, formatDateIST, toISTDateString } from "@/lib/date-utils";
 import Link from "next/link";
 
-interface SessionClient {
-  full_name: string;
-  email: string;
-  phone: string | null;
-}
-
 interface SessionData {
   id: string;
   starts_at: string;
@@ -33,8 +27,7 @@ interface SessionData {
   zoom_join_url: string | null;
   zoom_start_url: string | null;
   cancellation_reason: string | null;
-  clients: SessionClient;
-  client_name?: string;
+  client_name: string | null;
 }
 
 interface SessionDetailPopoverProps {
@@ -45,7 +38,7 @@ interface SessionDetailPopoverProps {
   onComplete: () => void;
   onCancel: () => void;
   onMarkNoShow: () => void;
-  onReschedule: (data: { session_id: string; starts_at: string; ends_at: string }) => void;
+  onReschedule: (data: { starts_at: string; ends_at: string }) => void;
   onDelete: (id: string) => void;
   isLoading: boolean;
 }
@@ -96,11 +89,7 @@ export default function SessionDetailPopover({
   isLoading,
 }: SessionDetailPopoverProps) {
   const s = session;
-  const client = s.clients ?? {
-    full_name: s.client_name ?? "Client",
-    email: "",
-    phone: null,
-  };
+  const clientFullName = s.client_name ?? "Client";
   const statusBadge = STATUS_BADGES[s.status] ?? {
     label: s.status,
     bg: "#F0EFED",
@@ -113,7 +102,7 @@ export default function SessionDetailPopover({
   };
 
   const canEdit = s.status === "pending_approval" || s.status === "scheduled";
-  const avatarColor = getAvatarColor(client.full_name);
+  const avatarColor = getAvatarColor(clientFullName);
 
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState(
@@ -139,7 +128,7 @@ export default function SessionDetailPopover({
     const ends_at = new Date(
       `${rescheduleDate}T${rescheduleEnd}:00+05:30`
     ).toISOString();
-    onReschedule({ session_id: s.id, starts_at, ends_at });
+    onReschedule({ starts_at, ends_at });
   }
 
   function handleDelete() {
@@ -188,7 +177,7 @@ export default function SessionDetailPopover({
                 className="text-sm font-bold"
                 style={{ color: avatarColor }}
               >
-                {client.full_name.charAt(0).toUpperCase()}
+                {clientFullName.charAt(0).toUpperCase()}
               </span>
             </div>
             <div>
@@ -196,16 +185,9 @@ export default function SessionDetailPopover({
                 className="text-sm font-semibold leading-snug"
                 style={{ color: "var(--color-ink)" }}
               >
-                {client.full_name}
+                {clientFullName}
               </h3>
-              {client.email && (
-                <p
-                  className="text-xs leading-snug"
-                  style={{ color: "var(--color-ink-tertiary)" }}
-                >
-                  {client.email}
-                </p>
-              )}
+              {/* email not included in session list response */}
             </div>
           </div>
           <button

@@ -121,14 +121,6 @@ export function getWeekDays(monday: Date): Date[] {
   });
 }
 
-/** Get day column index (0=Mon, 6=Sun) for an ISO datetime relative to a week start */
-export function getDayColumn(iso: string, weekStart: Date): number {
-  const d = new Date(iso);
-  const dayOfWeek = getISTDayOfWeek(d);
-  // Convert from Sun=0..Sat=6 to Mon=0..Sun=6
-  return dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-}
-
 /** Check if two dates are the same IST day */
 export function isSameISTDay(a: Date, b: Date): boolean {
   return toISTDateString(a) === toISTDateString(b);
@@ -164,16 +156,6 @@ export function getFirstOfMonth(date: Date): Date {
   const dateStr = toISTDateString(date);
   const [year, month] = dateStr.split("-");
   return new Date(`${year}-${month}-01T00:00:00+05:30`);
-}
-
-/** Get end of month (last day 23:59:59 IST) as ISO string */
-export function endOfMonthIST(date: Date): string {
-  const dateStr = toISTDateString(date);
-  const [yearStr, monthStr] = dateStr.split("-");
-  const year = parseInt(yearStr!, 10);
-  const month = parseInt(monthStr!, 10);
-  const lastDay = new Date(year, month, 0).getDate();
-  return new Date(`${yearStr}-${monthStr}-${String(lastDay).padStart(2, "0")}T23:59:59.999+05:30`).toISOString();
 }
 
 /**

@@ -140,8 +140,6 @@ export const api = {
     me: () => apiFetch("/api/v1/therapists/me"),
     update: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/therapists/me", { method: "PUT", body: data }),
-    getBySlug: (slug: string) =>
-      apiFetch(`/api/v1/therapists/by-slug/${slug}`, { auth: false }),
     getAvailability: () => apiFetch("/api/v1/therapists/me/availability"),
     setAvailability: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/therapists/me/availability", {
@@ -165,6 +163,11 @@ export const api = {
       avatar_key: string;
       bio: string;
       support_requested: boolean;
+      // Post-OAuth users must supply phone (and optionally slug/org_type) so the
+      // `phone IS NULL` onboarding loop is resolved. Backend persists these.
+      phone?: string;
+      slug?: string;
+      org_type?: string;
     }) =>
       apiFetch("/api/v1/therapists/me/complete-onboarding", {
         method: "POST",
@@ -174,9 +177,9 @@ export const api = {
 
   // ── Clients ──────────────────────────────────────────────────────────
   clients: {
-    list: (params?: { status?: string; limit?: number; offset?: number }) =>
+    // Backend accepts `page` (1-based) and `per_page` (max 100). Returns Paginated<Client>.
+    list: (params?: { status?: string; page?: number; per_page?: number }) =>
       apiFetch("/api/v1/clients", { params }),
-    getById: (id: string) => apiFetch(`/api/v1/clients/${id}`),
     getDetail: (id: string) => apiFetch(`/api/v1/clients/${id}`),
     create: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/clients", { method: "POST", body: data }),
@@ -193,11 +196,10 @@ export const api = {
   session: {
     pending: () => apiFetch("/api/v1/sessions/pending"),
     today: () => apiFetch("/api/v1/sessions/today"),
-    upcoming: () => apiFetch("/api/v1/sessions/upcoming"),
     listByDateRange: (params: { start: string; end: string }) =>
       apiFetch("/api/v1/sessions", { params }),
     byClient: (clientId: string, params?: Record<string, string>) =>
-      apiFetch("/api/v1/sessions", { params: { client_id: clientId, ...params } }),
+      apiFetch(`/api/v1/sessions/by-client/${clientId}`, { params }),
     getById: (id: string) => apiFetch(`/api/v1/sessions/${id}`),
     create: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/sessions", { method: "POST", body: data }),
@@ -206,9 +208,11 @@ export const api = {
     approve: (id: string) =>
       apiFetch(`/api/v1/sessions/${id}/approve`, { method: "POST" }),
     reject: (id: string) =>
-      apiFetch(`/api/v1/sessions/${id}/reject`, { method: "POST" }),
-    reschedule: (id: string, data: Record<string, unknown>) =>
-      apiFetch(`/api/v1/sessions/${id}`, { method: "PUT", body: data }),
+      // Backend `RejectSessionInput` is all-optional — send empty object to satisfy JSON body deserialiser.
+      apiFetch(`/api/v1/sessions/${id}/reject`, { method: "POST", body: {} }),
+    reschedule: (id: string, data: { starts_at: string; ends_at: string }) =>
+      // Dedicated reschedule route — NOT the generic PUT update endpoint.
+      apiFetch(`/api/v1/sessions/${id}/reschedule`, { method: "POST", body: data }),
     cancel: (id: string, data?: Record<string, unknown>) =>
       apiFetch(`/api/v1/sessions/${id}/cancel`, {
         method: "POST",
@@ -222,6 +226,7 @@ export const api = {
       apiFetch(`/api/v1/sessions/${id}`, { method: "DELETE" }),
 
     // Notes — backend has /notes and /sessions/{session_id}/note
+    // Body must use snake_case fields: session_id (Uuid), techniques_used (string), risk_flags (string).
     createNote: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/notes", { method: "POST", body: data }),
     updateNote: (noteId: string, data: Record<string, unknown>) =>
@@ -229,10 +234,11 @@ export const api = {
     getNote: (sessionId: string) =>
       apiFetch(`/api/v1/sessions/${sessionId}/note`),
     getNoteById: (noteId: string) => apiFetch(`/api/v1/notes/${noteId}`),
-    listNotes: (params?: { client_id?: string; limit?: number }) =>
+    // Returns Paginated<Note> — callers should read `.data` for the array.
+    // `client_id` filter is NOT supported by the backend PaginationQuery — omitted here.
+    // TODO: per-client notes are available via GET /api/v1/clients/{id}/notes — wire when needed.
+    listNotes: (params?: { page?: number; per_page?: number }) =>
       apiFetch("/api/v1/notes", { params }),
-    deleteNote: (noteId: string) =>
-      apiFetch(`/api/v1/notes/${noteId}`, { method: "DELETE" }),
   },
 
   // ── Booking (public) ─────────────────────────────────────────────────
@@ -267,10 +273,13 @@ export const api = {
       apiFetch("/api/v1/invoices", { params }),
     create: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/invoices", { method: "POST", body: data }),
+    // `razorpay_payment_id` and `razorpay_order_id` are both Optional on the backend
+    // (manual UPI mark-paid flow). Always send at least `{}` so the JSON body is present.
+    // Invoice status values: "unpaid" | "paid" | "refunded" — not "draft"/"sent"/"overdue".
     markPaid: (id: string, data?: Record<string, unknown>) =>
       apiFetch(`/api/v1/invoices/${id}/paid`, {
         method: "POST",
-        body: data,
+        body: data ?? {},
       }),
     createOrder: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/payments/create-order", { method: "POST", body: data }),
@@ -289,6 +298,8 @@ export const api = {
 
   // ── Treatment Plans ──────────────────────────────────────────────────
   treatmentPlan: {
+    // Returns Paginated<TreatmentPlan> — callers should read `.data` for the array.
+    // Body must use `goals` as a JSON string (column migrated from jsonb → text in 00007).
     list: (clientId: string) =>
       apiFetch(`/api/v1/clients/${clientId}/treatment-plans`),
     getById: (id: string) => apiFetch(`/api/v1/treatment-plans/${id}`),
@@ -318,12 +329,13 @@ export const api = {
       apiFetch(`/api/v1/resources/${id}`, { method: "PUT", body: data }),
     delete: (id: string) =>
       apiFetch(`/api/v1/resources/${id}`, { method: "DELETE" }),
-    share: (id: string, data: Record<string, unknown>) =>
+    // Backend ShareResourceInput / UnshareResourceInput both require `client_ids: Vec<Uuid>` (plural array).
+    share: (id: string, data: { client_ids: string[]; note?: string }) =>
       apiFetch(`/api/v1/resources/${id}/share`, {
         method: "POST",
         body: data,
       }),
-    unshare: (id: string, data: Record<string, unknown>) =>
+    unshare: (id: string, data: { client_ids: string[] }) =>
       apiFetch(`/api/v1/resources/${id}/unshare`, {
         method: "POST",
         body: data,
@@ -348,34 +360,27 @@ export const api = {
   // ── Recurring Reservations ───────────────────────────────────────────
   recurringReservation: {
     list: () => apiFetch("/api/v1/recurring-reservations"),
+    // Path-param route — NOT a query string filter.
     byClient: (clientId: string) =>
-      apiFetch("/api/v1/recurring-reservations", { params: { client_id: clientId } }),
+      apiFetch(`/api/v1/recurring-reservations/by-client/${clientId}`),
     create: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/recurring-reservations", {
         method: "POST",
         body: data,
       }),
-    update: (id: string, data: Record<string, unknown>) =>
-      apiFetch(`/api/v1/recurring-reservations/${id}`, {
-        method: "PUT",
-        body: data,
-      }),
-    release: (id: string) =>
-      apiFetch(`/api/v1/recurring-reservations/${id}/release`, {
+    // Backend route is /deactivate — there is no /release route.
+    deactivate: (id: string) =>
+      apiFetch(`/api/v1/recurring-reservations/${id}/deactivate`, {
         method: "POST",
-      }),
-    createSession: (id: string, data: Record<string, unknown>) =>
-      apiFetch(`/api/v1/recurring-reservations/${id}/create-session`, {
-        method: "POST",
-        body: data,
       }),
   },
 
   // ── Session Types ────────────────────────────────────────────────────
   sessionType: {
     list: () => apiFetch("/api/v1/session-types"),
+    // Public path-param route — NOT query-string. Used by the booking page (unauthenticated).
     listByTherapist: (therapistId: string) =>
-      apiFetch("/api/v1/session-types", { params: { therapist_id: therapistId }, auth: false }),
+      apiFetch(`/api/v1/session-types/by-therapist/${therapistId}`, { auth: false }),
     getById: (id: string) => apiFetch(`/api/v1/session-types/${id}`),
     create: (data: Record<string, unknown>) =>
       apiFetch("/api/v1/session-types", { method: "POST", body: data }),
@@ -447,20 +452,8 @@ export const api = {
   // ── Integrations ─────────────────────────────────────────────────────
   integration: {
     status: () => apiFetch("/api/v1/integrations/status"),
-    zoomAuthUrl: () => apiFetch("/api/v1/integrations/zoom/auth-url"),
-    connectZoom: (data: { code: string }) =>
-      apiFetch("/api/v1/integrations/zoom/connect", {
-        method: "POST",
-        body: data,
-      }),
     disconnectZoom: () =>
       apiFetch("/api/v1/integrations/zoom/disconnect", { method: "POST" }),
-    googleAuthUrl: () => apiFetch("/api/v1/integrations/google/auth-url"),
-    connectGoogle: (data: { code: string }) =>
-      apiFetch("/api/v1/integrations/google/connect", {
-        method: "POST",
-        body: data,
-      }),
     disconnectGoogle: () =>
       apiFetch("/api/v1/integrations/google/disconnect", { method: "POST" }),
   },
@@ -509,8 +502,10 @@ export const api = {
 
   // ── Broadcast ────────────────────────────────────────────────────────
   broadcast: {
+    // Backend returns { sent: number, total_clients: number } after the Wave-1 backend fix.
+    // Do NOT read a non-existent field — use `sent` and `total_clients` only.
     send: (data: Record<string, unknown>) =>
-      apiFetch("/api/v1/broadcast", { method: "POST", body: data }),
+      apiFetch<{ sent: number; total_clients: number }>("/api/v1/broadcast", { method: "POST", body: data }),
   },
 
   // ── Leads ──────────────────────────────────────────────────────────
@@ -576,8 +571,6 @@ export const api = {
       apiFetch("/api/v1/analytics/sessions", { params }),
     clientGrowth: (params: { start: string; end: string }) =>
       apiFetch("/api/v1/analytics/client-growth", { params }),
-    topClients: (params?: { limit?: number }) =>
-      apiFetch("/api/v1/analytics/top-clients", { params }),
     clientCategoryBreakdown: () =>
       apiFetch("/api/v1/analytics/client-categories"),
   },
@@ -604,6 +597,9 @@ export const api = {
       apiFetch(`/api/v1/portal/sessions/${id}/cancel`, { method: "POST" }),
     resources: (clientId: string) =>
       apiFetch(`/api/v1/portal/profiles/${clientId}/resources`),
+    // Pending intake forms for the client (real access tokens, powers the banner CTA).
+    intakeForms: (clientId: string) =>
+      apiFetch<Array<{ id: string; title: string; access_token: string; submitted: boolean }>>(`/api/v1/portal/profiles/${clientId}/intake-forms`),
     updateProfile: (clientId: string, data: { phone?: string; emergency_contact_name?: string; emergency_contact_phone?: string }) =>
       apiFetch(`/api/v1/portal/profiles/${clientId}`, { method: "PUT", body: data }),
     invoices: (clientId: string) =>

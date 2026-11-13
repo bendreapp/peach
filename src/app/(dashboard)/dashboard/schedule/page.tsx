@@ -133,7 +133,6 @@ function ScheduleContent() {
 
     if (
       newStatus === "scheduled" ||
-      newStatus === "rejected" ||
       newStatus === "cancelled"
     ) {
       qc.setQueryData(["sessions", "pending"], (old: any) => {
@@ -187,7 +186,7 @@ function ScheduleContent() {
         qc.cancelQueries({ queryKey: ["sessions", "range", from, to] }),
         qc.cancelQueries({ queryKey: ["sessions", "pending"] }),
       ]);
-      return optimisticStatusUpdate(id, "rejected");
+      return optimisticStatusUpdate(id, "cancelled");
     },
     onSuccess: () => toast.success("Booking declined"),
     onError: (err: any, _vars, context) => {
@@ -247,10 +246,11 @@ function ScheduleContent() {
 
   const reschedule = useMutation({
     mutationFn: ({
-      session_id,
-      ...data
-    }: { session_id: string } & Record<string, unknown>) =>
-      api.session.reschedule(session_id, data),
+      id,
+      starts_at,
+      ends_at,
+    }: { id: string; starts_at: string; ends_at: string }) =>
+      api.session.reschedule(id, { starts_at, ends_at }),
     onSuccess: () => {
       invalidateAll();
       setSelectedSessionId(null);
@@ -587,7 +587,7 @@ function ScheduleContent() {
             markNoShow.mutate(selectedSession.id);
             setSelectedSessionId(null);
           }}
-          onReschedule={(data) => reschedule.mutate(data)}
+          onReschedule={(data) => reschedule.mutate({ id: selectedSession.id, ...data })}
           onDelete={(id) => deleteSession.mutate(id)}
           isLoading={isActing}
         />

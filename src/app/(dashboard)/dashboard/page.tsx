@@ -377,7 +377,7 @@ export default function DashboardPage() {
 
   const todayCount = today.data?.length ?? 0;
   const pendingCount = pending.data?.length ?? 0;
-  const clientCount = clients.data?.length ?? 0;
+  const clientCount = clients.data?.total ?? 0;
   const monthlyRevenue = (analytics.data as any)?.total_revenue_inr ?? 0;
 
   const greeting = getGreeting();

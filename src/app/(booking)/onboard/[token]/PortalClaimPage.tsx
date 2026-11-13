@@ -31,6 +31,7 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [awaitingEmailConfirm, setAwaitingEmailConfirm] = useState(false);
 
   const invitation = invitationQuery.data as any;
 
@@ -124,6 +125,77 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
           >
             Sign in to your portal
           </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // ── Awaiting email confirmation ───────────────────────────────────────
+  if (awaitingEmailConfirm) {
+    return (
+      <main
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: "#F4F1EC" }}
+      >
+        <div
+          className="bg-white rounded-2xl border border-[#E5E0D8] p-8 w-full max-w-[400px] text-center space-y-4"
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+        >
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto"
+            style={{ background: "#EAF4F1" }}
+          >
+            <CheckCircle2 size={24} strokeWidth={1.5} style={{ color: "#3D8B7A" }} />
+          </div>
+          <h2 className="text-lg font-bold" style={{ color: "#1C1C1E" }}>
+            Check your email
+          </h2>
+          <p className="text-sm" style={{ color: "#736E6A" }}>
+            We sent a confirmation link to{" "}
+            <strong style={{ color: "#5C5856" }}>{invitation.client_email}</strong>.
+            Once you confirm your email, return to this page and click the button below to finish setting up your portal.
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              setAwaitingEmailConfirm(false);
+              setAuthError(null);
+              // Re-attempt claim after user has confirmed their email
+              setLoading(true);
+              try {
+                const supabase = createClient();
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                  setAuthError("Your email hasn't been confirmed yet. Please check your inbox and try again.");
+                  setLoading(false);
+                  return;
+                }
+                await claimMutation.mutateAsync({ token });
+                toast.success("Portal account created successfully!");
+                setSuccess(true);
+                setTimeout(() => router.push("/portal"), 2000);
+              } catch (err) {
+                const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+                setAuthError(message);
+                toast.error(message);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            className="block w-full py-2.5 rounded-lg text-sm font-semibold text-white text-center transition-all disabled:opacity-50"
+            style={{ background: "#5C7A6B" }}
+          >
+            {loading ? "Checking..." : "I've confirmed my email — continue"}
+          </button>
+          {authError && (
+            <div
+              className="rounded-lg px-4 py-3 text-sm"
+              style={{ background: "rgba(192,112,90,0.08)", border: "1px solid rgba(192,112,90,0.2)", color: "#C0705A" }}
+            >
+              {authError}
+            </div>
+          )}
         </div>
       </main>
     );
@@ -228,20 +300,39 @@ export default function PortalClaimPage({ token }: PortalClaimPageProps) {
       if (signUpError) {
         if (signUpError.message.toLowerCase().includes("already registered") ||
             signUpError.message.toLowerCase().includes("already exists")) {
-          setAuthError(
-            "An account with this email already exists. Sign in to your portal instead."
-          );
+          // Account already exists — try signing in so we have a session for claim
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: invitation.client_email,
+            password,
+          });
+          if (signInError || !signInData.session) {
+            setAuthError(
+              "An account with this email already exists. Please sign in to your portal or use the correct password."
+            );
+            setLoading(false);
+            return;
+          }
+          // Session established — fall through to claim below
         } else {
           setAuthError(signUpError.message);
+          setLoading(false);
+          return;
         }
+      }
+
+      // 2. Verify we have an active session — the backend derives user_id from the JWT.
+      //    signUp() returns a session when email confirmation is disabled; if it is
+      //    enabled, authData.session will be null and we must wait for confirmation.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        // Email confirmation is required — we cannot claim without a JWT.
+        setAwaitingEmailConfirm(true);
         setLoading(false);
         return;
       }
 
-      const userId = authData.user?.id;
-
-      // 2. Claim the invitation and link user_id to client record
-      await claimMutation.mutateAsync({ token, userId });
+      // 3. Claim the invitation — no body user_id; backend reads it from the JWT.
+      await claimMutation.mutateAsync({ token });
 
       toast.success("Portal account created successfully!");
       setSuccess(true);

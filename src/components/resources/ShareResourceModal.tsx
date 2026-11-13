@@ -45,8 +45,8 @@ export default function ShareResourceModal({
     if (!selectedId) return;
     share.mutate({
       id: selectedId,
-      client_id: clientId,
-      note: note || null,
+      clientId: clientId,
+      note: note || undefined,
     }, {
       onSuccess: () => {
         onShared();

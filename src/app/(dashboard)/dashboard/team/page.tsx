@@ -486,17 +486,13 @@ export default function TeamPage() {
           ) : (
             <div className="divide-y divide-[#E5E0D8]">
               {membersData.map((m: any) => {
-                const therapistInfo = m.therapists as {
-                  full_name: string;
-                  email: string | null;
-                  avatar_url: string | null;
-                } | null;
+                // Backend now enriches members with full_name directly on the member object.
+                const name: string = m.full_name ?? "Invited member";
                 const RoleIcon =
                   ROLE_ICONS[m.role as keyof typeof ROLE_ICONS] ?? Shield;
                 const roleInfo =
                   PRACTICE_ROLES[m.role as keyof typeof PRACTICE_ROLES];
                 const roleColor = ROLE_COLORS[m.role] ?? ROLE_COLORS.therapist;
-                const name = therapistInfo?.full_name ?? "Invited member";
 
                 return (
                   <div
@@ -515,11 +511,6 @@ export default function TeamPage() {
                         <div className="text-sm font-medium text-[#1C1C1E] truncate">
                           {name}
                         </div>
-                        {therapistInfo?.email && (
-                          <div className="text-xs text-[#736E6A] truncate">
-                            {therapistInfo.email}
-                          </div>
-                        )}
                       </div>
                     </div>
 

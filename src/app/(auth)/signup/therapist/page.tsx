@@ -10,6 +10,49 @@ import Image from "next/image";
 import {
   Sun, Moon, User, Users, Building2, ArrowLeft, ArrowRight, Check,
 } from "lucide-react";
+
+// ── Google sign-up button ─────────────────────────────────────────────────────
+
+function GoogleSignupButton() {
+  const [loading, setLoading] = useState(false);
+
+  async function handleGoogleSignUp() {
+    setLoading(true);
+    const supabase = createClient();
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${origin}/auth/callback` },
+    });
+    if (error) {
+      setLoading(false);
+    }
+    // On success the browser navigates to Google — callback handles onboarding detection.
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleGoogleSignUp}
+      disabled={loading}
+      className="w-full h-11 rounded-xl text-sm font-semibold disabled:opacity-50 transition-all flex items-center justify-center gap-2.5"
+      style={{
+        background: "var(--color-auth-input)",
+        border: "1px solid var(--color-auth-input-border)",
+        color: "var(--color-auth-text)",
+      }}
+    >
+      {/* Google logo */}
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M17.64 9.2045c0-.638-.0573-1.252-.1636-1.8409H9v3.4814h4.8436c-.2086 1.1254-.8427 2.0791-1.7959 2.7191v2.2582h2.9086C16.6582 14.2523 17.64 11.9454 17.64 9.2045z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.4673-.8059 5.9564-2.1818l-2.9086-2.2582c-.8059.54-1.8368.8591-3.0478.8591-2.3436 0-4.3282-1.5832-5.036-3.7096H.9573v2.3318C2.4382 15.9836 5.4818 18 9 18z" fill="#34A853"/>
+        <path d="M3.964 10.71c-.18-.54-.2827-1.1168-.2827-1.71s.1027-1.17.2827-1.71V4.9582H.9573A8.9961 8.9961 0 0 0 0 9c0 1.4523.3477 2.8254.9573 4.0418L3.964 10.71z" fill="#FBBC05"/>
+        <path d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5818-2.5818C13.4627.8918 11.4255 0 9 0 5.4818 0 2.4382 2.0164.9573 4.9582L3.964 7.29C4.6718 5.1636 6.6564 3.5795 9 3.5795z" fill="#EA4335"/>
+      </svg>
+      {loading ? "Redirecting..." : "Continue with Google"}
+    </button>
+  );
+}
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import { Select } from "@/components/ui/Select";
 import { OTPInput } from "@/components/ui/OTPInput";
@@ -458,6 +501,18 @@ function SignupForm() {
                   {error}
                 </div>
               )}
+
+              {/* Google sign-up */}
+              <div className="mb-5">
+                <GoogleSignupButton />
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="flex-1 h-px" style={{ background: "var(--color-auth-card-border)" }} />
+                <span className="text-[12px]" style={{ color: "var(--color-auth-text-muted)" }}>or sign up with email</span>
+                <div className="flex-1 h-px" style={{ background: "var(--color-auth-card-border)" }} />
+              </div>
 
               <form onSubmit={handleNext} className="space-y-4">
                 <div>

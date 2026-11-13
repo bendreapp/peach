@@ -12,16 +12,15 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  Send,
   FileX,
-  Settings,
   CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type InvoiceStatus = "paid" | "overdue" | "draft" | "sent";
+// Canonical DB values from the backend invoice entity.
+type InvoiceStatus = "unpaid" | "paid" | "refunded";
 
 interface Invoice {
   id: string;
@@ -83,34 +82,28 @@ const STATUS_CONFIG: Record<
   InvoiceStatus,
   { label: string; bg: string; text: string; icon: React.ReactNode }
 > = {
+  unpaid: {
+    label: "Outstanding",
+    bg: "#FBF0E8",
+    text: "#B5733A",
+    icon: <Clock size={11} />,
+  },
   paid: {
     label: "Paid",
     bg: "#EAF4F1",
     text: "#3D8B7A",
     icon: <CheckCircle2 size={11} />,
   },
-  overdue: {
-    label: "Overdue",
-    bg: "#F9EDED",
-    text: "#A0504A",
-    icon: <AlertCircle size={11} />,
-  },
-  draft: {
-    label: "Draft",
+  refunded: {
+    label: "Refunded",
     bg: "#F0EFED",
     text: "#6B6460",
     icon: <FileText size={11} />,
   },
-  sent: {
-    label: "Sent",
-    bg: "#EBF0EB",
-    text: "#5C7A6B",
-    icon: <Send size={11} />,
-  },
 };
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
+  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.unpaid;
   return (
     <span
       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-xs font-medium"
@@ -180,7 +173,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
     .filter((inv) => inv.status === "paid")
     .reduce((s, inv) => s + getAmount(inv), 0);
   const outstanding = invoices
-    .filter((inv) => inv.status === "sent" || inv.status === "overdue")
+    .filter((inv) => inv.status === "unpaid")
     .reduce((s, inv) => s + getAmount(inv), 0);
 
   const hasOutstanding = outstanding > 0;
@@ -296,11 +289,7 @@ function SummaryCards({ invoices }: { invoices: Invoice[] }) {
           {formatINR(outstanding)}
         </div>
         <div className="text-xs mt-1" style={{ color: "#736E6A" }}>
-          {
-            invoices.filter(
-              (i) => i.status === "sent" || i.status === "overdue"
-            ).length
-          }{" "}
+          {invoices.filter((i) => i.status === "unpaid").length}{" "}
           unpaid
         </div>
       </div>
@@ -417,10 +406,9 @@ function InvoicesTab({ invoices, isLoading, onMarkPaid }: {
             onChange={setStatusFilter}
             options={[
               { value: "all", label: "All statuses" },
+              { value: "unpaid", label: "Outstanding" },
               { value: "paid", label: "Paid" },
-              { value: "sent", label: "Sent" },
-              { value: "overdue", label: "Overdue" },
-              { value: "draft", label: "Draft" },
+              { value: "refunded", label: "Refunded" },
             ]}
           />
         </div>

@@ -113,8 +113,9 @@ function NewNoteContent() {
                 plan: note.plan,
                 freeform_content: note.freeform_content,
                 homework: note.homework,
-                techniques_used: note.techniques_used ?? [],
-                risk_flags: note.risk_flags ?? [],
+                // Backend returns these as plain strings; NoteEditor splits them into chips
+                techniques_used: note.techniques_used ?? null,
+                risk_flags: note.risk_flags ?? null,
               }
             : undefined
         }

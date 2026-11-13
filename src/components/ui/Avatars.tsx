@@ -261,5 +261,3 @@ export function Avatar({ avatarKey, size = 80, name, className }: AvatarProps) {
     </span>
   );
 }
-
-export default Avatar;

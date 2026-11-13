@@ -38,7 +38,9 @@ import { toast } from "sonner";
 
 type StatusFilter = "all" | "active" | "inactive" | "on_hold";
 
-type SortKey = "full_name" | "last_session" | "next_session" | "session_count";
+// Only "full_name" is reliably sortable on the fetched page — backend does not return
+// session_count / last_session_at / next_session_at in the Client entity.
+type SortKey = "full_name";
 type SortDir = "asc" | "desc";
 
 interface Client {
@@ -620,8 +622,13 @@ export default function ClientsPage() {
   } | null>(null);
 
   // Data
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 50;
+
   const clientsQuery = useClientsList(
-    statusFilter === "all" ? undefined : { status: statusFilter }
+    statusFilter === "all"
+      ? { page, per_page: PER_PAGE }
+      : { status: statusFilter, page, per_page: PER_PAGE }
   );
 
   const createClient = useCreateClient();
@@ -638,10 +645,10 @@ export default function ClientsPage() {
     },
   });
 
-  // Normalise data
-  const rawClients: Client[] = Array.isArray(clientsQuery.data)
-    ? clientsQuery.data
-    : (clientsQuery.data as { data?: Client[] })?.data ?? [];
+  // Paginated response: { data: Client[], total: number, page: number, per_page: number }
+  const rawClients: Client[] = (clientsQuery.data as any)?.data ?? [];
+  const totalClients: number = (clientsQuery.data as any)?.total ?? rawClients.length;
+  const totalPages = Math.ceil(totalClients / PER_PAGE);
 
   // Search filter
   const searched = rawClients.filter((c) => {
@@ -653,23 +660,10 @@ export default function ClientsPage() {
     );
   });
 
-  // Sort
+  // Sort — only full_name is available from the backend response
   const sorted = [...searched].sort((a, b) => {
-    let aVal: string | number = "";
-    let bVal: string | number = "";
-    if (sortKey === "full_name") {
-      aVal = a.full_name.toLowerCase();
-      bVal = b.full_name.toLowerCase();
-    } else if (sortKey === "session_count") {
-      aVal = a.session_count ?? 0;
-      bVal = b.session_count ?? 0;
-    } else if (sortKey === "last_session") {
-      aVal = a.last_session_at ?? "";
-      bVal = b.last_session_at ?? "";
-    } else if (sortKey === "next_session") {
-      aVal = a.next_session_at ?? "";
-      bVal = b.next_session_at ?? "";
-    }
+    const aVal = a.full_name.toLowerCase();
+    const bVal = b.full_name.toLowerCase();
     if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
     if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
     return 0;
@@ -742,7 +736,7 @@ export default function ClientsPage() {
           </h1>
           {!clientsQuery.isLoading && (
             <p className="text-sm mt-1" style={{ color: "#736E6A" }}>
-              {rawClients.length} client{rawClients.length !== 1 ? "s" : ""} in your practice
+              {totalClients} client{totalClients !== 1 ? "s" : ""} in your practice
             </p>
           )}
         </div>
@@ -766,7 +760,7 @@ export default function ClientsPage() {
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.value}
-              onClick={() => setStatusFilter(tab.value)}
+              onClick={() => { setStatusFilter(tab.value); setPage(1); }}
               className="px-3 py-1.5 rounded-[6px] text-sm font-medium transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
               style={
                 statusFilter === tab.value
@@ -887,27 +881,24 @@ export default function ClientsPage() {
             >
               Status
             </span>
-            <SortableHeader
-              label="Sessions"
-              sortKey="session_count"
-              currentKey={sortKey}
-              direction={sortDir}
-              onSort={handleSort}
-            />
-            <SortableHeader
-              label="Last Session"
-              sortKey="last_session"
-              currentKey={sortKey}
-              direction={sortDir}
-              onSort={handleSort}
-            />
-            <SortableHeader
-              label="Next Session"
-              sortKey="next_session"
-              currentKey={sortKey}
-              direction={sortDir}
-              onSort={handleSort}
-            />
+            <span
+              className="text-[11px] font-semibold tracking-[0.08em] uppercase"
+              style={{ color: "#736E6A" }}
+            >
+              Sessions
+            </span>
+            <span
+              className="text-[11px] font-semibold tracking-[0.08em] uppercase"
+              style={{ color: "#736E6A" }}
+            >
+              Last Session
+            </span>
+            <span
+              className="text-[11px] font-semibold tracking-[0.08em] uppercase"
+              style={{ color: "#736E6A" }}
+            >
+              Next Session
+            </span>
             <span
               className="text-[11px] font-semibold tracking-[0.08em] uppercase"
               style={{ color: "#736E6A" }}
@@ -1043,6 +1034,33 @@ export default function ClientsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Pagination ───────────────────────────────────────────────────── */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm" style={{ color: "#736E6A" }}>
+            Page {page} of {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              className="px-3 py-1.5 rounded-small border text-sm font-medium transition-colors disabled:opacity-40"
+              style={{ borderColor: "#E5E0D8", color: "#1C1C1E" }}
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </button>
+            <button
+              className="px-3 py-1.5 rounded-small border text-sm font-medium transition-colors disabled:opacity-40"
+              style={{ borderColor: "#E5E0D8", color: "#1C1C1E" }}
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </button>
           </div>
         </div>
       )}

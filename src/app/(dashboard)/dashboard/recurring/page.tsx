@@ -59,13 +59,14 @@ export default function RecurringReservationsPage() {
     onError: (err) => toast.error(err.message),
   });
 
-  const release = useMutation({
+  const deactivate = useMutation({
     mutationFn: ({ id }: { id: string }) =>
-      api.recurringReservation.release(id),
+      api.recurringReservation.deactivate(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["recurring-reservations"] });
       toast.success("Slot released");
     },
+    onError: (err: any) => toast.error(err.message ?? "Could not release slot — try again"),
   });
 
   const reservationsData = toArray(reservations.data);
@@ -273,13 +274,10 @@ export default function RecurringReservationsPage() {
 
           {/* Table rows */}
           {reservationsData.map((r: any) => {
-            const clientData = r.clients as {
-              full_name: string;
-              email: string | null;
-            } | null;
+            const clientName: string = r.client_name ?? "Unknown";
             const status = getStatusBadge(r);
-            const initials = clientData?.full_name
-              ? clientData.full_name
+            const initials = clientName !== "Unknown"
+              ? clientName
                   .split(" ")
                   .map((n: string) => n[0])
                   .join("")
@@ -299,13 +297,8 @@ export default function RecurringReservationsPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-sm font-medium text-[#1C1C1E] truncate">
-                      {clientData?.full_name ?? "Unknown"}
+                      {clientName}
                     </div>
-                    {clientData?.email && (
-                      <div className="text-xs text-[#736E6A] truncate">
-                        {clientData.email}
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -352,7 +345,7 @@ export default function RecurringReservationsPage() {
                   <button
                     onClick={() => {
                       if (confirm("Release this recurring slot?")) {
-                        release.mutate({ id: r.id });
+                        deactivate.mutate({ id: r.id });
                       }
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-medium text-[#C0705A] bg-[#FBF0ED] hover:bg-[#F9EDED] transition-all duration-150"

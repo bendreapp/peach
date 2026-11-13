@@ -6,6 +6,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Check, ArrowRight, ImagePlus } from "lucide-react";
 import { Avatar, AVATAR_KEYS, type AvatarKey } from "@/components/ui/Avatars";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { useCompleteOnboarding } from "@/lib/api-hooks";
 
 // ── Step indicator ────────────────────────────────────────────────────────────
@@ -33,21 +34,29 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0); // 0 = Profile, 1 = Support
 
-  // Step 1: Profile
+  // Step 0: Profile
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarKey | null>(null);
   const [bio, setBio] = useState("");
   const [bioError, setBioError] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
-  // Step 2: Support
+  // Step 1: Support
   const [supportRequested, setSupportRequested] = useState(false);
 
   const completeOnboarding = useCompleteOnboarding();
 
-  // ── Step 1 submit ──
+  // ── Step 0 submit ──
   function handleProfileContinue(e: React.FormEvent) {
     e.preventDefault();
     setBioError(null);
+    setPhoneError(null);
 
+    if (!phone.trim()) {
+      setPhoneError("Please enter your phone number.");
+      return;
+    }
     if (!bio.trim()) {
       setBioError("Please write a short bio for clients to read.");
       return;
@@ -60,7 +69,7 @@ export default function OnboardingPage() {
     setStep(1);
   }
 
-  // ── Step 2 submit ──
+  // ── Step 1 submit ──
   function submitOnboarding(withSupport: boolean) {
     if (!selectedAvatar) return;
 
@@ -69,6 +78,7 @@ export default function OnboardingPage() {
         avatar_key: selectedAvatar,
         bio: bio.trim(),
         support_requested: withSupport,
+        phone: `${countryCode}${phone}`.trim(),
       },
       {
         onSuccess: () => {
@@ -213,6 +223,31 @@ export default function OnboardingPage() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Phone number */}
+              <div className="mb-6">
+                <label
+                  className="block text-[13px] font-medium mb-1.5"
+                  style={{ color: "var(--color-auth-text-secondary)" }}
+                >
+                  Phone number <span style={{ color: "#C0705A" }}>*</span>
+                </label>
+                <PhoneInput
+                  countryCode={countryCode}
+                  onCountryCodeChange={setCountryCode}
+                  phone={phone}
+                  onPhoneChange={(v) => {
+                    setPhone(v);
+                    if (phoneError) setPhoneError(null);
+                  }}
+                  required
+                />
+                {phoneError && (
+                  <p className="text-[12px] mt-1.5" style={{ color: "#C0705A" }}>
+                    {phoneError}
+                  </p>
+                )}
               </div>
 
               {/* Bio */}

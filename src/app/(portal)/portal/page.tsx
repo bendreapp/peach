@@ -6,6 +6,7 @@ import {
   usePortalUpcomingSessions,
   usePortalPastSessions,
   usePortalResources,
+  usePortalIntakeForms,
 } from "@/lib/api-hooks";
 import PortalHeader from "@/components/portal/PortalHeader";
 import PendingFormsBanner from "@/components/portal/PendingFormsBanner";
@@ -37,6 +38,7 @@ export default function PortalPage() {
     per_page: PER_PAGE,
   });
   const resources = usePortalResources(clientId);
+  const intakeForms = usePortalIntakeForms(clientId);
 
   // Derive client name
   const clientName = profile?.full_name?.split(" ")[0] ?? "there";
@@ -63,10 +65,9 @@ export default function PortalPage() {
     );
   }
 
-  // Build pending forms from profile intake status
-  const pendingForms = !profile.intake_completed
-    ? [{ id: profile.id, access_token: "", status: "pending", expires_at: "" }]
-    : [];
+  // Pending forms: fetch real forms and filter to only unsubmitted ones
+  const allForms = (intakeForms.data as Array<{ id: string; title: string; access_token: string; submitted: boolean }>) ?? [];
+  const pendingForms = allForms.filter((f) => !f.submitted);
 
   const pastSessions = (past.data as any)?.data ?? [];
   const pastTotal = (past.data as any)?.total ?? 0;
@@ -109,7 +110,7 @@ export default function PortalPage() {
       </div>
 
       {/* Pending intake forms banner */}
-      <PendingFormsBanner forms={pendingForms as any} />
+      <PendingFormsBanner forms={pendingForms} />
 
       {/* Upcoming sessions */}
       <section>
@@ -161,7 +162,7 @@ export default function PortalPage() {
           Resources
         </h2>
         <SharedResourcesCard
-          resources={(resources.data as any)?.data ?? []}
+          resources={(resources.data as any) ?? []}
           loading={resources.isLoading}
         />
       </section>

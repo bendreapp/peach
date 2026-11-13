@@ -101,7 +101,7 @@ export default function NotesPage() {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const notes = useNotesList({ limit: 100 });
+  const notes = useNotesList({ per_page: 100 });
   const clients = useClientsList();
 
   const notesData = toArray(notes.data);

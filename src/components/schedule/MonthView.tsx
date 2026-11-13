@@ -14,8 +14,7 @@ interface SessionData {
   ends_at: string;
   status: string;
   session_type_name: string | null;
-  client_name?: string;
-  clients?: { full_name: string; email: string; phone: string | null };
+  client_name: string | null;
 }
 
 interface BlockedSlotData {
@@ -171,7 +170,7 @@ export default function MonthView({
                       key={s.id}
                       className="w-[7px] h-[7px] rounded-full flex-shrink-0"
                       style={{ background: getDotColor(s) }}
-                      title={`${s.clients?.full_name ?? s.client_name ?? "Client"}${s.session_type_name ? ` · ${s.session_type_name}` : ""}`}
+                      title={`${s.client_name ?? "Client"}${s.session_type_name ? ` · ${s.session_type_name}` : ""}`}
                     />
                   ))}
                   {daySessions.length > 5 && (

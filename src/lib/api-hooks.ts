@@ -30,14 +30,6 @@ export function usePlanStatus() {
   });
 }
 
-export function useTherapistBySlug(slug: string) {
-  return useQuery({
-    queryKey: ["therapist", "by-slug", slug],
-    queryFn: () => api.therapist.getBySlug(slug),
-    enabled: !!slug,
-  });
-}
-
 export function useTherapistAvailability() {
   return useQuery({
     queryKey: ["therapist", "availability"],
@@ -73,6 +65,10 @@ export function useCompleteOnboarding() {
       avatar_key: string;
       bio: string;
       support_requested: boolean;
+      // Post-OAuth users supply phone (+ optional slug/org_type) to exit the loop.
+      phone?: string;
+      slug?: string;
+      org_type?: string;
     }) => api.therapist.completeOnboarding(data),
     onSuccess: () => {
       posthog.capture("onboarding_completed");
@@ -85,20 +81,16 @@ export function useCompleteOnboarding() {
 
 export function useClientsList(params?: {
   status?: string;
-  limit?: number;
-  offset?: number;
+  page?: number;
+  per_page?: number;
 }) {
   return useQuery({
     queryKey: ["clients", "list", params],
-    queryFn: () => api.clients.list(params),
-  });
-}
-
-export function useClientById(id: string) {
-  return useQuery({
-    queryKey: ["clients", id],
-    queryFn: () => api.clients.getById(id),
-    enabled: !!id,
+    // Backend returns Paginated<Client>. Unwrap to { data: Client[], total: number, page, per_page }.
+    queryFn: async () => {
+      const res = await api.clients.list(params);
+      return res as { data: unknown[]; total: number; page: number; per_page: number };
+    },
   });
 }
 
@@ -155,21 +147,6 @@ export function useSessionsToday() {
   });
 }
 
-export function useSessionsUpcoming() {
-  return useQuery({
-    queryKey: ["sessions", "upcoming"],
-    queryFn: () => api.session.upcoming(),
-  });
-}
-
-export function useSessionsByDateRange(start: string, end: string) {
-  return useQuery({
-    queryKey: ["sessions", "range", start, end],
-    queryFn: () => api.session.listByDateRange({ start, end }),
-    enabled: !!start && !!end,
-  });
-}
-
 export function useSessionsByClient(clientId: string) {
   return useQuery({
     queryKey: ["sessions", "client", clientId],
@@ -200,32 +177,6 @@ export function useRejectSession() {
   });
 }
 
-export function useCancelSession() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      ...data
-    }: { id: string } & Record<string, unknown>) =>
-      api.session.cancel(id, data),
-    onSuccess: () => {
-      posthog.capture("session_cancelled");
-      qc.invalidateQueries({ queryKey: ["sessions"] });
-    },
-  });
-}
-
-export function useCompleteSession() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.session.complete(id),
-    onSuccess: () => {
-      posthog.capture("session_completed");
-      qc.invalidateQueries({ queryKey: ["sessions"] });
-    },
-  });
-}
-
 export function useCreateSession() {
   const qc = useQueryClient();
   return useMutation({
@@ -240,12 +191,18 @@ export function useCreateSession() {
 // ── Notes ────────────────────────────────────────────────────────────────────
 
 export function useNotesList(params?: {
-  client_id?: string;
-  limit?: number;
+  page?: number;
+  per_page?: number;
 }) {
   return useQuery({
     queryKey: ["notes", "list", params],
-    queryFn: () => api.session.listNotes(params),
+    // Backend returns Paginated<Note>. Unwrap so consumers get the array directly.
+    // `client_id` is NOT a supported backend filter. To fetch notes per client, use
+    // TODO: GET /api/v1/clients/{id}/notes when that route is available.
+    queryFn: async () => {
+      const res = await api.session.listNotes(params) as { data: unknown[]; total: number; page: number; per_page: number };
+      return res.data;
+    },
   });
 }
 
@@ -289,7 +246,13 @@ export function useUpdateNote() {
 export function useTreatmentPlansByClient(clientId: string) {
   return useQuery({
     queryKey: ["treatment-plans", "client", clientId],
-    queryFn: () => api.treatmentPlan.list(clientId),
+    // Backend returns Paginated<TreatmentPlan>. Unwrap so consumers get the array directly.
+    // `goals` is stored as a JSON string (not an array) — components must JSON.stringify on write
+    // and JSON.parse on read.
+    queryFn: async () => {
+      const res = await api.treatmentPlan.list(clientId) as { data: unknown[]; total: number };
+      return res.data;
+    },
     enabled: !!clientId,
   });
 }
@@ -347,8 +310,9 @@ export function useCreateResource() {
 export function useShareResource() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
-      api.resource.share(id, data),
+    // Backend `ShareResourceInput.client_ids` is `Vec<Uuid>` (plural array).
+    mutationFn: ({ id, clientId, note }: { id: string; clientId: string; note?: string }) =>
+      api.resource.share(id, { client_ids: [clientId], ...(note !== undefined ? { note } : {}) }),
     onSuccess: () => {
       posthog.capture("resource_shared");
       qc.invalidateQueries({ queryKey: ["resources"] });
@@ -359,8 +323,9 @@ export function useShareResource() {
 export function useUnshareResource() {
   const qc = useQueryClient();
   return useMutation({
+    // Backend `UnshareResourceInput.client_ids` is `Vec<Uuid>` (plural array).
     mutationFn: ({ id, clientId }: { id: string; clientId: string }) =>
-      api.resource.unshare(id, { client_id: clientId }),
+      api.resource.unshare(id, { client_ids: [clientId] }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["resources"] }),
   });
 }
@@ -405,13 +370,6 @@ export function useAnalyticsClientGrowth(params: { start: string; end: string })
     queryKey: ["analytics", "client-growth", params.start, params.end],
     queryFn: () => api.analytics.clientGrowth(params),
     enabled: !!params.start && !!params.end,
-  });
-}
-
-export function useAnalyticsTopClients(limit = 5) {
-  return useQuery({
-    queryKey: ["analytics", "top-clients", limit],
-    queryFn: () => api.analytics.topClients({ limit }),
   });
 }
 
@@ -770,6 +728,14 @@ export function usePortalResources(clientId: string) {
   return useQuery({
     queryKey: ["portal", "resources", clientId],
     queryFn: () => api.clientPortal.resources(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function usePortalIntakeForms(clientId: string) {
+  return useQuery({
+    queryKey: ["portal", "intake-forms", clientId],
+    queryFn: () => api.clientPortal.intakeForms(clientId),
     enabled: !!clientId,
   });
 }

@@ -32,7 +32,8 @@ interface PlanEditorProps {
     modality_other: string | null;
     presenting_concerns: string | null;
     diagnosis: string | null;
-    goals: Goal[];
+    // goals comes from the backend as a JSON string (encrypted text) — callers must pass the raw string
+    goals: string | Goal[];
     status: string;
     start_date: string | null;
     target_end_date: string | null;
@@ -52,9 +53,16 @@ export default function PlanEditor({ clientId, existingPlan }: PlanEditorProps) 
   const [modalityOther, setModalityOther] = useState(existingPlan?.modality_other ?? "");
   const [concerns, setConcerns] = useState(existingPlan?.presenting_concerns ?? "");
   const [diagnosis, setDiagnosis] = useState(existingPlan?.diagnosis ?? "");
-  const [goals, setGoals] = useState<Goal[]>(
-    (existingPlan?.goals as Goal[]) ?? []
-  );
+  // goals is stored as a JSON string in the backend — parse safely on read
+  const [goals, setGoals] = useState<Goal[]>(() => {
+    if (!existingPlan?.goals) return [];
+    if (Array.isArray(existingPlan.goals)) return existingPlan.goals;
+    try {
+      return JSON.parse(existingPlan.goals as string);
+    } catch {
+      return [];
+    }
+  });
   const [startDate, setStartDate] = useState(existingPlan?.start_date ?? "");
   const [targetEnd, setTargetEnd] = useState(existingPlan?.target_end_date ?? "");
   const [notes, setNotes] = useState(existingPlan?.notes ?? "");
@@ -72,7 +80,8 @@ export default function PlanEditor({ clientId, existingPlan }: PlanEditorProps) 
       modality_other: modality === "other" ? modalityOther || null : null,
       presenting_concerns: concerns || null,
       diagnosis: diagnosis || null,
-      goals,
+      // Backend expects goals as a JSON string (encrypted text) — not an array
+      goals: JSON.stringify(goals),
       start_date: startDate || null,
       target_end_date: targetEnd || null,
       notes: notes || null,
